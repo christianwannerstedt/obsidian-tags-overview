@@ -1,0 +1,3 @@
+# Obsidian Sample Plugin
+
+Coming soon...

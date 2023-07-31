@@ -1,0 +1,10 @@
+{
+  "id": "tags-overview",
+  "name": "Tags overview",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Adds an overview page of your tags in Obsidian.",
+  "author": "Christian Wannerstedt",
+  "authorUrl": "https://github.com/christianwannerstedt",
+  "isDesktopOnly": false
+}

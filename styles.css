@@ -1,0 +1,81 @@
+
+input[type='text']:focus {
+    box-shadow: initial;
+}
+
+.tag-title {
+    margin: 20px 0 5px;
+}
+
+.file-link {
+    background-color: var(--color-base-40);
+    /*
+    border: 1px solid var(--color-base-30);
+    */
+    border-radius: 10px;
+    font-size: var(--font-ui-smaller);
+    padding: 4px 8px;
+    color: var(--color-base-100);
+    margin: 4px 4px 0 0;
+    cursor: pointer;
+}
+
+.file-link:hover {
+    background-color: var(--color-base-100);
+    color: var(--color-base-40);
+}
+
+.tags-filter {
+    color: #222;
+    margin-bottom: 40px;
+}
+
+/* Header settings component */
+.header-with-settings {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-base-40);
+    margin-top: 10px;
+    margin-bottom: 2px;
+}
+.header-with-settings .title {
+    margin: 3px 0;
+    color: var(--color-base-70);
+    font-size: var(--font-ui-smaller);
+}
+.settings-switch span {
+    font-size: var(--font-ui-smaller);
+    border: 1px solid var(--color-base-40);
+    padding: 3px 6px 4px;
+}
+.settings-switch span.active {
+    background-color: var(--color-base-40);
+}
+.settings-switch span.inactive {
+    color: var(--text-faint);
+}
+.settings-switch span:first-child {
+    border-top-left-radius: 5px;
+}
+.settings-switch span:last-child {
+    border-top-right-radius: 5px;
+}
+
+/* Tags table */
+.tags-overview-table {
+    width: 100%;
+    border-spacing: 0;
+}
+.tags-overview-table th {
+    text-align: left;
+}
+.tags-overview-table tbody td {
+    border-top: 1px solid var(--color-base-40);
+    font-size: var(--font-smallest);
+    padding: 4px;
+    margin: 0;
+}
+.count-label {
+    font-size: var(--font-smallest);   
+}
