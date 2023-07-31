@@ -1,22 +1,16 @@
-import React, { useState } from "react";
+import * as React from "react";
+import { useState } from "react";
+import Select from "react-select";
+import { App, getAllTags, TFile } from "obsidian";
 
 import { useApp } from "./hooks";
-import { App, getAllTags, Notice, TFile, TFolder } from "obsidian";
-import Select from "react-select";
 import { HeaderSettings } from "./components/header-settings";
-import { Icon } from "./icon";
 
-import fs from "fs";
+import * as fs from "fs";
 import moment from "moment";
 
-function uniqueArray(array: any[]) {
-  return [...new Set(array)];
-}
-
-function getLastModifiedDate(vault, filepath) {
-  console.log(vault.adapter.basePath + "/" + filepath);
-  const stats = fs.statSync(vault.adapter.basePath + "/" + filepath);
-  // return stats.mtime;
+function getLastModifiedDate(filepath: string): string {
+  const stats = fs.statSync(filepath);
   return moment(stats.mtime).calendar();
 }
 
@@ -25,53 +19,46 @@ interface FilePath {
   basename: string;
 }
 
-function openFile(app, file: FilePath, inNewLeaf = false): void {
-  const targetFile = app.vault.getFiles().find((f) => f.path === file.path);
-
-  if (!targetFile) {
-    new Notice("File not found");
-    return;
-  }
-
-  let leaf = app.workspace.getMostRecentLeaf();
-  if (inNewLeaf || leaf.getViewState().pinned) {
-    leaf = app.workspace.getLeaf("split");
-    //   leaf = app.workspace.getLeaf('window');
-  } else {
-    leaf = app.workspace.getLeaf("tab");
-  }
-  leaf.openFile(targetFile);
+interface TaggedFile {
+  file: TFile;
+  tags: string[];
 }
 
-export const ReactView = ({ app, vault }) => {
+function openFile(app: App, file: TFile, inNewLeaf = false): void {
+  let leaf = app.workspace.getMostRecentLeaf();
+  if (inNewLeaf || leaf.getViewState().pinned) {
+    leaf = app.workspace.getLeaf("tab");
+    // leaf = app.workspace.getLeaf('window');
+    // leaf = app.workspace.getLeaf("tab");
+  }
+  leaf.openFile(file);
+}
+
+export const ReactView = () => {
+  const app = useApp();
+
   const [selectedOption, setSelectedOption] = useState(null);
   const [filterAnd, setFilterAnd] = useState(true);
   const [displayType, setDisplayType] = useState("compact");
 
   // Load tags
-  const files = [];
-  const tagFiles = {};
+  const taggedFiles: TaggedFile[] = [];
   let allTags: string[] = [];
-  let markdownFiles = app.vault.getMarkdownFiles();
+  const markdownFiles: TFile[] = app.vault.getMarkdownFiles();
 
+  // Collect all tags and files
   markdownFiles.forEach((markdownFile) => {
     const cache = app.metadataCache.getFileCache(markdownFile);
     const fileTags: string[] = getAllTags(cache) || [];
-
     allTags = allTags.concat(fileTags);
-    fileTags.forEach((fileTag) => {
-      tagFiles[fileTag] = tagFiles[fileTag] || [];
-      tagFiles[fileTag].push(markdownFile);
-    });
-    files.push({
+    taggedFiles.push({
       file: markdownFile,
       tags: fileTags,
     });
   });
 
-  allTags = uniqueArray(allTags).sort();
-
-  console.log("tagFiles", tagFiles);
+  // Remove duplicates and sort
+  allTags = [...new Set(allTags)].sort();
 
   const options = allTags.map((tag) => ({
     value: tag,
@@ -80,17 +67,17 @@ export const ReactView = ({ app, vault }) => {
   const selectedTags =
     (selectedOption && selectedOption.map((option) => option.value)) || [];
 
-  let displayFiles = [];
+  let displayFiles: TaggedFile[] = [];
 
   if (filterAnd) {
-    displayFiles = files.filter((file) => {
+    displayFiles = taggedFiles.filter((file) => {
       return (
         !selectedTags.length ||
         selectedTags.every((selectedTag) => file.tags.includes(selectedTag))
       );
     });
   } else {
-    displayFiles = files.filter((file) => {
+    displayFiles = taggedFiles.filter((file) => {
       return (
         !selectedTags.length ||
         file.tags.some((tag) => selectedTags.includes(tag))
@@ -100,19 +87,20 @@ export const ReactView = ({ app, vault }) => {
 
   const tagsTree = {};
   let displayTags = new Set();
-  displayFiles.forEach((fileObj) => {
-    console.log("fileObj", fileObj);
-    fileObj.tags.forEach((tag) => {
+  displayFiles.forEach((taggedFile) => {
+    console.log("taggedFile", taggedFile);
+    taggedFile.tags.forEach((tag) => {
       displayTags.add(tag);
       tagsTree[tag] = tagsTree[tag] || [];
-      tagsTree[tag].push(fileObj.file);
+      tagsTree[tag].push(taggedFile.file);
     });
   });
 
   let tagItems: JSX.Element[];
+  const displayTagsList: string[] = [...displayTags];
 
   if (displayType == "compact") {
-    tagItems = [...displayTags].map((tag) => {
+    tagItems = displayTagsList.map((tag) => {
       return (
         <div key={tag}>
           <h3 className="tag-title">{tag.substring(1)}</h3>
@@ -137,18 +125,12 @@ export const ReactView = ({ app, vault }) => {
   } else {
     tagItems = (
       <table className="tags-overview-table">
-        {/*<thead>
-          <tr>
-            <th>Title</th>
-            <th>...</th>
-          </tr>
-        </thead>*/}
-        {[...displayTags].map((tag) => {
+        {displayTagsList.map((tag) => {
           return (
-            <>
+            <React.Fragment key={tag}>
               <thead>
                 <tr>
-                  <th colspan="2">
+                  <th colSpan={2}>
                     <h3 className="tag-title">{tag.substring(1)}</h3>
                   </th>
                 </tr>
@@ -156,14 +138,18 @@ export const ReactView = ({ app, vault }) => {
               <tbody>
                 {tagsTree[tag].map((file) => {
                   return (
-                    <tr>
+                    <tr key={`${tag}-${file.basename}`}>
                       <td>{file.basename}</td>
-                      <td>{getLastModifiedDate(vault, file.path)}</td>
+                      <td className="last-modified">
+                        {getLastModifiedDate(
+                          `${app.vault.adapter.basePath}/${file.path}`
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
               </tbody>
-            </>
+            </React.Fragment>
           );
         })}
       </table>

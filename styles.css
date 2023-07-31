@@ -42,7 +42,7 @@ input[type='text']:focus {
 .header-with-settings .title {
     margin: 3px 0;
     color: var(--color-base-70);
-    font-size: var(--font-ui-smaller);
+    font-size: var(--font-ui-small);
 }
 .settings-switch span {
     font-size: var(--font-ui-smaller);
@@ -66,6 +66,7 @@ input[type='text']:focus {
 .tags-overview-table {
     width: 100%;
     border-spacing: 0;
+    border-collapse: initial;
 }
 .tags-overview-table th {
     text-align: left;
@@ -78,4 +79,8 @@ input[type='text']:focus {
 }
 .count-label {
     font-size: var(--font-smallest);   
+}
+.last-modified {
+    text-align: right;
+    color: var(--color-base-70);
 }

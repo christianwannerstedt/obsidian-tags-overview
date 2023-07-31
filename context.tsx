@@ -1,4 +1,4 @@
-import * as React from "react";
+import { createContext } from "react";
 import { App } from "obsidian";
 
-export const AppContext = React.createContext<App>(undefined);
+export const AppContext = createContext<App | undefined>(undefined);

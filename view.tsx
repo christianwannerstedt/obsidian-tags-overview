@@ -4,12 +4,16 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { ReactView } from "./ReactView";
 import { createRoot } from "react-dom/client";
+import TagsOverviewPlugin from "main";
+import { AppContext } from "context";
 
 export const VIEW_TYPE = "tags-overview-view";
 
 export class TagsOverviewView extends ItemView {
-  constructor(leaf: WorkspaceLeaf) {
+  constructor(leaf: WorkspaceLeaf, plugin: TagsOverviewPlugin) {
     super(leaf);
+
+    console.log("INIT, plugin: ", this);
   }
 
   getViewType() {
@@ -22,16 +26,15 @@ export class TagsOverviewView extends ItemView {
 
   async onOpen() {
     const root = createRoot(this.containerEl.children[1]);
-    this.root = root;
     root.render(
-      <React.StrictMode>
-        <ReactView app={this.app} vault={this.app.vault} />
-      </React.StrictMode>
+      <AppContext.Provider value={this.app}>
+        <ReactView />
+      </AppContext.Provider>
     );
   }
 
   async onClose() {
     ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
-    this.root.unmount();
+    // this.root.unmount();
   }
 }
