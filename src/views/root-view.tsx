@@ -2,18 +2,22 @@ import { ItemView, WorkspaceLeaf } from "obsidian";
 
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { ReactView } from "./ReactView";
+import { TagsView } from "./tags-view";
 import { createRoot } from "react-dom/client";
-import TagsOverviewPlugin from "main";
-import { AppContext } from "context";
+import TagsOverviewPlugin from "../main";
 
 export const VIEW_TYPE = "tags-overview-view";
 
-export class TagsOverviewView extends ItemView {
+export class RootView extends ItemView {
+  plugin: TagsOverviewPlugin;
+
   constructor(leaf: WorkspaceLeaf, plugin: TagsOverviewPlugin) {
     super(leaf);
+    this.plugin = plugin;
 
-    console.log("INIT, plugin: ", this);
+    console.log(
+      new Intl.RelativeTimeFormat("en", { numeric: "always" }).format(-1, "day")
+    );
   }
 
   getViewType() {
@@ -26,11 +30,7 @@ export class TagsOverviewView extends ItemView {
 
   async onOpen() {
     const root = createRoot(this.containerEl.children[1]);
-    root.render(
-      <AppContext.Provider value={this.app}>
-        <ReactView />
-      </AppContext.Provider>
-    );
+    root.render(<TagsView rootView={this} />);
   }
 
   async onClose() {
