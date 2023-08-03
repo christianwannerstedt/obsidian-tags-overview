@@ -1,14 +1,14 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import { App, getAllTags, Menu, Notice, TFile } from "obsidian";
-
-import TagsOverviewPlugin, { TagsOverviewPluginSettings } from "../main";
-import { HeaderSettings } from "../components/header-settings";
-
+import { App, getAllTags, Menu, TFile } from "obsidian";
 import * as fs from "fs";
 import moment from "moment";
+
+import TagsOverviewPlugin from "../main";
 import { RootView } from "./root-view";
+import { HeaderSettings } from "../components/header-settings";
+import { DISPLAY_TYPE } from "../constants";
 
 function getLastModifiedDate(filepath: string): string {
   const stats = fs.statSync(filepath);
@@ -23,10 +23,11 @@ interface SelectOption {
 interface TaggedFile {
   file: TFile;
   tags: string[];
+  modified?: string;
 }
 
 interface FilesByTag {
-  [key: string]: TFile[];
+  [key: string]: TaggedFile[];
 }
 
 function openFile(app: App, file: TFile, inNewLeaf = false): void {
@@ -44,22 +45,21 @@ function openFile(app: App, file: TFile, inNewLeaf = false): void {
 export const TagsView = ({ rootView }: { rootView: RootView }) => {
   const app: App = rootView.app;
   const plugin: TagsOverviewPlugin = rootView.plugin;
-  console.log("App init!", app, plugin);
 
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState<SelectOption[]>([]);
   const [filterAnd, setFilterAnd] = useState(plugin.settings.filterAnd);
   const [displayType, setDisplayType] = useState(plugin.settings.displayType);
   const [sortTags, setSortTags] = useState(plugin.settings.sortTags);
   const [sortFiles, setSortFiles] = useState(plugin.settings.sortFiles);
 
   useEffect(() => {
-    console.log("Update setting to: ", filterAnd);
-    // plugin.settings.filterAnd = filterAnd;
     plugin.saveSettings({
       filterAnd,
       displayType,
+      sortTags,
+      sortFiles,
     });
-  });
+  }, [filterAnd, displayType, sortTags, sortFiles]);
 
   function showContextMenu(event: MouseEvent) {
     const menu = new Menu();
@@ -75,7 +75,6 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
           .setTitle(menuItem.title)
           .setChecked(plugin.settings.sortTags == menuItem.key)
           .onClick(() => {
-            plugin.saveSettings({ sortTags: menuItem.key });
             setSortTags(menuItem.key);
           })
       );
@@ -94,7 +93,6 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
           .setTitle(menuItem.title)
           .setChecked(plugin.settings.sortFiles == menuItem.key)
           .onClick(() => {
-            plugin.saveSettings({ sortFiles: menuItem.key });
             setSortFiles(menuItem.key);
           })
       );
@@ -138,12 +136,19 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
 
   // Get files to be displayed
   let displayFiles: TaggedFile[] = selectedTags.length
-    ? taggedFiles.filter((file) => {
+    ? taggedFiles.filter((file: TaggedFile) => {
         return filterAnd
           ? selectedTags.every((selectedTag) => file.tags.includes(selectedTag))
           : file.tags.some((tag) => selectedTags.includes(tag));
       })
     : [...taggedFiles];
+
+  // Curry the files with last modified date
+  displayFiles.forEach((file: TaggedFile) => {
+    file.modified = getLastModifiedDate(
+      `${app.vault.adapter.basePath}/${file.file.path}`
+    );
+  });
 
   // Get tags to be displayed
   const tagsTree: FilesByTag = {};
@@ -152,49 +157,69 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
     taggedFile.tags.forEach((tag) => {
       displayTags.add(tag);
       tagsTree[tag] = tagsTree[tag] || [];
-      tagsTree[tag].push(taggedFile.file);
+      tagsTree[tag].push(taggedFile);
     });
   });
 
-  // let tagItems: JSX.Element[];
   let tagItems: React.ReactElement;
   const displayTagsList: string[] = [...displayTags];
 
   // Sort tags
-  displayTagsList.sort((a, b) => {
-    console.log("SORT", sortTags, a, b);
-    const ca = a.toLowerCase();
-    const cb = b.toLowerCase();
+  displayTagsList.sort((nameA: string, nameB: string) => {
+    const ca: string = nameA.toLowerCase();
+    const cb: string = nameB.toLowerCase();
 
     if (sortTags == "name") {
       return ca > cb ? 1 : -1;
     } else if (sortTags == "-name") {
       return ca < cb ? 1 : -1;
-    } else {
-      return ca < cb ? 1 : -1;
+    } else if (sortTags == "frequency") {
+      return tagsTree[nameA]?.length < tagsTree[nameB]?.length ? 1 : -1;
+    } else if (sortTags == "-frequency") {
+      return tagsTree[nameA]?.length < tagsTree[nameB]?.length ? -1 : 1;
     }
+    return 0;
   });
 
-  if (displayType == "compact") {
+  const sortFilesFn = (tFileA: TaggedFile, tFileB: TaggedFile) => {
+    const nameA = tFileA.file.basename.toLowerCase();
+    const nameB = tFileB.file.basename.toLowerCase();
+
+    if (sortFiles == "name") {
+      return nameA > nameB ? 1 : -1;
+    } else if (sortFiles == "-name") {
+      return nameA < nameB ? 1 : -1;
+    } else if (tFileA.modified && tFileB.modified) {
+      if (sortFiles == "modified") {
+        return tFileA.modified < tFileB.modified ? 1 : -1;
+      } else if (sortFiles == "-modified") {
+        return tFileA.modified < tFileB.modified ? -1 : 1;
+      }
+    }
+    return 0;
+  };
+
+  if (displayType == DISPLAY_TYPE.compact) {
     tagItems = (
       <>
         {displayTagsList.map((tag) => {
           return (
             <div key={tag}>
-              <h3 className="tag-title">
-                {tag.substring(1)}-{tagsTree[tag].length}
-              </h3>
+              <div className="tag-title-row">
+                <h3 className="tag-title">{tag.substring(1)}</h3>
+                <span>({tagsTree[tag].length})</span>
+              </div>
               <div>
-                {tagsTree[tag].map((file) => {
+                {tagsTree[tag].map((file: TaggedFile) => {
                   return (
                     <span
-                      key={file.basename}
+                      key={file.file.basename}
                       onClick={(event) =>
-                        openFile(app, file, event.ctrlKey || event.metaKey)
+                        openFile(app, file.file, event.ctrlKey || event.metaKey)
                       }
                       className="file-link"
                     >
-                      {file.basename}
+                      {file.file.basename}
                     </span>
                   );
                 })}
@@ -213,22 +238,33 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
               <thead>
                 <tr>
                   <th colSpan={2}>
-                    <h3 className="tag-title">
-                      {tag.substring(1)} - {tagsTree[tag].length}
-                    </h3>
+                    <div className="table-tag-title-row">
+                      <h3 className="tag-title">{tag.substring(1)}</h3>
+                      <span>{tagsTree[tag].length} files</span>
+                    </div>
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {tagsTree[tag].map((file) => {
+                {tagsTree[tag].sort(sortFilesFn).map((file) => {
                   return (
-                    <tr key={`${tag}-${file.basename}`}>
-                      <td>{file.basename}</td>
-                      <td className="last-modified">
-                        {getLastModifiedDate(
-                          `${app.vault.adapter.basePath}/${file.path}`
-                        )}
+                    <tr key={`${tag}-${file.file.basename}`}>
+                      <td>
+                        <span
+                          key={file.file.basename}
+                          onClick={(event) =>
+                            openFile(
+                              app,
+                              file.file,
+                              event.ctrlKey || event.metaKey
+                            )
+                          }
+                          className="file-link"
+                        >
+                          {file.file.basename}
+                        </span>
                       </td>
+                      <td className="last-modified">{file.modified}</td>
                     </tr>
                   );
                 })}
@@ -239,8 +275,6 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       </table>
     );
   }
-
-  console.log("RENDER");
 
   return (
     <div>
@@ -256,16 +290,10 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       <Select
         className="tags-filter"
         value={selectedOptions}
-        onChange={setSelectedOptions}
+        onChange={(val: SelectOption[]) => setSelectedOptions(val)}
         options={options}
-        name="Testing"
+        name="Filter"
         isMulti
-        // styles={{
-        //   input: (baseStyles, state) => ({
-        //     ...baseStyles,
-        //     borderColor: state.isFocused ? 'grey' : 'red',
-        //   }),
-        // }}
       />
 
       <HeaderSettings
@@ -273,15 +301,41 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
         value={displayType}
         setFunction={setDisplayType}
         settings={[
-          { label: "Compact", value: "compact" },
-          { label: "List", value: "list" },
+          { label: "Compact", value: DISPLAY_TYPE.compact },
+          { label: "List", value: DISPLAY_TYPE.list },
         ]}
       />
-      <i className="count-label">
-        {`Displaying ${displayTags.size} tags (${displayFiles.length} files)`}
-      </i>
-      <button onClick={(e) => showContextMenu(e, this)}>TEST</button>
-      {tagItems}
+      <div className="table-info-container">
+        <i className="count-label">
+          {`Displaying ${displayTags.size} tags (${displayFiles.length} files)`}
+        </i>
+        <div
+          className="clickable-icon nav-action-button"
+          aria-label="Change sort order"
+          onClick={(e) => showContextMenu(e)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="svg-icon"
+          >
+            <path d="M11 11h4"></path>
+            <path d="M11 15h7"></path>
+            <path d="M11 19h10"></path>
+            <path d="M9 7 6 4 3 7"></path>
+            <path d="M6 6v14"></path>
+          </svg>
+        </div>
+      </div>
+
+      <div className={`display-type-${displayType}`}>{tagItems}</div>
     </div>
   );
 };

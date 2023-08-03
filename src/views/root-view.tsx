@@ -14,10 +14,6 @@ export class RootView extends ItemView {
   constructor(leaf: WorkspaceLeaf, plugin: TagsOverviewPlugin) {
     super(leaf);
     this.plugin = plugin;
-
-    console.log(
-      new Intl.RelativeTimeFormat("en", { numeric: "always" }).format(-1, "day")
-    );
   }
 
   getViewType() {
@@ -26,6 +22,10 @@ export class RootView extends ItemView {
 
   getDisplayText() {
     return "Tags overview";
+  }
+
+  getIcon(): string {
+    return "tag";
   }
 
   async onOpen() {

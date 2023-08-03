@@ -1,6 +1,7 @@
 import { App, Menu, Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
 
 import { RootView, VIEW_TYPE } from "./views/root-view";
+import { DISPLAY_TYPE, SORT_FILES, SORT_TAGS } from "./constants";
 
 export interface TagsOverviewPluginSettings {
   filterAnd: boolean;
@@ -11,9 +12,9 @@ export interface TagsOverviewPluginSettings {
 
 const DEFAULT_SETTINGS: TagsOverviewPluginSettings = {
   filterAnd: true,
-  displayType: "compact",
-  sortTags: "name",
-  sortFiles: "name",
+  displayType: DISPLAY_TYPE.compact,
+  sortTags: SORT_TAGS.nameAsc,
+  sortFiles: SORT_FILES.nameAsc,
 };
 
 export default class TagsOverviewPlugin extends Plugin {
@@ -26,30 +27,6 @@ export default class TagsOverviewPlugin extends Plugin {
 
     this.addRibbonIcon("tag", "Tags overview", () => {
       this.activateView();
-    });
-
-    this.addRibbonIcon("dice", "Open menu", (event) => {
-      const menu = new Menu();
-
-      menu.addItem((item) =>
-        item
-          .setTitle("Copy")
-          .setIcon("documents")
-          .onClick(() => {
-            new Notice("Copied");
-          })
-      );
-
-      menu.addItem((item) =>
-        item
-          .setTitle("Paste")
-          .setIcon("paste")
-          .onClick(() => {
-            new Notice("Pasted");
-          })
-      );
-
-      menu.showAtMouseEvent(event);
     });
 
     // This adds a settings tab so the user can configure various aspects of the plugin
@@ -75,8 +52,7 @@ export default class TagsOverviewPlugin extends Plugin {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
   }
 
-  async saveSettings(settings) {
-    console.log("saveSettings", settings);
+  async saveSettings(settings: TagsOverviewPluginSettings) {
     this.settings = {
       ...this.settings,
       ...settings,

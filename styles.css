@@ -3,11 +3,47 @@ input[type='text']:focus {
     box-shadow: initial;
 }
 
-.tag-title {
+.tag-title-row {
     margin: 20px 0 5px;
+    /* display: flex;
+    flex-direction: row;
+    justify-content: space-between; */
 }
+.tag-title-row span {
+    margin: 6px 0 0 8px;
+    vertical-align: top;
+    display: inline-block;
+    font-size: 12px;
+    color: #aaa;
+}
+.tag-title {
+    margin: 0;
+    display: inline-block;
+} 
+
+.table-tag-title-row {
+    margin: 16px 0 1px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.table-tag-title-row span {
+    margin: 10px 5px 0 0;
+    vertical-align: top;
+    display: inline-block;
+    font-size: var(--font-ui-smaller);
+    color: var(--color-base-70);
+}
+.table-tag-title-row .tag-title {
+    margin: 0;
+    display: inline-block;
+} 
 
 .file-link {
+    cursor: pointer;
+}
+
+.display-type-compact .file-link {
     background-color: var(--color-base-40);
     /*
     border: 1px solid var(--color-base-30);
@@ -17,12 +53,18 @@ input[type='text']:focus {
     padding: 4px 8px;
     color: var(--color-base-100);
     margin: 4px 4px 0 0;
-    cursor: pointer;
 }
 
-.file-link:hover {
+.display-type-compact .file-link:hover {
     background-color: var(--color-base-100);
     color: var(--color-base-40);
+}
+
+.display-type-list .file-link {
+    color: var(--link-color);
+}
+.display-type-list .file-link:hover {
+    color: var(--link-color-hover);
 }
 
 .tags-filter {
@@ -54,6 +96,10 @@ input[type='text']:focus {
 }
 .settings-switch span.inactive {
     color: var(--text-faint);
+    cursor: pointer;
+}
+.settings-switch span.inactive:hover {
+    background-color: var(--color-base-20);
 }
 .settings-switch span:first-child {
     border-top-left-radius: 5px;
@@ -63,6 +109,16 @@ input[type='text']:focus {
 }
 
 /* Tags table */
+.table-info-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px;
+}
+.count-label {
+    font-size: var(--font-smallest);
+    padding: 4px;
+}
+
 .tags-overview-table {
     width: 100%;
     border-spacing: 0;
@@ -76,9 +132,6 @@ input[type='text']:focus {
     font-size: var(--font-smallest);
     padding: 4px;
     margin: 0;
-}
-.count-label {
-    font-size: var(--font-smallest);   
 }
 .last-modified {
     text-align: right;
