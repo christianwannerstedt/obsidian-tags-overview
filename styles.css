@@ -3,11 +3,37 @@ input[type='text']:focus {
     box-shadow: initial;
 }
 
+
+/* Tags info */
+.tags-info-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px;
+}
+.count-label {
+    font-size: var(--font-smallest);
+    padding: 4px;
+}
+
+
+/* Compact list */
+.display-type-compact .file-link {
+    background-color: var(--color-base-40);
+    border-radius: 10px;
+    font-size: var(--font-ui-smaller);
+    padding: 4px 8px;
+    color: var(--color-base-100);
+    margin: 4px 4px 0 0;
+    cursor: pointer;
+}
+
+.display-type-compact .file-link:hover {
+    background-color: var(--color-base-100);
+    color: var(--color-base-40);
+}
+
 .tag-title-row {
     margin: 20px 0 5px;
-    /* display: flex;
-    flex-direction: row;
-    justify-content: space-between; */
 }
 .tag-title-row span {
     margin: 6px 0 0 8px;
@@ -21,6 +47,40 @@ input[type='text']:focus {
     display: inline-block;
 } 
 
+
+/* Table list */
+.tags-overview-table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: initial;
+}
+.tags-overview-table th {
+    text-align: left;
+}
+.tags-overview-table tbody td {
+    border-top: 1px solid var(--color-base-40);
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    font-size: var(--font-smallest);
+    padding: 4px;
+    margin: 0;
+}
+.last-modified {
+    text-align: right;
+    color: var(--color-base-70);
+}
+.display-type-list .file-link {
+    color: var(--link-color);
+}
+.tags-overview-table tbody tr:hover {
+    background-color: var(--nav-item-background-hover);
+    cursor: pointer;
+    /* color: var(--nav-item-color-hover); */
+}
+.tags-overview-table tbody tr:hover .file-link {
+    color: var(--link-color-hover);
+}
 .table-tag-title-row {
     margin: 16px 0 1px;
     display: flex;
@@ -39,38 +99,13 @@ input[type='text']:focus {
     display: inline-block;
 } 
 
-.file-link {
-    cursor: pointer;
-}
 
-.display-type-compact .file-link {
-    background-color: var(--color-base-40);
-    /*
-    border: 1px solid var(--color-base-30);
-    */
-    border-radius: 10px;
-    font-size: var(--font-ui-smaller);
-    padding: 4px 8px;
-    color: var(--color-base-100);
-    margin: 4px 4px 0 0;
-}
-
-.display-type-compact .file-link:hover {
-    background-color: var(--color-base-100);
-    color: var(--color-base-40);
-}
-
-.display-type-list .file-link {
-    color: var(--link-color);
-}
-.display-type-list .file-link:hover {
-    color: var(--link-color-hover);
-}
-
-.tags-filter {
+/* Filter select */
+.tags-filter-select {
     color: #222;
     margin-bottom: 40px;
 }
+
 
 /* Header settings component */
 .header-with-settings {
@@ -90,12 +125,14 @@ input[type='text']:focus {
     font-size: var(--font-ui-smaller);
     border: 1px solid var(--color-base-40);
     padding: 3px 6px 4px;
+    bottom: -1px;
+    position: relative;
 }
 .settings-switch span.active {
     background-color: var(--color-base-40);
 }
 .settings-switch span.inactive {
-    color: var(--text-faint);
+    color: var(--color-base-60);
     cursor: pointer;
 }
 .settings-switch span.inactive:hover {
@@ -106,34 +143,4 @@ input[type='text']:focus {
 }
 .settings-switch span:last-child {
     border-top-right-radius: 5px;
-}
-
-/* Tags table */
-.table-info-container {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px;
-}
-.count-label {
-    font-size: var(--font-smallest);
-    padding: 4px;
-}
-
-.tags-overview-table {
-    width: 100%;
-    border-spacing: 0;
-    border-collapse: initial;
-}
-.tags-overview-table th {
-    text-align: left;
-}
-.tags-overview-table tbody td {
-    border-top: 1px solid var(--color-base-40);
-    font-size: var(--font-smallest);
-    padding: 4px;
-    margin: 0;
-}
-.last-modified {
-    text-align: right;
-    color: var(--color-base-70);
 }
