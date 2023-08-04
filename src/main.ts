@@ -1,36 +1,26 @@
-import { App, Menu, Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
+import { Plugin } from "obsidian";
 
+import {
+  DEFAULT_SETTINGS,
+  TagsOverviewSettingTab,
+  TagsOverviewSettings,
+} from "./settings";
 import { RootView, VIEW_TYPE } from "./views/root-view";
-import { DISPLAY_TYPE, SORT_FILES, SORT_TAGS } from "./constants";
-
-export interface TagsOverviewPluginSettings {
-  filterAnd: boolean;
-  displayType: string;
-  sortTags: string;
-  sortFiles: string;
-}
-
-const DEFAULT_SETTINGS: TagsOverviewPluginSettings = {
-  filterAnd: true,
-  displayType: DISPLAY_TYPE.compact,
-  sortTags: SORT_TAGS.nameAsc,
-  sortFiles: SORT_FILES.nameAsc,
-};
 
 export default class TagsOverviewPlugin extends Plugin {
-  settings: TagsOverviewPluginSettings;
+  settings: TagsOverviewSettings;
 
   async onload() {
     await this.loadSettings();
 
+    // Add the view
     this.registerView(VIEW_TYPE, (leaf) => new RootView(leaf, this));
-
     this.addRibbonIcon("tag", "Tags overview", () => {
       this.activateView();
     });
 
-    // This adds a settings tab so the user can configure various aspects of the plugin
-    this.addSettingTab(new SampleSettingTab(this.app, this));
+    // Add a settings tab
+    this.addSettingTab(new TagsOverviewSettingTab(this.app, this));
   }
 
   async activateView() {
@@ -52,39 +42,11 @@ export default class TagsOverviewPlugin extends Plugin {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
   }
 
-  async saveSettings(settings: TagsOverviewPluginSettings) {
+  async saveSettings(settings: Partial<TagsOverviewSettings>) {
     this.settings = {
       ...this.settings,
       ...settings,
     };
     await this.saveData(this.settings);
-  }
-}
-
-class SampleSettingTab extends PluginSettingTab {
-  plugin: TagsOverviewPlugin;
-
-  constructor(app: App, plugin: TagsOverviewPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
-
-  display(): void {
-    const { containerEl } = this;
-
-    containerEl.empty();
-
-    // new Setting(containerEl)
-    //   .setName("Setting #1")
-    //   .setDesc("It's a secret")
-    //   .addText((text) =>
-    //     text
-    //       .setPlaceholder("Enter your secret")
-    //       .setValue(this.plugin.settings.mySetting)
-    //       .onChange(async (value) => {
-    //         this.plugin.settings.mySetting = value;
-    //         await this.plugin.saveSettings();
-    //       })
-    //   );
   }
 }
