@@ -5,6 +5,8 @@ export const ICON_TYPE = {
   arrow: "arrow",
   nested: "nested",
   sort: "sort",
+  collapse: "collapse",
+  expand: "expand",
 };
 Object.freeze(ICON_TYPE);
 
@@ -14,16 +16,21 @@ export const Icon = ({
   className,
   label,
   active,
+  disabled,
 }: {
   iconType: string;
   onClick: Function;
   className: string;
   label?: string;
   active?: boolean;
+  disabled?: boolean;
 }) => {
   let classes = `custom-icon ${className}`;
   if (active) {
     classes += " is-active";
+  }
+  if (disabled) {
+    classes += " is-disabled";
   }
   return (
     <div
@@ -53,12 +60,22 @@ export const Icon = ({
             <path d="M9 7 6 4 3 7"></path>
             <path d="M6 6v14"></path>
           </>
-        ) : (
+        ) : iconType === ICON_TYPE.nested ? (
           <>
             <path d="M13 10h7a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"></path>
             <path d="M13 21h7a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.88a1 1 0 0 1-.9-.55l-.44-.9a1 1 0 0 0-.9-.55H13a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"></path>
             <path d="M3 3v2c0 1.1.9 2 2 2h3"></path>
             <path d="M3 3v13c0 1.1.9 2 2 2h3"></path>
+          </>
+        ) : iconType === ICON_TYPE.collapse ? (
+          <>
+            <path d="m7 20 5-5 5 5"></path>
+            <path d="m7 4 5 5 5-5"></path>
+          </>
+        ) : (
+          <>
+            <path d="m7 15 5 5 5-5"></path>
+            <path d="m7 9 5-5 5 5"></path>
           </>
         )}
       </svg>

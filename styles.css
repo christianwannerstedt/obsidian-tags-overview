@@ -249,3 +249,11 @@ input[type='text']:focus {
     color: var(--icon-color-active);
     background-color: var(--background-modifier-active-hover);
 }
+.custom-icon.is-disabled, .custom-icon.is-disabled:hover {
+    background-color: unset;
+    color: var(--text-muted);
+    opacity: 0.4;
+}
+.custom-icon.is-disabled:hover {
+    background-color: unset;   
+}

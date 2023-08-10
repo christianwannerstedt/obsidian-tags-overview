@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useState } from "react";
 
 import { ICON_TYPE, Icon } from "./icon";
 import { TagTitleRow } from "./tag-title-row";
@@ -9,12 +8,14 @@ import { addOrRemove, pluralize } from "../utils";
 export const TagsTable = ({
   tags,
   onFileClick,
+  collapsedTags,
+  setCollapsedTags,
 }: {
   tags: TagData[];
   onFileClick: Function;
+  collapsedTags: string[];
+  setCollapsedTags: Function;
 }) => {
-  const [collapsedTags, setCollapsedTags] = useState<string[]>([]);
-
   const getTagTable = (tagLevel: TagData, depth: number) => {
     const hasSubTags: boolean = !!tagLevel.sub.length;
     const isCollapsed: boolean =
@@ -62,15 +63,16 @@ export const TagsTable = ({
                     </tr>
                   </React.Fragment>
                 ))}
-              {!!tagLevel.sub && !collapsedTags.includes(tagLevel.tagPath) && (
-                <tr>
-                  <td colSpan={2}>
-                    {tagLevel.sub.map((subTagData: TagData) =>
-                      getTagTable(subTagData, depth + 1)
-                    )}
-                  </td>
-                </tr>
-              )}
+              {!!tagLevel.sub.length &&
+                !collapsedTags.includes(tagLevel.tagPath) && (
+                  <tr>
+                    <td colSpan={2}>
+                      {tagLevel.sub.map((subTagData: TagData) =>
+                        getTagTable(subTagData, depth + 1)
+                      )}
+                    </td>
+                  </tr>
+                )}
             </tbody>
           </table>
         </div>

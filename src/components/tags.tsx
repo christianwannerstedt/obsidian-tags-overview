@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useState } from "react";
 
 import { TagData } from "../types";
 import { TagsList } from "./tags-list";
@@ -10,12 +9,15 @@ export const Tags = ({
   tags,
   onFileClick,
   displayType,
+  collapsedTags,
+  setCollapsedTags,
 }: {
   tags: TagData[];
   onFileClick: Function;
   displayType: string;
+  collapsedTags: string[];
+  setCollapsedTags: Function;
 }) => {
-  const [collapsedTags, setCollapsedTags] = useState<string[]>([]);
   const props = { tags, onFileClick, collapsedTags, setCollapsedTags };
 
   return (
@@ -23,7 +25,7 @@ export const Tags = ({
       {displayType === DISPLAY_TYPE.compact ? (
         <TagsList {...props} />
       ) : (
-        <TagsTable tags={tags} onFileClick={onFileClick} />
+        <TagsTable {...props} />
       )}
     </div>
   );

@@ -9,7 +9,7 @@ import { RootView } from "./root-view";
 import { HeaderSettings } from "../components/header-settings";
 import { Tags } from "../components/tags";
 import { DISPLAY_TYPE, SORT_FILES, SORT_TAGS } from "../constants";
-import { getLastModifiedDate, pluralize } from "src/utils";
+import { getAllTagsAndFiles, getLastModifiedDate, pluralize } from "src/utils";
 import { FilesByTag, SelectOption, TagData, TaggedFile } from "src/types";
 import { ICON_TYPE, Icon } from "src/components/icon";
 
@@ -42,6 +42,8 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
   const [sortTags, setSortTags] = useState(plugin.settings.sortTags);
   const [sortFiles, setSortFiles] = useState(plugin.settings.sortFiles);
   const [showNested, setShowNested] = useState(true);
+  const [showCollapseAll, setShowCollapseAll] = useState(true);
+  const [collapsedTags, setCollapsedTags] = useState<string[]>([]);
 
   useEffect(() => {
     plugin.saveSettings({
@@ -57,6 +59,25 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       storedFilters: selectedOptions.map((option) => option.value).join(","),
     });
   }, [selectedOptions]);
+
+  const collapseAll = () => {
+    const { allTags }: { allTags: string[] } = getAllTagsAndFiles(app);
+    const nestedTags = new Set<string>();
+    allTags
+      .filter((tag: string) => tag.includes("/"))
+      .forEach((tag: string) => {
+        const parts: string[] = tag.split("/");
+        for (let i = 1; i < parts.length; i++) {
+          nestedTags.add(parts.slice(0, i).join("/"));
+        }
+      });
+    setCollapsedTags([...nestedTags]);
+    setShowCollapseAll(false);
+  };
+  const expandAll = () => {
+    setCollapsedTags([]);
+    setShowCollapseAll(true);
+  };
 
   function showContextMenu(event: MouseEvent) {
     const menu = new Menu();
@@ -103,24 +124,11 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
   };
 
   // Collect all tags and files
-  const allTaggedFiles: TaggedFile[] = [];
-  let allTags: string[] = [];
-  app.vault.getMarkdownFiles().forEach((markdownFile) => {
-    const cache = app.metadataCache.getFileCache(markdownFile);
-    const fileTags: string[] = cache
-      ? getAllTags(cache)?.map((tag) => tag.substring(1)) || []
-      : [];
-    allTags = allTags.concat(fileTags);
-    if (fileTags.length) {
-      allTaggedFiles.push({
-        file: markdownFile,
-        tags: fileTags,
-      });
-    }
-  });
-
-  // Remove duplicates and sort
-  allTags = [...new Set(allTags)].sort();
+  const {
+    allTags,
+    allTaggedFiles,
+  }: { allTags: string[]; allTaggedFiles: TaggedFile[] } =
+    getAllTagsAndFiles(app);
 
   const hasAnySub: boolean = !!allTags.find((tag: string) => tag.includes("/"));
 
@@ -318,21 +326,42 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
         </i>
 
         <div className="icons">
-          {hasAnySub && (
-            <Icon
-              className="nested-icon"
-              iconType={ICON_TYPE.nested}
-              label="Show nested tags"
-              onClick={(e: MouseEvent) => setShowNested(!showNested)}
-              active={showNested}
-            />
-          )}
           <Icon
             className="sort-icon"
             iconType={ICON_TYPE.sort}
             label="Change sort order"
             onClick={(e: MouseEvent) => showContextMenu(e)}
           />
+          {hasAnySub && (
+            <>
+              <Icon
+                className="nested-icon"
+                iconType={ICON_TYPE.nested}
+                label="Show nested tags"
+                onClick={(e: MouseEvent) => setShowNested(!showNested)}
+                active={showNested}
+              />
+
+              {showCollapseAll && (
+                <Icon
+                  className="collapse-all-icon"
+                  iconType={ICON_TYPE.collapse}
+                  label="Collapse all"
+                  onClick={() => collapseAll()}
+                  disabled={!showNested}
+                />
+              )}
+              {!showCollapseAll && (
+                <Icon
+                  className="expand-all-icon"
+                  iconType={ICON_TYPE.expand}
+                  label="Expand all"
+                  onClick={() => expandAll()}
+                  disabled={!showNested}
+                />
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -340,6 +369,8 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
         tags={nestedTags}
         onFileClick={onFileClicked}
         displayType={displayType}
+        collapsedTags={collapsedTags}
+        setCollapsedTags={setCollapsedTags}
       />
     </div>
   );
