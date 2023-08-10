@@ -9,7 +9,7 @@ import { RootView } from "./root-view";
 import { HeaderSettings } from "../components/header-settings";
 import { Tags } from "../components/tags";
 import { DISPLAY_TYPE, SORT_FILES, SORT_TAGS } from "../constants";
-import { getLastModifiedDate } from "src/utils";
+import { getLastModifiedDate, pluralize } from "src/utils";
 import { FilesByTag, SelectOption, TagData, TaggedFile } from "src/types";
 import { ICON_TYPE, Icon } from "src/components/icon";
 
@@ -41,6 +41,7 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
   const [displayType, setDisplayType] = useState(plugin.settings.displayType);
   const [sortTags, setSortTags] = useState(plugin.settings.sortTags);
   const [sortFiles, setSortFiles] = useState(plugin.settings.sortFiles);
+  const [showNested, setShowNested] = useState(true);
 
   useEffect(() => {
     plugin.saveSettings({
@@ -110,14 +111,18 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       ? getAllTags(cache)?.map((tag) => tag.substring(1)) || []
       : [];
     allTags = allTags.concat(fileTags);
-    allTaggedFiles.push({
-      file: markdownFile,
-      tags: fileTags,
-    });
+    if (fileTags.length) {
+      allTaggedFiles.push({
+        file: markdownFile,
+        tags: fileTags,
+      });
+    }
   });
 
   // Remove duplicates and sort
   allTags = [...new Set(allTags)].sort();
+
+  const hasAnySub: boolean = !!allTags.find((tag: string) => tag.includes("/"));
 
   const selectedTags: string[] =
     (selectedOptions &&
@@ -171,7 +176,8 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
     let activePart: TagData[] = nestedTags;
     let tagPaths: string[] = [];
     let filesCount = 0;
-    tag.split("/").forEach((part: string) => {
+    // Split the tag into nested ones, if the setting is enabled
+    (showNested ? tag.split("/") : [tag]).forEach((part: string) => {
       tagPaths.push(part);
       let checkPart: TagData | undefined = activePart.find(
         (c: TagData) => c.tag == part
@@ -191,8 +197,6 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       activePart = checkPart.sub;
     });
   });
-
-  console.log("tagsCount", tagsCount);
 
   // Sum up file counts
   const sumUpNestedFilesCount: Function = (tags: TagData[]) => {
@@ -263,8 +267,6 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
   };
   sortNestedTags(nestedTags);
 
-  console.log("displayTags", displayTags);
-
   return (
     <div>
       <HeaderSettings
@@ -308,16 +310,30 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       />
       <div className="tags-info-container">
         <i className="count-label">
-          {`Displaying ${[...displayTags].length} tags (${
-            displayFiles.length
-          } files)`}
+          {`Displaying ${pluralize(tagsCount, "tag", "tags")} (${pluralize(
+            displayFiles.length,
+            "file",
+            "files"
+          )})`}
         </i>
-        <Icon
-          className="sort-icon"
-          iconType={ICON_TYPE.sort}
-          label="Change sort order"
-          onClick={(e: MouseEvent) => showContextMenu(e)}
-        />
+
+        <div className="icons">
+          {hasAnySub && (
+            <Icon
+              className="nested-icon"
+              iconType={ICON_TYPE.nested}
+              label="Show nested tags"
+              onClick={(e: MouseEvent) => setShowNested(!showNested)}
+              active={showNested}
+            />
+          )}
+          <Icon
+            className="sort-icon"
+            iconType={ICON_TYPE.sort}
+            label="Change sort order"
+            onClick={(e: MouseEvent) => showContextMenu(e)}
+          />
+        </div>
       </div>
 
       <Tags

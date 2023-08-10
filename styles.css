@@ -14,6 +14,10 @@ input[type='text']:focus {
     font-size: var(--font-smallest);
     padding: 4px;
 }
+.tags-info-container .icons {
+    display: flex;
+}
+
 
 
 /* Compact list */
@@ -217,7 +221,7 @@ input[type='text']:focus {
 .is-collapsed > .collapse-icon svg {
     transform: rotate(-90deg);
 }
-.sort-icon {
+.tags-info-container .custom-icon {
     -webkit-app-region: no-drag;
     background-color: transparent;
     display: flex;
@@ -226,19 +230,22 @@ input[type='text']:focus {
     padding: var(--size-2-2) var(--size-2-3);
     cursor: var(--cursor);
     border-radius: var(--clickable-icon-radius);
-    color: var(--icon-color);
-    opacity: var(--icon-opacity);
     transition: opacity 0.15s ease-in-out;
     height: auto;
 }
-.sort-icon:hover {
+.tags-info-container .custom-icon:hover {
     box-shadow: none;
     opacity: var(--icon-opacity-hover);
     color: var(--icon-color-hover);
     background-color: var(--background-modifier-hover);
 }
-.sort-icon svg {
+.tags-info-container .custom-icon svg {
     height: var(--icon-size);
     width: var(--icon-size);
     stroke-width: var(--icon-stroke);
+}
+.custom-icon.is-active {
+    opacity: var(--icon-opacity-hover);
+    color: var(--icon-color-active);
+    background-color: var(--background-modifier-active-hover);
 }
