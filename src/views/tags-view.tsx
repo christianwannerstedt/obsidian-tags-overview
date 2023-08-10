@@ -7,9 +7,11 @@ import { App, FileSystemAdapter, getAllTags, Menu, TFile } from "obsidian";
 import TagsOverviewPlugin from "../main";
 import { RootView } from "./root-view";
 import { HeaderSettings } from "../components/header-settings";
+import { Tags } from "../components/tags";
 import { DISPLAY_TYPE, SORT_FILES, SORT_TAGS } from "../constants";
 import { getLastModifiedDate } from "src/utils";
-import { FilesByTag, SelectOption, TaggedFile } from "src/types";
+import { FilesByTag, SelectOption, TagData, TaggedFile } from "src/types";
+import { ICON_TYPE, Icon } from "src/components/icon";
 
 function openFile(app: App, file: TFile, inNewLeaf = false): void {
   let leaf = app.workspace.getMostRecentLeaf();
@@ -95,13 +97,14 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
     menu.showAtMouseEvent(event.nativeEvent);
   }
 
-  // Load tags
-  const allTaggedFiles: TaggedFile[] = [];
-  let allTags: string[] = [];
-  const markdownFiles: TFile[] = app.vault.getMarkdownFiles();
+  const onFileClicked: Function = (file: TFile, inNewLeaf: boolean = false) => {
+    openFile(app, file, inNewLeaf);
+  };
 
   // Collect all tags and files
-  markdownFiles.forEach((markdownFile) => {
+  const allTaggedFiles: TaggedFile[] = [];
+  let allTags: string[] = [];
+  app.vault.getMarkdownFiles().forEach((markdownFile) => {
     const cache = app.metadataCache.getFileCache(markdownFile);
     const fileTags: string[] = cache
       ? getAllTags(cache)?.map((tag) => tag.substring(1)) || []
@@ -148,7 +151,7 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
 
   // Include related tags
   displayFiles.forEach((taggedFile: TaggedFile) => {
-    let tags = taggedFile.tags;
+    let tags: string[] = taggedFile.tags;
     if (!plugin.settings.showRelatedTags) {
       tags = tags.filter(
         (tag: string) => !selectedTags.length || selectedTags.contains(tag)
@@ -161,28 +164,65 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
     });
   });
 
-  const displayTagsList: string[] = [...displayTags];
-
-  // Sort tags
-  displayTagsList.sort((nameA: string, nameB: string) => {
-    const ca: string = nameA.toLowerCase();
-    const cb: string = nameB.toLowerCase();
-
-    if (sortTags == SORT_TAGS.nameAsc) {
-      return ca > cb ? 1 : -1;
-    } else if (sortTags == SORT_TAGS.nameDesc) {
-      return ca < cb ? 1 : -1;
-    } else if (sortTags == SORT_TAGS.frequencyAsc) {
-      return tagsTree[nameA]?.length < tagsTree[nameB]?.length ? 1 : -1;
-    } else if (sortTags == SORT_TAGS.frequencyDesc) {
-      return tagsTree[nameA]?.length < tagsTree[nameB]?.length ? -1 : 1;
-    }
-    return 0;
+  // Construct the tree of nested tags
+  const nestedTags: TagData[] = [];
+  let tagsCount = 0;
+  [...displayTags].forEach((tag: string) => {
+    let activePart: TagData[] = nestedTags;
+    let tagPaths: string[] = [];
+    let filesCount = 0;
+    tag.split("/").forEach((part: string) => {
+      tagPaths.push(part);
+      let checkPart: TagData | undefined = activePart.find(
+        (c: TagData) => c.tag == part
+      );
+      if (!checkPart) {
+        tagsCount += 1;
+        checkPart = {
+          tag: part,
+          tagPath: tagPaths.join("/"),
+          sub: [],
+          files: tagsTree[tagPaths.join("/")] || [],
+          subFilesCount: 0,
+        };
+        filesCount += (tagsTree[tagPaths.join("/")] || []).length;
+        activePart.push(checkPart);
+      }
+      activePart = checkPart.sub;
+    });
   });
 
+  console.log("tagsCount", tagsCount);
+
+  // Sum up file counts
+  const sumUpNestedFilesCount: Function = (tags: TagData[]) => {
+    tags.forEach((tagData: TagData) => {
+      if (tagData.sub.length) {
+        tagData.subFilesCount = tagData.sub.reduce(
+          (count: number, sub: TagData) => {
+            return (
+              count +
+              Object.keys(tagsTree)
+                .filter((tag) => {
+                  return tag.includes(sub.tag) && tag !== sub.tag;
+                })
+                .reduce((subCount: number, tag: string) => {
+                  return subCount + tagsTree[tag].length;
+                }, 0)
+            );
+          },
+          0
+        );
+        sumUpNestedFilesCount(tagData.sub);
+      }
+    });
+  };
+  sumUpNestedFilesCount(nestedTags);
+
+  // Sort tags and file
   const sortFilesFn = (tFileA: TaggedFile, tFileB: TaggedFile) => {
-    const nameA = tFileA.file.basename.toLowerCase();
-    const nameB = tFileB.file.basename.toLowerCase();
+    const nameA: string = tFileA.file.basename.toLowerCase();
+    const nameB: string = tFileB.file.basename.toLowerCase();
 
     if (sortFiles == SORT_FILES.nameAsc) {
       return nameA > nameB ? 1 : -1;
@@ -197,65 +237,33 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
     }
     return 0;
   };
+  const sortTagsFn = (tagA: TagData, tagB: TagData) => {
+    const nameA: string = tagA.tag.toLowerCase();
+    const nameB: string = tagB.tag.toLowerCase();
 
-  const tagItems: React.ReactElement =
-    displayType == DISPLAY_TYPE.compact ? (
-      <>
-        {displayTagsList.map((tag) => (
-          <div key={tag}>
-            <div className="tag-title-row">
-              <h3 className="tag-title">{tag}</h3>
-              <span>({tagsTree[tag].length})</span>
-            </div>
-            <div>
-              {tagsTree[tag].map((file: TaggedFile) => (
-                <span
-                  key={file.file.basename}
-                  onClick={(event) =>
-                    openFile(app, file.file, event.ctrlKey || event.metaKey)
-                  }
-                  className="file-link"
-                >
-                  {file.file.basename}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </>
-    ) : (
-      <table className="tags-overview-table">
-        {displayTagsList.map((tag) => (
-          <React.Fragment key={tag}>
-            <thead>
-              <tr>
-                <th colSpan={2}>
-                  <div className="table-tag-title-row">
-                    <h3 className="tag-title">{tag}</h3>
-                    <span>{tagsTree[tag].length} files</span>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {tagsTree[tag].sort(sortFilesFn).map((file) => (
-                <tr
-                  key={`${tag}-${file.file.basename}`}
-                  onClick={(event) =>
-                    openFile(app, file.file, event.ctrlKey || event.metaKey)
-                  }
-                >
-                  <td>
-                    <span className="file-link">{file.file.basename}</span>
-                  </td>
-                  <td className="last-modified">{file.modified}</td>
-                </tr>
-              ))}
-            </tbody>
-          </React.Fragment>
-        ))}
-      </table>
-    );
+    if (sortTags == SORT_TAGS.nameAsc) {
+      return nameA > nameB ? 1 : -1;
+    } else if (sortTags == SORT_TAGS.nameDesc) {
+      return nameA < nameB ? 1 : -1;
+    } else if (sortTags == SORT_TAGS.frequencyAsc) {
+      return tagA.files.length < tagB.files.length ? 1 : -1;
+    } else if (sortTags == SORT_TAGS.frequencyDesc) {
+      return tagA.files.length < tagB.files.length ? -1 : 1;
+    }
+    return 0;
+  };
+  const sortNestedTags = (tags: TagData[]) => {
+    tags.sort(sortTagsFn);
+    tags.forEach((tagData: TagData) => {
+      tagData.files.sort(sortFilesFn);
+      if (tagData.sub.length) {
+        sortNestedTags(tagData.sub);
+      }
+    });
+  };
+  sortNestedTags(nestedTags);
+
+  console.log("displayTags", displayTags);
 
   return (
     <div>
@@ -285,6 +293,7 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
               : -1
           )}
         name="Filter"
+        placeholder="Select tags..."
         isMulti
       />
 
@@ -299,35 +308,23 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       />
       <div className="tags-info-container">
         <i className="count-label">
-          {`Displaying ${displayTags.size} tags (${displayFiles.length} files)`}
+          {`Displaying ${[...displayTags].length} tags (${
+            displayFiles.length
+          } files)`}
         </i>
-        <div
-          className="clickable-icon nav-action-button"
-          aria-label="Change sort order"
-          onClick={(e) => showContextMenu(e)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="svg-icon"
-          >
-            <path d="M11 11h4"></path>
-            <path d="M11 15h7"></path>
-            <path d="M11 19h10"></path>
-            <path d="M9 7 6 4 3 7"></path>
-            <path d="M6 6v14"></path>
-          </svg>
-        </div>
+        <Icon
+          className="sort-icon"
+          iconType={ICON_TYPE.sort}
+          label="Change sort order"
+          onClick={(e: MouseEvent) => showContextMenu(e)}
+        />
       </div>
 
-      <div className={`display-type-${displayType}`}>{tagItems}</div>
+      <Tags
+        tags={nestedTags}
+        onFileClick={onFileClicked}
+        displayType={displayType}
+      />
     </div>
   );
 };
