@@ -1,0 +1,506 @@
+
+input[type='text']:focus {
+    box-shadow: initial;
+}
+
+.tags-container {
+    margin-bottom: 30px;
+}
+
+/* Tags info */
+.tags-info-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px;
+}
+.count-label {
+    font-size: var(--font-smallest);
+    padding: 4px;
+}
+.tags-info-container .icons {
+    display: flex;
+}
+
+
+
+/* Compact list */
+.display-type-compact .file-link {
+    display: inline-block;
+    background-color: var(--color-base-40);
+    border-radius: 10px;
+    font-size: var(--font-ui-smaller);
+    padding: 4px 8px;
+    color: var(--color-base-100);
+    margin: 4px 4px 0 0;
+    cursor: pointer;
+}
+
+.display-type-compact .file-link:hover {
+    background-color: var(--color-base-100);
+    color: var(--color-base-40);
+}
+
+/* Tag titles */
+.tag-title-row {
+    margin: 10px 0 5px;
+}
+.tags-level-0 > .tag-title-row {
+    margin-top: 20px;
+}
+.tag-title-row span {
+    margin: 6px 0 0 8px;
+    vertical-align: top;
+    display: inline-block;
+    font-size: 12px;
+    color: #aaa;
+}
+.tag-title {
+    margin: 0;
+    display: inline-block;
+} 
+
+.tags-table-container .tag-title-row {
+    margin: 16px 0 1px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.tags-table-container .tag-title-row span {
+    margin: 10px 5px 0 0;
+    vertical-align: top;
+    display: inline-block;
+    font-size: var(--font-ui-smaller);
+    color: var(--color-base-70);
+    white-space: nowrap;
+    padding-left: 5px;
+}
+.tags-table-container .tag-title-row .tag-title {
+    margin: 0;
+    display: inline-block;
+}
+
+
+/* Table list */
+/* .tags-table-container {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: initial;
+} */
+.tags-table-container {
+    position: relative;
+}
+.tags-table-container table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: initial;
+    border: 0 !important;
+}
+.tags-table-container th {
+    text-align: left;
+}
+.tags-table-container tbody td {
+    border-top: 1px solid var(--color-base-40);
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    font-size: var(--font-ui-small);
+    padding: 4px;
+    margin: 0;
+}
+.last-modified {
+    text-align: right;
+    color: var(--color-base-70);
+    font-size: var(--font-ui-smallest);
+    white-space: nowrap;
+}
+.display-type-list .file-link {
+    color: var(--link-color);
+}
+.has-sub-tags > .tag-content {
+    margin-left: -12px;
+    padding-left: 12px;
+    border-left: 1px solid #999;
+    transition: transform 1000ms ease-in-out;
+}
+.has-sub-tags.is-collapsed > .tag-content {
+    border-left: 1px solid #444;
+}
+.tags-table-container.has-sub-tags {
+    margin-left: 10px;
+}
+/* .tags-table-container.has-sub-tags > table {
+    border-left: 1px solid #aaa !important;
+} */
+.tags-table-container tbody tr.file-row:hover {
+    background-color: var(--nav-item-background-hover);
+    cursor: pointer;
+}
+.tags-table-container tbody tr.file-row:hover .file-link {
+    color: var(--link-color-hover);
+}
+
+
+/* Filter select */
+.tags-filter-select {
+    color: #222;
+    margin-bottom: 40px;
+}
+
+
+/* Header settings component */
+.header-with-settings {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-base-40);
+    margin-top: 10px;
+    margin-bottom: 2px;
+}
+.header-with-settings .title {
+    margin: 3px 0;
+    color: var(--color-base-70);
+    font-size: var(--font-ui-small);
+}
+.settings-switch span {
+    font-size: var(--font-ui-smaller);
+    border: 1px solid var(--color-base-40);
+    padding: 3px 6px 4px;
+    bottom: -1px;
+    position: relative;
+}
+.settings-switch span.active {
+    background-color: var(--color-base-40);
+}
+.settings-switch span.inactive {
+    color: var(--color-base-60);
+    cursor: pointer;
+}
+.settings-switch span.inactive:hover {
+    background-color: var(--color-base-20);
+}
+.settings-switch span:first-child {
+    border-top-left-radius: 5px;
+}
+.settings-switch span:last-child {
+    border-top-right-radius: 5px;
+}
+
+
+.has-sub-tags > .nested-container {
+    margin-left: -12px;
+    padding-left: 12px;
+    border-left: 1px solid #ccc;
+    transition: transform 100ms ease-in-out;
+}
+.has-sub-tags.is-collapsed > .nested-container {
+    border-left: 1px solid #333;
+}
+.nested-tags-container {
+    position: relative;
+    margin-left: 5px;
+}
+.nested-tags-container.has-sub-tags{
+    margin-left: 15px;
+}
+
+
+/* Icons */
+.custom-icon {
+    color: var(--icon-color);
+    opacity: var(--icon-opacity);
+}
+.collapse-icon {
+    position: absolute;
+    top: 4px;
+    margin-left: -17px;
+    width: 16px;
+}
+.collapse-icon svg {
+    stroke-width: 4px;
+    width: 10px;
+    height: 10px;
+    transition: transform 100ms ease-in-out;
+}
+.is-collapsed > .collapse-icon svg {
+    transform: rotate(-90deg);
+}
+.tags-info-container .custom-icon {
+    -webkit-app-region: no-drag;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--size-2-2) var(--size-2-3);
+    cursor: var(--cursor);
+    border-radius: var(--clickable-icon-radius);
+    transition: opacity 0.15s ease-in-out;
+    height: auto;
+}
+.tags-info-container .custom-icon:hover {
+    box-shadow: none;
+    opacity: var(--icon-opacity-hover);
+    color: var(--icon-color-hover);
+    background-color: var(--background-modifier-hover);
+}
+.tags-info-container .custom-icon svg {
+    height: var(--icon-size);
+    width: var(--icon-size);
+    stroke-width: var(--icon-stroke);
+}
+.custom-icon.is-active {
+    opacity: var(--icon-opacity-hover);
+    color: var(--icon-color-active);
+    background-color: var(--background-modifier-active-hover);
+}
+.custom-icon.is-disabled, .custom-icon.is-disabled:hover {
+    background-color: unset;
+    color: var(--text-muted);
+    opacity: 0.4;
+}
+.custom-icon.is-disabled:hover {
+    background-color: unset;   
+}
+
+
+
+
+
+
+// .form-control {
+//     font-family: system-ui, sans-serif;
+//     font-size: 2rem;
+//     font-weight: bold;
+//     line-height: 1.1;
+//     display: grid;
+//     grid-template-columns: 1em auto;
+//     gap: 0.5em;
+//   }
+  
+//   .form-control + .form-control {
+//     margin-top: 1em;
+//   }
+  
+//   .form-control--disabled {
+//     color: var(--form-control-disabled);
+//     cursor: not-allowed;
+//   }
+  
+//   input[type="checkbox"] {
+//     /* Add if not using autoprefixer */
+//     -webkit-appearance: none;
+//     /* Remove most all native input styles */
+//     appearance: none;
+//     /* For iOS < 15 */
+//     background-color: var(--form-background);
+//     /* Not removed via appearance */
+//     margin: 0;
+  
+//     font: inherit;
+//     color: currentColor;
+//     width: 1.15em;
+//     height: 1.15em;
+//     border: 0.15em solid currentColor;
+//     border-radius: 0.15em;
+//     transform: translateY(-0.075em);
+  
+//     display: grid;
+//     place-content: center;
+//   }
+  
+//   input[type="checkbox"]::before {
+//     content: "";
+//     width: 0.65em;
+//     height: 0.65em;
+//     clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+//     transform: scale(0);
+//     transform-origin: bottom left;
+//     transition: 120ms transform ease-in-out;
+//     box-shadow: inset 1em 1em var(--form-control-color);
+//     /* Windows High Contrast Mode */
+//     background-color: CanvasText;
+//   }
+  
+//   input[type="checkbox"]:checked::before {
+//     transform: scale(1);
+//   }
+  
+//   input[type="checkbox"]:disabled {
+//     --form-control-color: var(--form-control-disabled);
+//     color: var(--form-control-disabled);
+//     cursor: not-allowed;
+//   }
+
+
+
+
+//   /* ------- */
+
+//   $toggle-indicator-size: 16px; // changing this number will resize the whole toggle
+// $track-height: $toggle-indicator-size + 6;
+// $track-width: $toggle-indicator-size * 2.5;
+// $highContrastModeSupport: solid 2px transparent;
+// /* 
+
+// The following vars come from my theme. 
+// You'll need to replace with your own color values. 
+
+// - "$light"
+// - "$mid"
+// - "$dark"
+
+// */
+
+// $light: #fff;
+// $mid: #999;
+// $dark: #333;
+// $speed: 200ms;
+
+
+// $track-border: $mid;
+// $track-background: $light;
+// $focus-ring: 0px 0px 0px 2px $dark;
+
+// // Toggle specific styles
+// .toggle {
+// 	align-items: center;
+// 	border-radius: 100px;
+// 	display: flex;
+// 	font-weight: 700;
+// 	margin-bottom: 16px;
+
+// 	&:last-of-type {
+// 		margin: 0;
+// 	}
+// }
+
+// // Since we can't style the checkbox directly, we "hide" it so we can draw the toggle.
+// .toggle__input {
+// 	clip: rect(0 0 0 0);
+// 	clip-path: inset(50%);
+// 	height: 1px;
+// 	overflow: hidden;
+// 	position: absolute;
+// 	white-space: nowrap;
+// 	width: 1px;
+
+// 	// This style sets the focus ring. The ":not([disabled])" prevents the focus ring from creating a flash when the element is clicked.
+// 	&:not([disabled]):active + .toggle-track,
+// 	&:not([disabled]):focus + .toggle-track {
+// 		border: 1px solid transparent;
+// 		box-shadow: $focus-ring;
+// 	}
+
+// 	&:disabled + .toggle-track {
+// 		cursor: not-allowed;
+// 		opacity: 0.7;
+// 	}
+// }
+
+// .toggle-track {
+// 	background: $track-background;
+// 	border: 1px solid $track-border;
+// 	border-radius: 100px;
+// 	cursor: pointer;
+// 	display: flex;
+// 	height: $track-height;
+// 	margin-right: 12px;
+// 	position: relative;
+// 	width: $track-width;
+// }
+
+// .toggle-indicator {
+// 	align-items: center;
+// 	background: $dark;
+// 	border-radius: $toggle-indicator-size;
+// 	bottom: 2px;
+// 	display: flex;
+// 	height: $toggle-indicator-size;
+// 	justify-content: center;
+// 	left: 2px;
+// 	outline: $highContrastModeSupport;
+// 	position: absolute;
+// 	transition: $speed;
+// 	width: $toggle-indicator-size;
+// }
+
+// // The check mark is optional
+// .checkMark {
+// 	fill: #fff;
+// 	height: $toggle-indicator-size - 4;
+// 	width: $toggle-indicator-size - 4;
+// 	opacity: 0;
+// 	transition: opacity $speed ease-in-out;
+// }
+
+// .toggle__input:checked + .toggle-track .toggle-indicator {
+// 	background: $dark;
+// 	transform: translateX($track-width - $track-height);
+
+// 	.checkMark {
+// 		opacity: 1;
+// 		transition: opacity $speed ease-in-out;
+// 	}
+// }
+
+// @media screen and (-ms-high-contrast: active) {
+// 	.toggle-track {
+// 		border-radius: 0;
+// 	}
+// }
+
+
+
+// /* ----- */
+
+// input#check {
+// 	position: absolute;
+// 	opacity: 0;
+	
+// 	&:checked + label svg path {
+// 		stroke-dashoffset: 0;
+// 	}
+	
+// 	&:focus + label {
+// 		transform: scale(1.03);
+// 	}
+// }
+
+// #check + label {
+// 	display: block;
+// 	border: 13px solid #333;
+// 	width: 20px;
+//     height: 20px;
+// 	border-radius: 14px;
+// 	cursor: pointer;
+// 	transition: all .2s ease;
+	
+// 	&:active {
+// 		transform: scale(1.05);
+// 		border-radius: 30px;
+// 	}
+	
+// 	svg {
+// 		pointer-events: none;
+// 		path {			
+// 			fill: none;			
+// 			stroke: #333;
+// 			stroke-width: 4px;
+// 			stroke-linecap: round;
+// 			stroke-linejoin: round;
+// 			stroke-dasharray: 100;
+// 			stroke-dashoffset: 101;
+// 			transition: all 350ms cubic-bezier(1,0,.37,.91);
+// 		}
+// 	}
+// }
+
+
+
+#show-related-label {
+    display: flex;
+
+    span {
+        font-size: 12px;
+        margin-left: 2px;
+    }
+}
