@@ -33,7 +33,6 @@ input[type=text]:focus {
   margin: 4px 4px 0 0;
   cursor: pointer;
 }
-
 .display-type-compact .file-link:hover {
   background-color: var(--color-base-100);
   color: var(--color-base-40);
@@ -43,11 +42,9 @@ input[type=text]:focus {
 .tag-title-row {
   margin: 10px 0 5px;
 }
-
 .tags-level-0 > .tag-title-row {
   margin-top: 20px;
 }
-
 .tag-title-row span {
   margin: 6px 0 0 8px;
   vertical-align: top;
@@ -88,26 +85,21 @@ input[type=text]:focus {
 }
 
 /* Table list */
-/* .tags-table-container {
-    width: 100%;
-    border-spacing: 0;
-    border-collapse: initial;
-} */
 .tags-table-container {
   position: relative;
 }
-
+.tags-table-container.tags-level-0 {
+  margin-top: 20px;
+}
 .tags-table-container table {
   width: 100%;
   border-spacing: 0;
   border-collapse: initial;
   border: 0 !important;
 }
-
 .tags-table-container th {
   text-align: left;
 }
-
 .tags-table-container tbody td {
   border-top: 1px solid var(--color-base-40);
   border-left: 0 !important;
@@ -117,7 +109,6 @@ input[type=text]:focus {
   padding: 4px;
   margin: 0;
 }
-
 .tags-table-container tbody tr.sub-tags-row > td {
   border-top: 0 !important;
 }
@@ -172,7 +163,6 @@ input[type=text]:focus {
   margin-top: 10px;
   margin-bottom: 2px;
 }
-
 .header-with-settings .title {
   margin: 3px 0;
   color: var(--color-base-70);
@@ -190,20 +180,16 @@ input[type=text]:focus {
 .settings-switch span.active {
   background-color: var(--color-base-40);
 }
-
 .settings-switch span.inactive {
   color: var(--color-base-60);
   cursor: pointer;
 }
-
 .settings-switch span.inactive:hover {
   background-color: var(--color-base-20);
 }
-
 .settings-switch span:first-child {
   border-top-left-radius: 5px;
 }
-
 .settings-switch span:last-child {
   border-top-right-radius: 5px;
 }
@@ -244,7 +230,6 @@ input[type=text]:focus {
   margin-left: -17px;
   width: 16px;
 }
-
 .collapse-icon svg {
   stroke-width: 4px;
   width: 10px;
@@ -296,14 +281,6 @@ input[type=text]:focus {
 
 .custom-icon.is-disabled:hover {
   background-color: unset;
-}
-
-#show-related-label {
-  display: flex;
-}
-#show-related-label span {
-  font-size: 12px;
-  margin-left: 2px;
 }
 
 /*# sourceMappingURL=styles.css.map */
