@@ -14,6 +14,10 @@ export class RootView extends ItemView {
   constructor(leaf: WorkspaceLeaf, plugin: TagsOverviewPlugin) {
     super(leaf);
     this.plugin = plugin;
+
+    plugin.registerEvent(this.app.vault.on("modify", this.render.bind(this)));
+    plugin.registerEvent(this.app.vault.on("create", this.render.bind(this)));
+    plugin.registerEvent(this.app.vault.on("delete", this.render.bind(this)));
   }
 
   getViewType() {
@@ -30,7 +34,13 @@ export class RootView extends ItemView {
 
   async onOpen() {
     this.root = createRoot(this.containerEl.children[1]);
-    this.root.render(<TagsView rootView={this} />);
+    this.render();
+  }
+
+  render() {
+    if (this.root) {
+      this.root.render(<TagsView rootView={this} />);
+    }
   }
 
   async onClose() {
