@@ -62,10 +62,14 @@ input[type=text]:focus {
 }
 
 .tags-table-container .tag-title-row {
-  margin: 16px 0 1px;
+  margin: 8px 0 1px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+.tags-table-container .sub-tags-row .tag-title-row {
+  margin-top: 2px;
 }
 
 .tags-table-container .tag-title-row span {
@@ -114,6 +118,10 @@ input[type=text]:focus {
   margin: 0;
 }
 
+.tags-table-container tbody tr.sub-tags-row > td {
+  border-top: 0 !important;
+}
+
 .last-modified {
   text-align: right;
   color: var(--color-base-70);
@@ -128,21 +136,18 @@ input[type=text]:focus {
 .has-sub-tags > .tag-content {
   margin-left: -12px;
   padding-left: 12px;
-  border-left: 1px solid #999;
+  border-left: 1px solid var(--color-base-50);
   transition: transform 1000ms ease-in-out;
 }
 
-.has-sub-tags.is-collapsed > .tag-content {
-  border-left: 1px solid #444;
+.tags-level-0.has-sub-tags > .tag-content {
+  border-color: var(--color-base-40);
 }
 
 .tags-table-container.has-sub-tags {
   margin-left: 10px;
 }
 
-/* .tags-table-container.has-sub-tags > table {
-    border-left: 1px solid #aaa !important;
-} */
 .tags-table-container tbody tr.file-row:hover {
   background-color: var(--nav-item-background-hover);
   cursor: pointer;
@@ -206,8 +211,12 @@ input[type=text]:focus {
 .has-sub-tags > .nested-container {
   margin-left: -12px;
   padding-left: 12px;
-  border-left: 1px solid #ccc;
+  border-left: 1px solid var(--color-base-40);
   transition: transform 100ms ease-in-out;
+}
+
+.tags-level-0.has-sub-tags > .nested-container {
+  border-color: var(--background-secondary-alt);
 }
 
 .has-sub-tags.is-collapsed > .nested-container {

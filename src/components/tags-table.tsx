@@ -20,10 +20,11 @@ export const TagsTable = ({
 }) => {
   const getTagTable = (tagLevel: TagData, depth: number) => {
     const hasSubTags: boolean = !!tagLevel.sub.length;
+    const isCollapsable: boolean = hasSubTags || !!tagLevel.files.length;
     const isCollapsed: boolean =
-      hasSubTags && collapsedTags.includes(tagLevel.tagPath);
+      isCollapsable && collapsedTags.includes(tagLevel.tagPath);
     let containerClasses: string = `tags-table-container tags-level-${depth}`;
-    if (hasSubTags) {
+    if (isCollapsable) {
       containerClasses += " has-sub-tags";
     }
     if (isCollapsed) {
@@ -32,11 +33,11 @@ export const TagsTable = ({
 
     let filesInfo: string = pluralize(tagLevel.files.length, "file", "files");
     if (tagLevel.subFilesCount) {
-      filesInfo += ` (${tagLevel.subFilesCount} total)`;
+      filesInfo += ` (${tagLevel.files.length + tagLevel.subFilesCount} total)`;
     }
     return (
       <div key={tagLevel.tag} className={containerClasses}>
-        {hasSubTags && (
+        {isCollapsable && (
           <Icon
             className="collapse-icon"
             iconType={ICON_TYPE.arrow}
@@ -50,38 +51,44 @@ export const TagsTable = ({
           filesInfo={filesInfo}
           onTagClick={() => onTagClick(tagLevel)}
         />
-        <div className="tag-content">
-          <table>
-            <tbody>
-              {tagLevel.files &&
-                tagLevel.files.map((file: TaggedFile) => (
-                  <React.Fragment key={`${tagLevel.tag}-${file.file.basename}`}>
-                    <tr
-                      className="file-row"
-                      onClick={(event) =>
-                        onFileClick(file.file, event.ctrlKey || event.metaKey)
-                      }
+        {!isCollapsed && (
+          <div className="tag-content">
+            <table>
+              <tbody>
+                {tagLevel.files &&
+                  tagLevel.files.map((file: TaggedFile) => (
+                    <React.Fragment
+                      key={`${tagLevel.tag}-${file.file.basename}`}
                     >
-                      <td>
-                        <span className="file-link">{file.file.basename}</span>
+                      <tr
+                        className="file-row"
+                        onClick={(event) =>
+                          onFileClick(file.file, event.ctrlKey || event.metaKey)
+                        }
+                      >
+                        <td>
+                          <span className="file-link">
+                            {file.file.basename}
+                          </span>
+                        </td>
+                        <td className="last-modified">{file.modified}</td>
+                      </tr>
+                    </React.Fragment>
+                  ))}
+                {!!tagLevel.sub.length &&
+                  !collapsedTags.includes(tagLevel.tagPath) && (
+                    <tr className="sub-tags-row">
+                      <td colSpan={2}>
+                        {tagLevel.sub.map((subTagData: TagData) =>
+                          getTagTable(subTagData, depth + 1)
+                        )}
                       </td>
-                      <td className="last-modified">{file.modified}</td>
                     </tr>
-                  </React.Fragment>
-                ))}
-              {!!tagLevel.sub.length &&
-                !collapsedTags.includes(tagLevel.tagPath) && (
-                  <tr>
-                    <td colSpan={2}>
-                      {tagLevel.sub.map((subTagData: TagData) =>
-                        getTagTable(subTagData, depth + 1)
-                      )}
-                    </td>
-                  </tr>
-                )}
-            </tbody>
-          </table>
-        </div>
+                  )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     );
   };

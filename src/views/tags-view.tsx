@@ -75,14 +75,12 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
   const collapseAll = () => {
     const { allTags }: { allTags: string[] } = getAllTagsAndFiles(app);
     const nestedTags = new Set<string>();
-    allTags
-      .filter((tag: string) => tag.includes("/"))
-      .forEach((tag: string) => {
-        const parts: string[] = tag.split("/");
-        for (let i = 1; i < parts.length; i++) {
-          nestedTags.add(parts.slice(0, i).join("/"));
-        }
-      });
+    allTags.forEach((tag: string) => {
+      const parts: string[] = tag.split("/");
+      for (let i = 1; i <= parts.length; i++) {
+        nestedTags.add(parts.slice(0, i).join("/"));
+      }
+    });
     setCollapsedTags([...nestedTags]);
     setShowCollapseAll(false);
   };

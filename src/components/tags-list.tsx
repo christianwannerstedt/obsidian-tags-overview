@@ -20,10 +20,11 @@ export const TagsList = ({
 }) => {
   const getTagList = (tagLevel: TagData, depth: number) => {
     const hasSubTags: boolean = !!tagLevel.sub.length;
+    const isCollapsable: boolean = hasSubTags || !!tagLevel.files.length;
     const isCollapsed: boolean =
-      hasSubTags && collapsedTags.includes(tagLevel.tagPath);
+      isCollapsable && collapsedTags.includes(tagLevel.tagPath);
     let containerClasses: string = `nested-tags-container tags-level-${depth}`;
-    if (hasSubTags) {
+    if (isCollapsable) {
       containerClasses += " has-sub-tags";
     }
     if (isCollapsed) {
@@ -32,7 +33,7 @@ export const TagsList = ({
 
     return (
       <div key={tagLevel.tag} className={containerClasses}>
-        {hasSubTags && (
+        {isCollapsable && (
           <Icon
             className="collapse-icon"
             iconType={ICON_TYPE.arrow}
@@ -43,35 +44,33 @@ export const TagsList = ({
         )}
         <TagTitleRow
           title={tagLevel.tag}
-          filesInfo={`(${
-            isCollapsed || !hasSubTags
-              ? tagLevel.files.length
-              : tagLevel.subFilesCount
-          })`}
+          filesInfo={`(${tagLevel.files.length + tagLevel.subFilesCount})`}
           onTagClick={() => onTagClick(tagLevel)}
         />
-        <div className="nested-container">
-          {!!tagLevel.files.length && (
-            <div>
-              {tagLevel.files.map((file: TaggedFile) => (
-                <span
-                  key={file.file.basename}
-                  onClick={(event) =>
-                    onFileClick(file.file, event.ctrlKey || event.metaKey)
-                  }
-                  className="file-link"
-                >
-                  {file.file.basename}
-                </span>
-              ))}
-            </div>
-          )}
-          {!!tagLevel.sub &&
-            !collapsedTags.includes(tagLevel.tagPath) &&
-            tagLevel.sub.map((subTagData: TagData) =>
-              getTagList(subTagData, depth + 1)
+        {!isCollapsed && (
+          <div className="nested-container">
+            {!!tagLevel.files.length && (
+              <div>
+                {tagLevel.files.map((file: TaggedFile) => (
+                  <span
+                    key={file.file.basename}
+                    onClick={(event) =>
+                      onFileClick(file.file, event.ctrlKey || event.metaKey)
+                    }
+                    className="file-link"
+                  >
+                    {file.file.basename}
+                  </span>
+                ))}
+              </div>
             )}
-        </div>
+            {!!tagLevel.sub &&
+              !collapsedTags.includes(tagLevel.tagPath) &&
+              tagLevel.sub.map((subTagData: TagData) =>
+                getTagList(subTagData, depth + 1)
+              )}
+          </div>
+        )}
       </div>
     );
   };
