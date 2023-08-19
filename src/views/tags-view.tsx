@@ -1,32 +1,41 @@
+import * as fs from "fs";
 import * as React from "react";
 import { MouseEvent } from "react";
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import { App, FileSystemAdapter, getAllTags, Menu, TFile } from "obsidian";
+import { App, FileSystemAdapter, Menu, TFile } from "obsidian";
 
 import TagsOverviewPlugin from "../main";
 import { RootView } from "./root-view";
 import { HeaderSettings } from "../components/header-settings";
 import { Tags } from "../components/tags";
-import { DISPLAY_TYPE, SORT_FILES, SORT_TAGS } from "../constants";
-import { getAllTagsAndFiles, getLastModifiedDate, pluralize } from "src/utils";
-import { FilesByTag, SelectOption, TagData, TaggedFile } from "src/types";
+import {
+  DISPLAY_TYPE,
+  SORT_FILES_OPTIONS,
+  SORT_TAGS_OPTIONS,
+} from "../constants";
+import {
+  getAllTagsAndFiles,
+  getFormattedDate,
+  openFile,
+  pluralize,
+  setMaxDatesForTags,
+  sortTagsAndFiles,
+} from "src/utils";
+import {
+  ContextMenuOption,
+  FilesByTag,
+  SelectOption,
+  TagData,
+  TaggedFile,
+} from "src/types";
 import { ICON_TYPE, Icon } from "src/components/icon";
-
-function openFile(app: App, file: TFile, inNewLeaf = false): void {
-  let leaf = app.workspace.getMostRecentLeaf();
-  if (leaf) {
-    if (inNewLeaf || leaf.getViewState().pinned) {
-      leaf = app.workspace.getLeaf("tab");
-    }
-    leaf.openFile(file);
-  }
-}
 
 export const TagsView = ({ rootView }: { rootView: RootView }) => {
   const app: App = rootView.app;
   const plugin: TagsOverviewPlugin = rootView.plugin;
 
+  // Setup hooks
   const defaultOptions: SelectOption[] =
     plugin.settings.keepFilters && plugin.settings.storedFilters
       ? plugin.settings.storedFilters.split(",").map((tag: string) => ({
@@ -34,7 +43,6 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
           label: tag,
         }))
       : [];
-
   const [selectedOptions, setSelectedOptions] =
     useState<SelectOption[]>(defaultOptions);
   const [filterAnd, setFilterAnd] = useState(plugin.settings.filterAnd);
@@ -43,6 +51,9 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
   const [sortFiles, setSortFiles] = useState(plugin.settings.sortFiles);
   const [showNested, setShowNested] = useState(true);
   const [showCollapseAll, setShowCollapseAll] = useState(true);
+  const [showRelatedTags, setShowRelatedTags] = useState(
+    plugin.settings.showRelatedTags
+  );
   const [collapsedTags, setCollapsedTags] = useState<string[]>([]);
 
   useEffect(() => {
@@ -51,8 +62,9 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       displayType,
       sortTags,
       sortFiles,
+      showRelatedTags,
     });
-  }, [filterAnd, displayType, sortTags, sortFiles]);
+  }, [filterAnd, displayType, sortTags, sortFiles, showRelatedTags]);
 
   useEffect(() => {
     plugin.saveSettings({
@@ -79,18 +91,13 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
     setShowCollapseAll(true);
   };
 
-  function showContextMenu(event: MouseEvent) {
+  const showContextMenu = (event: MouseEvent) => {
     const menu = new Menu();
 
-    [
-      { title: "Sort tags on name (A to Z)", key: "name" },
-      { title: "Sort tags on name (Z to A)", key: "-name" },
-      { title: "Sort tags on frequency (high to low)", key: "frequency" },
-      { title: "Sort tags on frequency (low to high)", key: "-frequency" },
-    ].forEach((menuItem) => {
+    SORT_TAGS_OPTIONS.forEach((menuItem: ContextMenuOption) => {
       menu.addItem((item) =>
         item
-          .setTitle(menuItem.title)
+          .setTitle(`Sort tags on ${menuItem.label}`)
           .setChecked(plugin.settings.sortTags == menuItem.key)
           .onClick(() => {
             setSortTags(menuItem.key);
@@ -100,15 +107,10 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
 
     menu.addSeparator();
 
-    [
-      { title: "Sort files on name (A to Z)", key: "name" },
-      { title: "Sort files on name (Z to A)", key: "-name" },
-      { title: "Sort files on last modified (new to old)", key: "modified" },
-      { title: "Sort files on last modified (old to new)", key: "-modified" },
-    ].forEach((menuItem) => {
+    SORT_FILES_OPTIONS.forEach((menuItem: ContextMenuOption) => {
       menu.addItem((item) =>
         item
-          .setTitle(menuItem.title)
+          .setTitle(`Sort filters on ${menuItem.label}`)
           .setChecked(plugin.settings.sortFiles == menuItem.key)
           .onClick(() => {
             setSortFiles(menuItem.key);
@@ -117,7 +119,7 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
     });
 
     menu.showAtMouseEvent(event.nativeEvent);
-  }
+  };
 
   const onFileClicked: Function = (file: TFile, inNewLeaf: boolean = false) => {
     openFile(app, file, inNewLeaf);
@@ -153,9 +155,12 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       : "";
 
   displayFiles.forEach((file: TaggedFile) => {
-    file.modified = basePath
-      ? getLastModifiedDate(`${basePath}/${file.file.path}`)
-      : "";
+    const filepath = `${basePath}/${file.file.path}`;
+    const stats = fs.statSync(filepath);
+    file.modifiedDate = stats.mtime;
+    file.createdDate = stats.birthtime;
+    file.modified = getFormattedDate(file.modifiedDate);
+    file.created = getFormattedDate(file.createdDate);
   });
 
   // Get tags to be displayed
@@ -165,7 +170,7 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
   // Include related tags
   displayFiles.forEach((taggedFile: TaggedFile) => {
     let tags: string[] = taggedFile.tags;
-    if (!plugin.settings.showRelatedTags) {
+    if (!showRelatedTags) {
       tags = tags.filter(
         (tag: string) => !selectedTags.length || selectedTags.contains(tag)
       );
@@ -206,7 +211,6 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
     });
   });
 
-  // Sum up file counts
   const sumUpNestedFilesCount: Function = (tags: TagData[]) => {
     tags.forEach((tagData: TagData) => {
       if (tagData.sub.length) {
@@ -229,51 +233,11 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       }
     });
   };
+
+  // Sort and curry the tags
   sumUpNestedFilesCount(nestedTags);
-
-  // Sort tags and file
-  const sortFilesFn = (tFileA: TaggedFile, tFileB: TaggedFile) => {
-    const nameA: string = tFileA.file.basename.toLowerCase();
-    const nameB: string = tFileB.file.basename.toLowerCase();
-
-    if (sortFiles == SORT_FILES.nameAsc) {
-      return nameA > nameB ? 1 : -1;
-    } else if (sortFiles == SORT_FILES.nameDesc) {
-      return nameA < nameB ? 1 : -1;
-    } else if (tFileA.modified && tFileB.modified) {
-      if (sortFiles == SORT_FILES.modifiedAsc) {
-        return tFileA.modified < tFileB.modified ? 1 : -1;
-      } else if (sortFiles == SORT_FILES.modifiedDesc) {
-        return tFileA.modified < tFileB.modified ? -1 : 1;
-      }
-    }
-    return 0;
-  };
-  const sortTagsFn = (tagA: TagData, tagB: TagData) => {
-    const nameA: string = tagA.tag.toLowerCase();
-    const nameB: string = tagB.tag.toLowerCase();
-
-    if (sortTags == SORT_TAGS.nameAsc) {
-      return nameA > nameB ? 1 : -1;
-    } else if (sortTags == SORT_TAGS.nameDesc) {
-      return nameA < nameB ? 1 : -1;
-    } else if (sortTags == SORT_TAGS.frequencyAsc) {
-      return tagA.files.length < tagB.files.length ? 1 : -1;
-    } else if (sortTags == SORT_TAGS.frequencyDesc) {
-      return tagA.files.length < tagB.files.length ? -1 : 1;
-    }
-    return 0;
-  };
-  const sortNestedTags = (tags: TagData[]) => {
-    tags.sort(sortTagsFn);
-    tags.forEach((tagData: TagData) => {
-      tagData.files.sort(sortFilesFn);
-      if (tagData.sub.length) {
-        sortNestedTags(tagData.sub);
-      }
-    });
-  };
-  sortNestedTags(nestedTags);
+  setMaxDatesForTags(nestedTags);
+  sortTagsAndFiles(nestedTags, sortTags, sortFiles);
 
   return (
     <div>
@@ -289,19 +253,19 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       <Select
         className="tags-filter-select"
         value={selectedOptions}
-        onChange={(val: SelectOption[]) => setSelectedOptions(val)}
+        onChange={(val: SelectOption[]) => {
+          setSelectedOptions(val);
+        }}
         options={allTags
           .map((tag: string) => ({
             value: tag,
             label: tag,
           }))
-          .sort((optionA: SelectOption, optionB: SelectOption): number =>
-            optionA.label == optionB.label
-              ? 0
-              : optionA.label < optionB.label
-              ? 1
-              : -1
-          )}
+          .sort((optionA: SelectOption, optionB: SelectOption): number => {
+            const lblA: string = optionA.label.toLowerCase();
+            const lblB: string = optionB.label.toLowerCase();
+            return lblA === lblB ? 0 : lblA > lblB ? 1 : -1;
+          })}
         name="Filter"
         placeholder="Select tags..."
         isMulti
@@ -318,7 +282,7 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
       />
       <div className="tags-info-container">
         <i className="count-label">
-          {`Displaying ${pluralize(tagsCount, "tag", "tags")} (${pluralize(
+          {`Showing ${pluralize(tagsCount, "tag", "tags")} (${pluralize(
             displayFiles.length,
             "file",
             "files"
@@ -326,6 +290,14 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
         </i>
 
         <div className="icons">
+          <Icon
+            className="sort-icon"
+            iconType={ICON_TYPE.tags}
+            label="Change related tags"
+            onClick={() => setShowRelatedTags(!showRelatedTags)}
+            active={showRelatedTags}
+            disabled={!selectedOptions.length}
+          />
           <Icon
             className="sort-icon"
             iconType={ICON_TYPE.sort}
@@ -371,6 +343,21 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
         displayType={displayType}
         collapsedTags={collapsedTags}
         setCollapsedTags={setCollapsedTags}
+        onTagClick={(tagData: TagData) => {
+          setSelectedOptions(
+            selectedOptions.find((option) => option.value === tagData.tagPath)
+              ? selectedOptions.filter(
+                  (option) => option.value !== tagData.tagPath
+                )
+              : [
+                  ...selectedOptions,
+                  {
+                    label: tagData.tagPath,
+                    value: tagData.tagPath,
+                  },
+                ]
+          );
+        }}
       />
     </div>
   );

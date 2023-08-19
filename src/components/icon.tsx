@@ -7,6 +7,7 @@ export const ICON_TYPE = {
   sort: "sort",
   collapse: "collapse",
   expand: "expand",
+  tags: "tags",
 };
 Object.freeze(ICON_TYPE);
 
@@ -71,6 +72,12 @@ export const Icon = ({
           <>
             <path d="m7 20 5-5 5 5"></path>
             <path d="m7 4 5 5 5-5"></path>
+          </>
+        ) : iconType === ICON_TYPE.tags ? (
+          <>
+            <path d="M9 5H2v7l6.29 6.29c.94.94 2.48.94 3.42 0l3.58-3.58c.94-.94.94-2.48 0-3.42L9 5Z"></path>
+            <path d="M6 9.01V9"></path>
+            <path d="m15 5 6.3 6.3a2.4 2.4 0 0 1 0 3.4L17 19"></path>
           </>
         ) : (
           <>
