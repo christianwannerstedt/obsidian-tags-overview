@@ -108,7 +108,7 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
     SORT_FILES_OPTIONS.forEach((menuItem: ContextMenuOption) => {
       menu.addItem((item) =>
         item
-          .setTitle(`Sort filters on ${menuItem.label}`)
+          .setTitle(`Sort files on ${menuItem.label}`)
           .setChecked(plugin.settings.sortFiles == menuItem.key)
           .onClick(() => {
             setSortFiles(menuItem.key);
@@ -291,7 +291,7 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
           <Icon
             className="sort-icon"
             iconType={ICON_TYPE.tags}
-            label="Change related tags"
+            label="Show related tags"
             onClick={() => setShowRelatedTags(!showRelatedTags)}
             active={showRelatedTags}
             disabled={!selectedOptions.length}
