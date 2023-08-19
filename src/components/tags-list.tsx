@@ -10,11 +10,13 @@ export const TagsList = ({
   onFileClick,
   collapsedTags,
   setCollapsedTags,
+  onTagClick,
 }: {
   tags: TagData[];
   onFileClick: Function;
   collapsedTags: string[];
   setCollapsedTags: Function;
+  onTagClick: Function;
 }) => {
   const getTagList = (tagLevel: TagData, depth: number) => {
     const hasSubTags: boolean = !!tagLevel.sub.length;
@@ -46,6 +48,7 @@ export const TagsList = ({
               ? tagLevel.files.length
               : tagLevel.subFilesCount
           })`}
+          onTagClick={() => onTagClick(tagLevel)}
         />
         <div className="nested-container">
           {!!tagLevel.files.length && (

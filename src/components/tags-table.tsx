@@ -10,11 +10,13 @@ export const TagsTable = ({
   onFileClick,
   collapsedTags,
   setCollapsedTags,
+  onTagClick,
 }: {
   tags: TagData[];
   onFileClick: Function;
   collapsedTags: string[];
   setCollapsedTags: Function;
+  onTagClick: Function;
 }) => {
   const getTagTable = (tagLevel: TagData, depth: number) => {
     const hasSubTags: boolean = !!tagLevel.sub.length;
@@ -43,7 +45,11 @@ export const TagsTable = ({
             }}
           />
         )}
-        <TagTitleRow title={tagLevel.tag} filesInfo={filesInfo} />
+        <TagTitleRow
+          title={tagLevel.tag}
+          filesInfo={filesInfo}
+          onTagClick={() => onTagClick(tagLevel)}
+        />
         <div className="tag-content">
           <table>
             <tbody>

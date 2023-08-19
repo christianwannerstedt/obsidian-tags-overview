@@ -11,17 +11,25 @@ export const Tags = ({
   displayType,
   collapsedTags,
   setCollapsedTags,
+  onTagClick,
 }: {
   tags: TagData[];
   onFileClick: Function;
   displayType: string;
   collapsedTags: string[];
   setCollapsedTags: Function;
+  onTagClick: Function;
 }) => {
-  const props = { tags, onFileClick, collapsedTags, setCollapsedTags };
+  const props = {
+    tags,
+    onFileClick,
+    collapsedTags,
+    setCollapsedTags,
+    onTagClick,
+  };
 
   return (
-    <div className={`display-type-${displayType}`}>
+    <div className={`tags-container display-type-${displayType}`}>
       {displayType === DISPLAY_TYPE.compact ? (
         <TagsList {...props} />
       ) : (
