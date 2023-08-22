@@ -303,34 +303,30 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
             onClick={(e: MouseEvent) => showContextMenu(e)}
           />
           {hasAnySub && (
-            <>
-              <Icon
-                className="nested-icon"
-                iconType={ICON_TYPE.nested}
-                label="Show nested tags"
-                onClick={(e: MouseEvent) => setShowNested(!showNested)}
-                active={showNested}
-              />
+            <Icon
+              className="nested-icon"
+              iconType={ICON_TYPE.nested}
+              label="Show nested tags"
+              onClick={(e: MouseEvent) => setShowNested(!showNested)}
+              active={showNested}
+            />
+          )}
 
-              {showCollapseAll && (
-                <Icon
-                  className="collapse-all-icon"
-                  iconType={ICON_TYPE.collapse}
-                  label="Collapse all"
-                  onClick={() => collapseAll()}
-                  disabled={!showNested}
-                />
-              )}
-              {!showCollapseAll && (
-                <Icon
-                  className="expand-all-icon"
-                  iconType={ICON_TYPE.expand}
-                  label="Expand all"
-                  onClick={() => expandAll()}
-                  disabled={!showNested}
-                />
-              )}
-            </>
+          {showCollapseAll && (
+            <Icon
+              className="collapse-all-icon"
+              iconType={ICON_TYPE.collapse}
+              label="Collapse all"
+              onClick={() => collapseAll()}
+            />
+          )}
+          {!showCollapseAll && (
+            <Icon
+              className="expand-all-icon"
+              iconType={ICON_TYPE.expand}
+              label="Expand all"
+              onClick={() => expandAll()}
+            />
           )}
         </div>
       </div>
