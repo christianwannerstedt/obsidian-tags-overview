@@ -22,14 +22,16 @@ export const pluralize = (count: number, singular: string, plural: string) => {
   return count === 1 ? `1 ${singular}` : `${count} ${plural}`;
 };
 
+export const getTagsFromFile = (app: App, file: TFile): string[] => {
+  const cache = app.metadataCache.getFileCache(file);
+  return cache ? getAllTags(cache)?.map((tag) => tag.substring(1)) || [] : [];
+};
+
 export const getAllTagsAndFiles = (app: App) => {
   const allTaggedFiles: TaggedFile[] = [];
   let allTags: string[] = [];
   app.vault.getMarkdownFiles().forEach((markdownFile) => {
-    const cache = app.metadataCache.getFileCache(markdownFile);
-    const fileTags: string[] = cache
-      ? getAllTags(cache)?.map((tag) => tag.substring(1)) || []
-      : [];
+    const fileTags: string[] = getTagsFromFile(app, markdownFile);
     allTags = allTags.concat(fileTags);
     if (fileTags.length) {
       allTaggedFiles.push({

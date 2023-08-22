@@ -32,7 +32,15 @@ import {
 } from "src/types";
 import { ICON_TYPE, Icon } from "src/components/icon";
 
-export const TagsView = ({ rootView }: { rootView: RootView }) => {
+export const TagsView = ({
+  rootView,
+  allTags,
+  allTaggedFiles,
+}: {
+  rootView: RootView;
+  allTags: string[];
+  allTaggedFiles: TaggedFile[];
+}) => {
   const app: App = rootView.app;
   const plugin: TagsOverviewPlugin = rootView.plugin;
 
@@ -123,13 +131,6 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
   const onFileClicked: Function = (file: TFile, inNewLeaf: boolean = false) => {
     openFile(app, file, inNewLeaf);
   };
-
-  // Collect all tags and files
-  const {
-    allTags,
-    allTaggedFiles,
-  }: { allTags: string[]; allTaggedFiles: TaggedFile[] } =
-    getAllTagsAndFiles(app);
 
   const hasAnySub: boolean = !!allTags.find((tag: string) => tag.includes("/"));
 
