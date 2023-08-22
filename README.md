@@ -24,7 +24,7 @@ The plugin supports [nested tags](https://help.obsidian.md/Editing+and+formattin
 ![nested-tags](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/8c283c46-4c3b-42cf-b4d2-9a9207d77c26)
 
 ### Different views
-Choose between a table view or a more minimalistic list view. The table view will display the date when the file was last modified.
+Choose between a table view or a more minimalistic list view. The table view will display the date when the file was last modified. It is possible to change the format of the dates in the plugin settings.
 
 ![display-types](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/d4f6737f-31ab-4590-8720-c84ee7fb09a9)
 

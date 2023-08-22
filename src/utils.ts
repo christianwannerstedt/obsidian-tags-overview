@@ -5,13 +5,14 @@ import { TagData, TaggedFile } from "./types";
 import { App, TFile, getAllTags } from "obsidian";
 import { SORT_FILES, SORT_TAGS } from "./constants";
 
-export function getLastModifiedDate(filepath: string): string {
-  const stats = fs.statSync(filepath);
-  return moment(stats.mtime).calendar();
+export function formatDate(date: Date, dateFormat: string): string {
+  return moment(date).format(dateFormat);
 }
 
-export function getFormattedDate(mtime: Date): string {
-  return moment(mtime).calendar();
+export function formatCalendardDate(mtime: Date, dateFormat: string): string {
+  return moment(mtime).calendar({
+    sameElse: dateFormat,
+  });
 }
 
 export const addOrRemove = (arr: string[], item: string) =>

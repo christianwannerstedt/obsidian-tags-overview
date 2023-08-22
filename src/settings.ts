@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { DISPLAY_TYPE, SORT_FILES, SORT_TAGS } from "./constants";
 import TagsOverviewPlugin from "./main";
+import { formatDate } from "./utils";
 
 export interface TagsOverviewSettings {
   filterAnd: boolean;
@@ -10,6 +11,8 @@ export interface TagsOverviewSettings {
   keepFilters: boolean;
   storedFilters: string;
   showRelatedTags: boolean;
+  showCalendarDates: boolean;
+  dateFormat: string;
 }
 
 export const DEFAULT_SETTINGS: TagsOverviewSettings = {
@@ -20,6 +23,8 @@ export const DEFAULT_SETTINGS: TagsOverviewSettings = {
   keepFilters: true,
   storedFilters: "",
   showRelatedTags: true,
+  showCalendarDates: true,
+  dateFormat: "YYYY-MM-DD",
 };
 
 export class TagsOverviewSettingTab extends PluginSettingTab {
@@ -48,18 +53,49 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Show related tags")
+      .setName("Show calendar dates")
       .setDesc(
-        "Control which tags are displayed in the results list when filtering. When a filter is active, all files matching the searched tags will be displayed. If you choose to show related tags, all tags that are connected to one of the matched files will be displayed, otherwise only the tags used in the filtering will be displayed."
+        "Display dates relative to today. Will format a date with different strings if it is not older than a week."
       )
       .addToggle((toggle) =>
         toggle
-          .setValue(this.plugin.settings.showRelatedTags)
+          .setValue(this.plugin.settings.showCalendarDates)
           .onChange(async (value) => {
-            this.plugin.settings.showRelatedTags = value;
+            this.plugin.settings.showCalendarDates = value;
             await this.plugin.saveData(this.plugin.settings);
             this.plugin.activateView();
           })
       );
+
+    const date = new Date();
+    const dateFormats = [
+      "YYYY-MM-DD",
+      "YYYY-MM-DD HH:mm",
+      "YYYY-MM-DD HH:mm:ss",
+      "DD/MM/YYYY",
+      "l",
+      "L",
+      "LL",
+      "LLL",
+      "LLLL",
+      "ll",
+      "lll",
+      "llll",
+      "lll",
+    ];
+    new Setting(containerEl)
+      .setName("Date format")
+      .setDesc("Set the date format used in the results list")
+      .addDropdown((dropdown) => {
+        dateFormats.forEach((format) => {
+          dropdown.addOption(format, formatDate(date, format));
+        });
+        dropdown.setValue(this.plugin.settings.dateFormat);
+        dropdown.onChange(async (value) => {
+          this.plugin.settings.dateFormat = value;
+          await this.plugin.saveData(this.plugin.settings);
+          this.plugin.activateView();
+        });
+      });
   }
 }

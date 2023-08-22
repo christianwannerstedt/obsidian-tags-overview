@@ -16,7 +16,8 @@ import {
 } from "../constants";
 import {
   getAllTagsAndFiles,
-  getFormattedDate,
+  formatDate,
+  formatCalendardDate,
   openFile,
   pluralize,
   setMaxDatesForTags,
@@ -151,6 +152,12 @@ export const TagsView = ({ rootView }: { rootView: RootView }) => {
     app.vault.adapter instanceof FileSystemAdapter
       ? app.vault.adapter.getBasePath()
       : "";
+
+  const getFormattedDate = (date: Date): string => {
+    return plugin.settings.showCalendarDates
+      ? formatCalendardDate(date, plugin.settings.dateFormat)
+      : formatDate(date, plugin.settings.dateFormat);
+  };
 
   displayFiles.forEach((file: TaggedFile) => {
     const filepath = `${basePath}/${file.file.path}`;
