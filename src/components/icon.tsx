@@ -37,7 +37,11 @@ export const Icon = ({
     <div
       aria-label={label}
       className={classes}
-      onClick={(e: MouseEvent) => onClick(e)}
+      onClick={(e: MouseEvent) => {
+        if (!disabled) {
+          onClick(e);
+        }
+      }}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
