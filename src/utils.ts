@@ -168,11 +168,11 @@ export const sortTagsAndFiles = (
         return tagA.maxModifiedDate > tagB.maxModifiedDate ? 1 : -1;
       }
     }
-    if (tagA.maxModifiedDate && tagB.maxModifiedDate) {
-      if (sortTags == SORT_TAGS.modifiedAsc) {
-        return tagA.maxModifiedDate < tagB.maxModifiedDate ? 1 : -1;
-      } else if (sortTags == SORT_TAGS.modifiedDesc) {
-        return tagA.maxModifiedDate > tagB.maxModifiedDate ? 1 : -1;
+    if (tagA.maxCreatedDate && tagB.maxCreatedDate) {
+      if (sortTags == SORT_TAGS.createdAsc) {
+        return tagA.maxCreatedDate < tagB.maxCreatedDate ? 1 : -1;
+      } else if (sortTags == SORT_TAGS.createdDesc) {
+        return tagA.maxCreatedDate > tagB.maxCreatedDate ? 1 : -1;
       }
     }
     return 0;
