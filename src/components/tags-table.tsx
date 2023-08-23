@@ -49,7 +49,13 @@ export const TagsTable = ({
         <TagTitleRow
           title={tagLevel.tag}
           filesInfo={filesInfo}
-          onTagClick={() => onTagClick(tagLevel)}
+          onTagClick={(event: MouseEvent) => {
+            if (isCollapsable && (event.ctrlKey || event.metaKey)) {
+              onTagClick(tagLevel);
+            } else {
+              setCollapsedTags(addOrRemove(collapsedTags, tagLevel.tagPath));
+            }
+          }}
         />
         {!isCollapsed && (
           <div className="tag-content">

@@ -45,7 +45,13 @@ export const TagsList = ({
         <TagTitleRow
           title={tagLevel.tag}
           filesInfo={`(${tagLevel.files.length + tagLevel.subFilesCount})`}
-          onTagClick={() => onTagClick(tagLevel)}
+          onTagClick={(event: MouseEvent) => {
+            if (isCollapsable && (event.ctrlKey || event.metaKey)) {
+              onTagClick(tagLevel);
+            } else {
+              setCollapsedTags(addOrRemove(collapsedTags, tagLevel.tagPath));
+            }
+          }}
         />
         {!isCollapsed && (
           <div className="nested-container">
