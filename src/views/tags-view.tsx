@@ -1,36 +1,20 @@
 import * as fs from "fs";
 import * as React from "react";
-import { MouseEvent } from "react";
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import { App, FileSystemAdapter, Menu, TFile } from "obsidian";
+import { App, FileSystemAdapter, TFile } from "obsidian";
 
 import TagsOverviewPlugin from "../main";
 import { RootView } from "./root-view";
 import { HeaderSettings } from "../components/header-settings";
 import { Tags } from "../components/tags";
 import {
-  DISPLAY_TYPE,
-  SORT_FILES_OPTIONS,
-  SORT_TAGS_OPTIONS,
-} from "../constants";
-import {
-  getAllTagsAndFiles,
   formatDate,
   formatCalendardDate,
   openFile,
-  pluralize,
   setMaxDatesForTags,
-  sortTagsAndFiles,
 } from "src/utils";
-import {
-  ContextMenuOption,
-  FilesByTag,
-  SelectOption,
-  TagData,
-  TaggedFile,
-} from "src/types";
-import { ICON_TYPE, Icon } from "src/components/icon";
+import { FilesByTag, SelectOption, TagData, TaggedFile } from "src/types";
 
 export const TagsView = ({
   rootView,
@@ -55,25 +39,17 @@ export const TagsView = ({
   const [selectedOptions, setSelectedOptions] =
     useState<SelectOption[]>(defaultOptions);
   const [filterAnd, setFilterAnd] = useState(plugin.settings.filterAnd);
-  const [displayType, setDisplayType] = useState(plugin.settings.displayType);
-  const [sortTags, setSortTags] = useState(plugin.settings.sortTags);
-  const [sortFiles, setSortFiles] = useState(plugin.settings.sortFiles);
   const [showNested, setShowNested] = useState(true);
-  const [showCollapseAll, setShowCollapseAll] = useState(true);
   const [showRelatedTags, setShowRelatedTags] = useState(
     plugin.settings.showRelatedTags
   );
-  const [collapsedTags, setCollapsedTags] = useState<string[]>([]);
 
   useEffect(() => {
     plugin.saveSettings({
       filterAnd,
-      displayType,
-      sortTags,
-      sortFiles,
       showRelatedTags,
     });
-  }, [filterAnd, displayType, sortTags, sortFiles, showRelatedTags]);
+  }, [filterAnd, showRelatedTags]);
 
   useEffect(() => {
     plugin.saveSettings({
@@ -81,65 +57,13 @@ export const TagsView = ({
     });
   }, [selectedOptions]);
 
-  const collapseAll = () => {
-    const { allTags }: { allTags: string[] } = getAllTagsAndFiles(app);
-    const nestedTags = new Set<string>();
-    allTags.forEach((tag: string) => {
-      const parts: string[] = tag.split("/");
-      for (let i = 1; i <= parts.length; i++) {
-        nestedTags.add(parts.slice(0, i).join("/"));
-      }
-    });
-    setCollapsedTags([...nestedTags]);
-    setShowCollapseAll(false);
-  };
-  const expandAll = () => {
-    setCollapsedTags([]);
-    setShowCollapseAll(true);
-  };
-
-  const showContextMenu = (event: MouseEvent) => {
-    const menu = new Menu();
-
-    SORT_TAGS_OPTIONS.forEach((menuItem: ContextMenuOption) => {
-      menu.addItem((item) =>
-        item
-          .setTitle(`Sort tags on ${menuItem.label}`)
-          .setChecked(plugin.settings.sortTags == menuItem.key)
-          .onClick(() => {
-            setSortTags(menuItem.key);
-          })
-      );
-    });
-
-    menu.addSeparator();
-
-    SORT_FILES_OPTIONS.forEach((menuItem: ContextMenuOption) => {
-      menu.addItem((item) =>
-        item
-          .setTitle(`Sort files on ${menuItem.label}`)
-          .setChecked(plugin.settings.sortFiles == menuItem.key)
-          .onClick(() => {
-            setSortFiles(menuItem.key);
-          })
-      );
-    });
-
-    menu.showAtMouseEvent(event.nativeEvent);
-  };
-
   const onFileClicked: Function = (file: TFile, inNewLeaf: boolean = false) => {
     openFile(app, file, inNewLeaf);
   };
 
-  const hasAnySub: boolean = !!allTags.find((tag: string) => tag.includes("/"));
-
-  const selectedTags: string[] =
-    (selectedOptions &&
-      selectedOptions.map((option: SelectOption) => option.value)) ||
-    [];
-
   // Get files to be displayed
+  const selectedTags: string[] =
+    selectedOptions?.map((option: SelectOption) => option.value) || [];
   let displayFiles: TaggedFile[] = selectedTags.length
     ? allTaggedFiles.filter((file: TaggedFile) => {
         return filterAnd
@@ -240,10 +164,9 @@ export const TagsView = ({
     });
   };
 
-  // Sort and curry the tags
+  // Curry the tags with counts and max dates
   sumUpNestedFilesCount(nestedTags);
   setMaxDatesForTags(nestedTags);
-  sortTagsAndFiles(nestedTags, sortTags, sortFiles);
 
   return (
     <div>
@@ -277,74 +200,17 @@ export const TagsView = ({
         isMulti
       />
 
-      <HeaderSettings
-        title="Tags"
-        value={displayType}
-        setFunction={setDisplayType}
-        settings={[
-          { label: "Compact", value: DISPLAY_TYPE.compact },
-          { label: "List", value: DISPLAY_TYPE.list },
-        ]}
-      />
-      <div className="tags-info-container">
-        <i className="count-label">
-          {`Showing ${pluralize(tagsCount, "tag", "tags")} (${pluralize(
-            displayFiles.length,
-            "file",
-            "files"
-          )})`}
-        </i>
-
-        <div className="icons">
-          <Icon
-            className="sort-icon"
-            iconType={ICON_TYPE.tags}
-            label="Show related tags"
-            onClick={() => setShowRelatedTags(!showRelatedTags)}
-            active={showRelatedTags}
-            disabled={!selectedOptions.length}
-          />
-          <Icon
-            className="sort-icon"
-            iconType={ICON_TYPE.sort}
-            label="Change sort order"
-            onClick={(e: MouseEvent) => showContextMenu(e)}
-          />
-          {hasAnySub && (
-            <Icon
-              className="nested-icon"
-              iconType={ICON_TYPE.nested}
-              label="Show nested tags"
-              onClick={(e: MouseEvent) => setShowNested(!showNested)}
-              active={showNested}
-            />
-          )}
-
-          {showCollapseAll && (
-            <Icon
-              className="collapse-all-icon"
-              iconType={ICON_TYPE.collapse}
-              label="Collapse all"
-              onClick={() => collapseAll()}
-            />
-          )}
-          {!showCollapseAll && (
-            <Icon
-              className="expand-all-icon"
-              iconType={ICON_TYPE.expand}
-              label="Expand all"
-              onClick={() => expandAll()}
-            />
-          )}
-        </div>
-      </div>
-
       <Tags
+        plugin={plugin}
         tags={nestedTags}
+        tagsCount={tagsCount}
+        filesCount={displayFiles.length}
+        hasFilters={!!selectedOptions.length}
+        showNested={showNested}
+        setShowNested={setShowNested}
+        showRelatedTags={showRelatedTags}
+        setShowRelatedTags={setShowRelatedTags}
         onFileClick={onFileClicked}
-        displayType={displayType}
-        collapsedTags={collapsedTags}
-        setCollapsedTags={setCollapsedTags}
         onTagClick={(tagData: TagData) => {
           setSelectedOptions(
             selectedOptions.find((option) => option.value === tagData.tagPath)
