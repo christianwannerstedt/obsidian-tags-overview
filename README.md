@@ -16,22 +16,22 @@ When you filter the list of tags through a search, you can choose to display rel
 For example:
 If a file contains the tags `#vehicle` and `#car`, then a search for `#vehicle` will show both tags in the result. However, files that only contain the `#car` tag will not be presented in the list.
 
-![related-tags](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/ee648eaf-a7a1-4c16-bf9e-5cfb6e3fed70)
+![related-tags](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/9ed3edd0-b6a3-4669-aec1-6bc9158d93ad)
 
 ### Nested tags
 The plugin supports [nested tags](https://help.obsidian.md/Editing+and+formatting/Tags#Nested+tags), with an option to display nested tags as a tree or a flat list. You can choose to expand or collapse each nested level separately by clicking the arrow next to it.
 
-![nested-tags](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/8c283c46-4c3b-42cf-b4d2-9a9207d77c26)
+![nested-tags](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/3c551140-1c97-4fa4-aeb0-a8bef7608bb3)
 
 ### Different views
 Choose between a table view or a more minimalistic list view. The table view will display the date when the file was last modified. It is possible to change the format of the dates in the plugin settings.
 
-![display-types](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/d4f6737f-31ab-4590-8720-c84ee7fb09a9)
+![display-types](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/bc677992-f1e9-4eb3-93bb-59955aee7120)
 
 ### Filter
 Filter the list easily by selecting one or more tags in the dropdown menu. You can choose whether the results must match all search criterias (AND) or just any of them (OR). It is also possible to toggle a tag in the search by clicking on the tag in the results list while holding down ctrl/cmd.
 
-![filter](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/7e5820a4-cf53-4bf8-ac6f-1fb80a12b829)
+![filter](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/f8374340-17da-4fd0-bde3-cebde2e74815)
 
 
 ## Install
