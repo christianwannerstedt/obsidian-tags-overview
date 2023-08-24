@@ -28,6 +28,12 @@ Choose between a table view or a more minimalistic list view. The table view wil
 
 ![display-types](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/d4f6737f-31ab-4590-8720-c84ee7fb09a9)
 
+### Filter
+Filter the list easily by selecting one or more tags in the dropdown menu. You can choose whether the results must match all search criterias (AND) or just any of them (OR). It is also possible to toggle a tag in the search by clicking on the tag in the results list while holding down ctrl/cmd.
+
+![filter](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/7e5820a4-cf53-4bf8-ac6f-1fb80a12b829)
+
+
 ## Install
 
 ### Manual installation
