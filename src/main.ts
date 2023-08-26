@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { Plugin, WorkspaceLeaf } from "obsidian";
 
 import {
   DEFAULT_SETTINGS,
@@ -24,19 +24,24 @@ export default class TagsOverviewPlugin extends Plugin {
   }
 
   async activateView() {
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE);
-
-    await this.app.workspace.getRightLeaf(false).setViewState({
-      type: VIEW_TYPE,
-      active: true,
-    });
-
-    this.app.workspace.revealLeaf(
-      this.app.workspace.getLeavesOfType(VIEW_TYPE)[0]
-    );
+    let leaf: WorkspaceLeaf | null = this.getLeaf();
+    if (!leaf) {
+      await this.app.workspace.getRightLeaf(false).setViewState({
+        type: VIEW_TYPE,
+        active: true,
+      });
+      leaf = this.getLeaf();
+    }
+    if (leaf) {
+      this.app.workspace.revealLeaf(leaf);
+    }
   }
 
-  onunload() {}
+  onunload() {
+    this.app.workspace
+      .getLeavesOfType(VIEW_TYPE)
+      .forEach((leaf) => leaf.detach());
+  }
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -48,5 +53,9 @@ export default class TagsOverviewPlugin extends Plugin {
       ...settings,
     };
     await this.saveData(this.settings);
+  }
+
+  getLeaf(): WorkspaceLeaf | null {
+    return this.app.workspace.getLeavesOfType(VIEW_TYPE).first() || null;
   }
 }
