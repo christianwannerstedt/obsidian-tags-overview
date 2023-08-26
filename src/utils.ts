@@ -1,8 +1,7 @@
 import * as fs from "fs";
-import moment from "moment";
 
 import { TagData, TaggedFile } from "./types";
-import { App, TFile, getAllTags } from "obsidian";
+import { App, TFile, moment, getAllTags } from "obsidian";
 import { SORT_FILES, SORT_TAGS } from "./constants";
 
 export function formatDate(date: Date, dateFormat: string): string {
