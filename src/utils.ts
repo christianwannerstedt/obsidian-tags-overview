@@ -1,5 +1,3 @@
-import * as fs from "fs";
-
 import { TagData, TaggedFile } from "./types";
 import { App, TFile, moment, getAllTags } from "obsidian";
 import { SORT_FILES, SORT_TAGS } from "./constants";
