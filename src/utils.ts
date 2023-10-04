@@ -25,13 +25,13 @@ export const getTagsFromFile = (app: App, file: TFile): string[] => {
 };
 
 export const getAllTagsAndFiles = (app: App) => {
-  const allTaggedFiles: TaggedFile[] = [];
+  const taggedFilesMap = new Map<TFile, TaggedFile>();
   let allTags: string[] = [];
-  app.vault.getMarkdownFiles().forEach((markdownFile) => {
+  app.vault.getMarkdownFiles().forEach((markdownFile: TFile) => {
     const fileTags: string[] = getTagsFromFile(app, markdownFile);
     allTags = allTags.concat(fileTags);
     if (fileTags.length) {
-      allTaggedFiles.push({
+      taggedFilesMap.set(markdownFile, {
         file: markdownFile,
         tags: fileTags,
       });
@@ -41,7 +41,7 @@ export const getAllTagsAndFiles = (app: App) => {
   allTags = [...new Set(allTags)].sort();
   return {
     allTags,
-    allTaggedFiles,
+    taggedFilesMap,
   };
 };
 

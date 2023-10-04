@@ -9,7 +9,7 @@ import {
   SORT_FILES_OPTIONS,
   SORT_TAGS_OPTIONS,
 } from "../constants";
-import { getAllTagsAndFiles, pluralize, sortTagsAndFiles } from "src/utils";
+import { pluralize, sortTagsAndFiles } from "src/utils";
 import TagsOverviewPlugin from "src/main";
 import { ICON_TYPE, Icon } from "./icon";
 import { HeaderSettings } from "./header-settings";

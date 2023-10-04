@@ -13,7 +13,7 @@ export class RootView extends ItemView {
   plugin: TagsOverviewPlugin;
   root: Root;
   allTags: string[];
-  allTaggedFiles: TaggedFile[];
+  taggedFilesMap: Map<TFile, TaggedFile>;
 
   constructor(leaf: WorkspaceLeaf, plugin: TagsOverviewPlugin) {
     super(leaf);
@@ -22,22 +22,20 @@ export class RootView extends ItemView {
     // Collect all tags and files
     const {
       allTags,
-      allTaggedFiles,
-    }: { allTags: string[]; allTaggedFiles: TaggedFile[] } = getAllTagsAndFiles(
-      this.app
-    );
+      taggedFilesMap,
+    }: { allTags: string[]; taggedFilesMap: Map<TFile, TaggedFile> } =
+      getAllTagsAndFiles(this.app);
     this.allTags = allTags;
-    this.allTaggedFiles = allTaggedFiles;
+    this.taggedFilesMap = taggedFilesMap;
 
     // Listen on file changes and update the list of tagged files
     plugin.registerEvent(
       this.app.metadataCache.on("changed", (modifiedFile: TFile) => {
         const tags: string[] = getTagsFromFile(this.app, modifiedFile);
-        const existingFile = this.allTaggedFiles.find(
-          (f) => f.file.path === modifiedFile.path
-        );
+        const existingFile: TaggedFile | undefined =
+          this.taggedFilesMap.get(modifiedFile);
         if (tags.length && !existingFile) {
-          this.allTaggedFiles.push({ file: modifiedFile, tags });
+          this.taggedFilesMap.set(modifiedFile, { file: modifiedFile, tags });
           this.render();
         } else if (
           tags.length &&
@@ -53,9 +51,7 @@ export class RootView extends ItemView {
     // Remove deleted files from the list
     plugin.registerEvent(
       this.app.vault.on("delete", (deletedFile: TFile) => {
-        this.allTaggedFiles = this.allTaggedFiles.filter(
-          (f) => f.file.path !== deletedFile.path
-        );
+        this.taggedFilesMap.delete(deletedFile);
         this.render();
       })
     );
@@ -84,7 +80,7 @@ export class RootView extends ItemView {
         <TagsView
           rootView={this}
           allTags={this.allTags}
-          allTaggedFiles={this.allTaggedFiles}
+          allTaggedFiles={[...this.taggedFilesMap.values()]}
         />
       );
     }
