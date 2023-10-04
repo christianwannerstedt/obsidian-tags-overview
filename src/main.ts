@@ -26,21 +26,14 @@ export default class TagsOverviewPlugin extends Plugin {
   async activateView() {
     let leaf: WorkspaceLeaf | null = this.getLeaf();
     if (!leaf) {
-      await this.app.workspace.getRightLeaf(false).setViewState({
+      leaf = this.app.workspace.getRightLeaf(false);
+      await leaf.setViewState({
         type: VIEW_TYPE,
         active: true,
       });
-      leaf = this.getLeaf();
     }
-    if (leaf) {
-      this.app.workspace.revealLeaf(leaf);
-    }
-  }
 
-  onunload() {
-    this.app.workspace
-      .getLeavesOfType(VIEW_TYPE)
-      .forEach((leaf) => leaf.detach());
+    this.app.workspace.revealLeaf(leaf);
   }
 
   async loadSettings() {
