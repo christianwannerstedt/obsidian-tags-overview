@@ -31,7 +31,7 @@ export class RootView extends ItemView {
 
     // Listen on file changes and update the list of tagged files
     plugin.registerEvent(
-      this.app.vault.on("modify", (modifiedFile: TFile) => {
+      this.app.metadataCache.on("changed", (modifiedFile: TFile) => {
         const tags: string[] = getTagsFromFile(this.app, modifiedFile);
         const existingFile = this.allTaggedFiles.find(
           (f) => f.file.path === modifiedFile.path
