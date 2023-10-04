@@ -56,61 +56,62 @@ export const openFile = (app: App, file: TFile, inNewLeaf = false): void => {
 };
 
 // Set dates functions
-const getMaxDatesFromFiles = (
-  files: TaggedFile[]
-): [Date | undefined, Date | undefined] => {
-  let modifiedDate: Date | undefined;
-  let createdDate: Date | undefined;
-  files.forEach((file: TaggedFile) => {
+const getMaxTimesFromFiles = (
+  taggedFiles: TaggedFile[]
+): [number | undefined, number | undefined] => {
+  let modifiedTime: number | undefined;
+  let createdTime: number | undefined;
+  taggedFiles.forEach((taggedFile: TaggedFile) => {
     if (
-      !modifiedDate ||
-      (file.modifiedDate && file.modifiedDate > modifiedDate)
+      !modifiedTime ||
+      (taggedFile.file.stat.mtime && taggedFile.file.stat.mtime > modifiedTime)
     ) {
-      modifiedDate = file.modifiedDate;
+      modifiedTime = taggedFile.file.stat.mtime;
     }
-    if (!createdDate || (file.createdDate && file.createdDate > createdDate)) {
-      createdDate = file.createdDate;
+    if (
+      !createdTime ||
+      (taggedFile.file.stat.ctime && taggedFile.file.stat.ctime > createdTime)
+    ) {
+      createdTime = taggedFile.file.stat.ctime;
     }
   });
 
-  return [modifiedDate, createdDate];
+  return [modifiedTime, createdTime];
 };
-export const setMaxDatesForTags = (
+export const setMaxTimesForTags = (
   tags: TagData[]
-): [Date | undefined, Date | undefined] => {
-  let totalModifiedDate: Date | undefined;
-  let totalCreatedDate: Date | undefined;
+): [number | undefined, number | undefined] => {
+  let totalModifiedTime: number | undefined;
+  let totalCreatedTime: number | undefined;
   tags.forEach((tagData: TagData) => {
-    let [tagModifiedDate, tagCreatedDate] = getMaxDatesFromFiles(tagData.files);
-    let [subModifiedDate, subCreatedDate] = setMaxDatesForTags(tagData.sub);
+    const [tagModifiedTime, tagCreatedTime] = getMaxTimesFromFiles(
+      tagData.files
+    );
+    const [subModifiedTime, subCreatedTime] = setMaxTimesForTags(tagData.sub);
 
-    const modifiedDate: Date | undefined =
-      tagModifiedDate && subModifiedDate
-        ? tagModifiedDate < subModifiedDate
-          ? tagModifiedDate
-          : subModifiedDate
-        : tagModifiedDate || subModifiedDate;
-    const createdDate: Date | undefined =
-      tagCreatedDate && subCreatedDate
-        ? tagCreatedDate > subCreatedDate
-          ? tagCreatedDate
-          : subCreatedDate
-        : tagCreatedDate || subCreatedDate;
+    const modifiedTime: number | undefined =
+      tagModifiedTime && subModifiedTime
+        ? Math.min(tagModifiedTime, subModifiedTime)
+        : tagModifiedTime || subModifiedTime;
+    const createdTime: number | undefined =
+      tagCreatedTime && subCreatedTime
+        ? Math.max(tagCreatedTime, subCreatedTime)
+        : tagCreatedTime || subCreatedTime;
 
-    tagData.maxModifiedDate = modifiedDate;
-    tagData.maxCreatedDate = createdDate;
+    tagData.maxModifiedTime = modifiedTime;
+    tagData.maxCreatedTime = createdTime;
 
     if (
-      modifiedDate &&
-      (!totalModifiedDate || modifiedDate < totalModifiedDate)
+      modifiedTime &&
+      (!totalModifiedTime || modifiedTime < totalModifiedTime)
     ) {
-      totalModifiedDate = modifiedDate;
+      totalModifiedTime = modifiedTime;
     }
-    if (createdDate && (!totalCreatedDate || createdDate > totalCreatedDate)) {
-      totalCreatedDate = createdDate;
+    if (createdTime && (!totalCreatedTime || createdTime > totalCreatedTime)) {
+      totalCreatedTime = createdTime;
     }
   });
-  return [totalModifiedDate, totalCreatedDate];
+  return [totalModifiedTime, totalCreatedTime];
 };
 
 // Sort functions
@@ -129,18 +130,18 @@ export const sortTagsAndFiles = (
     } else if (sortFiles == SORT_FILES.nameDesc) {
       return nameA < nameB ? 1 : -1;
     }
-    if (tFileA.modifiedDate && tFileB.modifiedDate) {
+    if (tFileA.file.stat.mtime && tFileB.file.stat.mtime) {
       if (sortFiles == SORT_FILES.modifiedAsc) {
-        return tFileA.modifiedDate < tFileB.modifiedDate ? 1 : -1;
+        return tFileA.file.stat.mtime < tFileB.file.stat.mtime ? 1 : -1;
       } else if (sortFiles == SORT_FILES.modifiedDesc) {
-        return tFileA.modifiedDate < tFileB.modifiedDate ? -1 : 1;
+        return tFileA.file.stat.mtime < tFileB.file.stat.mtime ? -1 : 1;
       }
     }
-    if (tFileA.createdDate && tFileB.createdDate) {
+    if (tFileA.file.stat.ctime && tFileB.file.stat.ctime) {
       if (sortFiles == SORT_FILES.createdAsc) {
-        return tFileA.createdDate < tFileB.createdDate ? 1 : -1;
+        return tFileA.file.stat.ctime < tFileB.file.stat.ctime ? 1 : -1;
       } else if (sortFiles == SORT_FILES.createdDesc) {
-        return tFileA.createdDate < tFileB.createdDate ? -1 : 1;
+        return tFileA.file.stat.ctime < tFileB.file.stat.ctime ? -1 : 1;
       }
     }
     return 0;
@@ -158,18 +159,18 @@ export const sortTagsAndFiles = (
     } else if (sortTags == SORT_TAGS.frequencyDesc) {
       return tagA.files.length < tagB.files.length ? -1 : 1;
     }
-    if (tagA.maxModifiedDate && tagB.maxModifiedDate) {
+    if (tagA.maxModifiedTime && tagB.maxModifiedTime) {
       if (sortTags == SORT_TAGS.modifiedAsc) {
-        return tagA.maxModifiedDate < tagB.maxModifiedDate ? 1 : -1;
+        return tagA.maxModifiedTime < tagB.maxModifiedTime ? 1 : -1;
       } else if (sortTags == SORT_TAGS.modifiedDesc) {
-        return tagA.maxModifiedDate > tagB.maxModifiedDate ? 1 : -1;
+        return tagA.maxModifiedTime > tagB.maxModifiedTime ? 1 : -1;
       }
     }
-    if (tagA.maxCreatedDate && tagB.maxCreatedDate) {
+    if (tagA.maxCreatedTime && tagB.maxCreatedTime) {
       if (sortTags == SORT_TAGS.createdAsc) {
-        return tagA.maxCreatedDate < tagB.maxCreatedDate ? 1 : -1;
+        return tagA.maxCreatedTime < tagB.maxCreatedTime ? 1 : -1;
       } else if (sortTags == SORT_TAGS.createdDesc) {
-        return tagA.maxCreatedDate > tagB.maxCreatedDate ? 1 : -1;
+        return tagA.maxCreatedTime > tagB.maxCreatedTime ? 1 : -1;
       }
     }
     return 0;

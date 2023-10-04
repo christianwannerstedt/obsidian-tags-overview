@@ -18,10 +18,7 @@ export interface ContextMenuOption {
 export interface TaggedFile {
   file: TFile;
   tags: string[];
-  modifiedDate?: Date;
-  modified?: string;
-  createdDate?: Date;
-  created?: string;
+  formattedModified?: string;
 }
 
 export interface FilesByTag {
@@ -40,6 +37,6 @@ export interface TagData {
   files: TaggedFile[];
   sub: TagData[];
   subFilesCount: number;
-  maxModifiedDate?: Date;
-  maxCreatedDate?: Date;
+  maxModifiedTime?: number;
+  maxCreatedTime?: number;
 }

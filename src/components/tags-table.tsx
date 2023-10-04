@@ -77,7 +77,9 @@ export const TagsTable = ({
                             {file.file.basename}
                           </span>
                         </td>
-                        <td className="last-modified">{file.modified}</td>
+                        <td className="last-modified">
+                          {file.formattedModified}
+                        </td>
                       </tr>
                     </React.Fragment>
                   ))}

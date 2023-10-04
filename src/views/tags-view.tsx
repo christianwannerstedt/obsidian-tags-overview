@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import Select from "react-select";
@@ -12,7 +11,7 @@ import {
   formatDate,
   formatCalendardDate,
   openFile,
-  setMaxDatesForTags,
+  setMaxTimesForTags,
 } from "src/utils";
 import { FilesByTag, SelectOption, TagData, TaggedFile } from "src/types";
 
@@ -72,25 +71,16 @@ export const TagsView = ({
       })
     : [...allTaggedFiles];
 
-  // Curry the files with last modified date
-  const basePath: string =
-    app.vault.adapter instanceof FileSystemAdapter
-      ? app.vault.adapter.getBasePath()
-      : "";
-
+  // Curry the files with a formatted version of the last modified date
   const getFormattedDate = (date: Date): string => {
     return plugin.settings.showCalendarDates
       ? formatCalendardDate(date, plugin.settings.dateFormat)
       : formatDate(date, plugin.settings.dateFormat);
   };
-
-  displayFiles.forEach((file: TaggedFile) => {
-    const filepath = `${basePath}/${file.file.path}`;
-    const stats = fs.statSync(filepath);
-    file.modifiedDate = stats.mtime;
-    file.createdDate = stats.birthtime;
-    file.modified = getFormattedDate(file.modifiedDate);
-    file.created = getFormattedDate(file.createdDate);
+  displayFiles.forEach((taggedFile: TaggedFile) => {
+    taggedFile.formattedModified = getFormattedDate(
+      new Date(taggedFile.file.stat.mtime)
+    );
   });
 
   // Get tags to be displayed
@@ -166,7 +156,7 @@ export const TagsView = ({
 
   // Curry the tags with counts and max dates
   sumUpNestedFilesCount(nestedTags);
-  setMaxDatesForTags(nestedTags);
+  setMaxTimesForTags(nestedTags);
 
   return (
     <div>
