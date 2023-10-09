@@ -38,3 +38,11 @@ Filter the list easily by selecting one or more tags in the dropdown menu. You c
 
 ### Manual installation
 Unzip the [latest release](https://github.com/christianwannerstedt/obsidian-tags-overview/releases/latest) into your `<vault>/.obsidian/plugins/` folder.
+
+### Within Obsidian
+1. Go to `Settings > Community plugins`
+2. Ensure that Safe mode is turned off
+3. Click `Community plugins > Browse`
+4. Search for `Tags overview`
+5. Click install
+6. Once installed, close the community plugins window and activate the newly installed plugin
