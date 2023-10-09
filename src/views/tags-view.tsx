@@ -159,7 +159,7 @@ export const TagsView = ({
   setMaxTimesForTags(nestedTags);
 
   return (
-    <div>
+    <div className="tags-overview">
       <HeaderSettings
         title="Filter"
         value={filterAnd}
