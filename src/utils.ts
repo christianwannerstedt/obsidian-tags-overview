@@ -21,7 +21,10 @@ export const pluralize = (count: number, singular: string, plural: string) => {
 
 export const getTagsFromFile = (app: App, file: TFile): string[] => {
   const cache = app.metadataCache.getFileCache(file);
-  return cache ? getAllTags(cache)?.map((tag) => tag.substring(1)) || [] : [];
+  const fileTags = cache
+    ? getAllTags(cache)?.map((tag) => tag.substring(1)) || []
+    : [];
+  return fileTags.length > 0 ? [...new Set(fileTags)] : fileTags;
 };
 
 export const getAllTagsAndFiles = (app: App) => {
