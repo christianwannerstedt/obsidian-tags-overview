@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import { App, FileSystemAdapter, TFile } from "obsidian";
+import { App, TFile } from "obsidian";
 
 import TagsOverviewPlugin from "../main";
 import { RootView } from "./root-view";

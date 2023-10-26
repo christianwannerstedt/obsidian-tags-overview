@@ -34,15 +34,31 @@ export class RootView extends ItemView {
         const tags: string[] = getTagsFromFile(this.app, modifiedFile);
         const existingFile: TaggedFile | undefined =
           this.taggedFilesMap.get(modifiedFile);
+        let tagsModified: boolean = false;
         if (tags.length && !existingFile) {
           this.taggedFilesMap.set(modifiedFile, { file: modifiedFile, tags });
-          this.render();
+          tagsModified = true;
         } else if (
           tags.length &&
           existingFile &&
           tags.sort().join() !== existingFile.tags.sort().join()
         ) {
           existingFile.tags = tags;
+          tagsModified = true;
+        }
+
+        if (tagsModified) {
+          // Update the allTags list
+          this.allTags = [
+            ...new Set(
+              [...this.taggedFilesMap.values()].reduce(
+                (tags: string[], taggedFile: TaggedFile) => {
+                  return [...taggedFile.tags, ...tags];
+                },
+                []
+              )
+            ),
+          ].sort();
           this.render();
         }
       })

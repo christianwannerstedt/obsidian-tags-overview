@@ -32,8 +32,8 @@ export const getAllTagsAndFiles = (app: App) => {
   let allTags: string[] = [];
   app.vault.getMarkdownFiles().forEach((markdownFile: TFile) => {
     const fileTags: string[] = getTagsFromFile(app, markdownFile);
-    allTags = allTags.concat(fileTags);
     if (fileTags.length) {
+      allTags = allTags.concat(fileTags);
       taggedFilesMap.set(markdownFile, {
         file: markdownFile,
         tags: fileTags,
