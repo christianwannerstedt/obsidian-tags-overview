@@ -17,8 +17,10 @@ export interface ContextMenuOption {
 
 export interface TaggedFile {
   file: TFile;
+  frontMatter: Record<string, string[]>;
   tags: string[];
   formattedModified?: string;
+  formattedCreated?: string;
 }
 
 export interface FilesByTag {
@@ -39,4 +41,10 @@ export interface TagData {
   subFilesCount: number;
   maxModifiedTime?: number;
   maxCreatedTime?: number;
+}
+
+export interface TableColumn {
+  type: string;
+  align?: string;
+  data?: string;
 }

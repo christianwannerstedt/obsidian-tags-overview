@@ -192,7 +192,7 @@ export const Tags = ({
         {displayType === DISPLAY_TYPE.compact ? (
           <TagsList {...props} />
         ) : (
-          <TagsTable {...props} />
+          <TagsTable plugin={plugin} {...props} />
         )}
       </div>
     </>

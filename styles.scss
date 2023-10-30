@@ -120,15 +120,29 @@
         }
     }
 
+    .align-left {
+        text-align: left;
+    }
+    .align-center {
+        text-align: center;
+    }
+    .align-right {
+        text-align: right;
+    }
+
     .last-modified {
         text-align: right;
         color: var(--color-base-70);
         font-size: var(--font-ui-smallest);
         white-space: nowrap;
     }
-    .display-type-list .file-link {
+    // .display-type-list .file-link {
+    //     color: var(--link-color);
+    // }
+    .tags-table-container tbody tr > td:first-child {
         color: var(--link-color);
     }
+
     .has-sub-tags > .tag-content {
         margin-left: -12px;
         padding-left: 12px;
@@ -145,7 +159,10 @@
         background-color: var(--nav-item-background-hover);
         cursor: pointer;
     }
-    .tags-table-container tbody tr.file-row:hover .file-link {
+    // .tags-table-container tbody tr.file-row:hover .file-link {
+    //     color: var(--link-color-hover);
+    // }
+    .tags-table-container tbody tr.file-row:hover > :first-child {
         color: var(--link-color-hover);
     }
 
@@ -278,5 +295,78 @@
     }
     .custom-icon.is-disabled:hover {
         background-color: unset;   
+    }
+}
+
+
+.tags-overview-settings-table {
+    width: 100%;
+    margin-top: 5px;
+    border: 0 !important;
+
+    th, td {
+        border: 0 !important;
+    }
+
+    th {
+        text-align: left;
+        padding: 8px 10px;
+        font-size: var(--font-ui-small);
+    }
+
+    .no-columns-added {
+        padding: 10px;
+        text-align: center;
+        background-color: var(--background-secondary);
+    }
+
+    thead  {
+        border-bottom: 1px solid var(--color-base-40) !important;
+        
+        th {
+            // background-color: var(--background-secondary);
+
+            // &:nth-child(odd) {
+            //     background-color: var(--background-secondary-alt);
+            // }
+        }
+    }
+
+    tbody  {
+        tr {
+            background-color: var(--background-secondary);
+
+            &:nth-child(odd) {
+                background-color: var(--background-secondary-alt);
+            }
+        }
+        
+        td {
+            padding: 4px 8px;
+        }
+    }
+
+
+    tfoot {
+        // background-color: var(--background-secondary);
+
+        td {
+            padding: 8px 10px;
+        }
+    }
+
+    .custom-icon {
+        display: inline-block;
+        margin: 2px 2px 0 2px;
+
+        svg {
+            width: 18px !important;
+            height: 18px;
+        }
+
+        &:hover {
+            color: var(--icon-color-hover);
+            cursor: pointer;
+        }
     }
 }

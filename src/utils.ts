@@ -27,6 +27,11 @@ export const getTagsFromFile = (app: App, file: TFile): string[] => {
   return fileTags.length > 0 ? [...new Set(fileTags)] : fileTags;
 };
 
+export const getFrontMatterFromFile = (app: App, file: TFile) => {
+  const cache = app.metadataCache.getFileCache(file);
+  return { ...cache?.frontmatter };
+};
+
 export const getAllTagsAndFiles = (app: App) => {
   const taggedFilesMap = new Map<TFile, TaggedFile>();
   let allTags: string[] = [];
@@ -36,6 +41,7 @@ export const getAllTagsAndFiles = (app: App) => {
       allTags = allTags.concat(fileTags);
       taggedFilesMap.set(markdownFile, {
         file: markdownFile,
+        frontMatter: getFrontMatterFromFile(app, markdownFile),
         tags: fileTags,
       });
     }

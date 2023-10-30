@@ -78,6 +78,9 @@ export const TagsView = ({
       : formatDate(date, plugin.settings.dateFormat);
   };
   displayFiles.forEach((taggedFile: TaggedFile) => {
+    taggedFile.formattedCreated = getFormattedDate(
+      new Date(taggedFile.file.stat.ctime)
+    );
     taggedFile.formattedModified = getFormattedDate(
       new Date(taggedFile.file.stat.mtime)
     );

@@ -4,14 +4,18 @@ import { ICON_TYPE, Icon } from "./icon";
 import { TagTitleRow } from "./tag-title-row";
 import { TagData, TaggedFile } from "../types";
 import { addOrRemove, pluralize } from "../utils";
+import TagsOverviewPlugin from "src/main";
+import { DEFAULT_SETTINGS } from "src/settings";
 
 export const TagsTable = ({
+  plugin,
   tags,
   onFileClick,
   collapsedTags,
   setCollapsedTags,
   onTagClick,
 }: {
+  plugin: TagsOverviewPlugin;
   tags: TagData[];
   onFileClick: Function;
   collapsedTags: string[];
@@ -35,6 +39,11 @@ export const TagsTable = ({
     if (tagLevel.subFilesCount) {
       filesInfo += ` (${tagLevel.files.length + tagLevel.subFilesCount} total)`;
     }
+
+    const tableColumns = plugin.settings.tableColumns.length
+      ? plugin.settings.tableColumns
+      : DEFAULT_SETTINGS.tableColumns;
+
     return (
       <div key={tagLevel.tag} className={containerClasses}>
         {isCollapsable && (
@@ -72,21 +81,40 @@ export const TagsTable = ({
                           onFileClick(file.file, event.ctrlKey || event.metaKey)
                         }
                       >
-                        <td>
+                        {tableColumns.map((column, index) => (
+                          <td
+                            key={`${tagLevel.tag}-${file.file.basename}-${index}`}
+                            className={`align-${column.align}`}
+                          >
+                            {column.type === "name" && file.file.basename}
+                            {column.type === "modified" &&
+                              file.formattedModified}
+                            {column.type === "created" && file.formattedCreated}
+                            {column.type === "size" && file.file.stat.size}
+                            {column.type === "frontMatter" &&
+                              file.frontMatter &&
+                              column.data &&
+                              file.frontMatter[column.data] &&
+                              (typeof file.frontMatter[column.data] === "string"
+                                ? file.frontMatter[column.data]
+                                : file.frontMatter[column.data].join(", "))}
+                          </td>
+                        ))}
+                        {/* <td>
                           <span className="file-link">
                             {file.file.basename}
                           </span>
                         </td>
                         <td className="last-modified">
                           {file.formattedModified}
-                        </td>
+                        </td> */}
                       </tr>
                     </React.Fragment>
                   ))}
                 {!!tagLevel.sub.length &&
                   !collapsedTags.includes(tagLevel.tagPath) && (
                     <tr className="sub-tags-row">
-                      <td colSpan={2}>
+                      <td colSpan={tableColumns.length}>
                         {tagLevel.sub.map((subTagData: TagData) =>
                           getTagTable(subTagData, depth + 1)
                         )}

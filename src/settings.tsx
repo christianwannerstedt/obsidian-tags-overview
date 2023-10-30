@@ -1,7 +1,16 @@
+import * as React from "react";
+
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { DISPLAY_TYPE, SORT_FILES, SORT_TAGS } from "./constants";
 import TagsOverviewPlugin from "./main";
 import { formatDate } from "./utils";
+import { createRoot } from "react-dom/client";
+import { SettingsView } from "./views/settings-view";
+import { TableColumn } from "./types";
+import {
+  ALIGN_OPTIONS,
+  TABLE_COLUMN_TYPES,
+} from "./components/table-columns-select";
 
 export interface TagsOverviewSettings {
   filterAnd: boolean;
@@ -13,6 +22,7 @@ export interface TagsOverviewSettings {
   showRelatedTags: boolean;
   showCalendarDates: boolean;
   dateFormat: string;
+  tableColumns: TableColumn[];
 }
 
 export const DEFAULT_SETTINGS: TagsOverviewSettings = {
@@ -25,6 +35,10 @@ export const DEFAULT_SETTINGS: TagsOverviewSettings = {
   showRelatedTags: true,
   showCalendarDates: true,
   dateFormat: "YYYY-MM-DD",
+  tableColumns: [
+    { type: TABLE_COLUMN_TYPES.name },
+    { type: TABLE_COLUMN_TYPES.modified, align: ALIGN_OPTIONS.right },
+  ],
 };
 
 export class TagsOverviewSettingTab extends PluginSettingTab {
@@ -48,7 +62,7 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.keepFilters = value;
             await this.plugin.saveData(this.plugin.settings);
-            this.plugin.activateView();
+            this.plugin.refreshView();
           })
       );
 
@@ -63,7 +77,7 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.showCalendarDates = value;
             await this.plugin.saveData(this.plugin.settings);
-            this.plugin.activateView();
+            this.plugin.refreshView();
           })
       );
 
@@ -94,8 +108,17 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
         dropdown.onChange(async (value) => {
           this.plugin.settings.dateFormat = value;
           await this.plugin.saveData(this.plugin.settings);
-          this.plugin.activateView();
+          this.plugin.refreshView();
         });
       });
+
+    const root = document.createElement("div");
+    root.id = `test-test`;
+    root.className = "tags-overview";
+    root.style.marginTop = "0.75em";
+    containerEl.appendChild(root);
+
+    const reactRoot = createRoot(root);
+    reactRoot.render(<SettingsView plugin={this.plugin} />);
   }
 }
