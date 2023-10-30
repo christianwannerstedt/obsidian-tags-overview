@@ -73,6 +73,10 @@ export class RootView extends ItemView {
     );
   }
 
+  refresh() {
+    this.render();
+  }
+
   getViewType() {
     return VIEW_TYPE;
   }
