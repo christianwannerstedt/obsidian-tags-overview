@@ -84,7 +84,7 @@ export const TagsTable = ({
                         {tableColumns.map((column, index) => (
                           <td
                             key={`${tagLevel.tag}-${file.file.basename}-${index}`}
-                            className={`align-${column.align}`}
+                            className={`align-${column.align} col-${column.type}`}
                           >
                             {column.type === "name" && file.file.basename}
                             {column.type === "modified" &&
@@ -100,14 +100,6 @@ export const TagsTable = ({
                                 : file.frontMatter[column.data].join(", "))}
                           </td>
                         ))}
-                        {/* <td>
-                          <span className="file-link">
-                            {file.file.basename}
-                          </span>
-                        </td>
-                        <td className="last-modified">
-                          {file.formattedModified}
-                        </td> */}
                       </tr>
                     </React.Fragment>
                   ))}

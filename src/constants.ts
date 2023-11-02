@@ -1,12 +1,12 @@
 import { ContextMenuOption } from "./types";
 
-export const DISPLAY_TYPE = {
+export const DISPLAY_TYPE: Record<string, string> = {
   compact: "compact",
   list: "list",
 };
 Object.freeze(DISPLAY_TYPE);
 
-export const SORT_TAGS = {
+export const SORT_TAGS: Record<string, string> = {
   nameAsc: "name",
   nameDesc: "-name",
   frequencyAsc: "frequency",
@@ -18,7 +18,7 @@ export const SORT_TAGS = {
 };
 Object.freeze(SORT_TAGS);
 
-export const SORT_FILES = {
+export const SORT_FILES: Record<string, string> = {
   nameAsc: "name",
   nameDesc: "-name",
   modifiedAsc: "modified",
@@ -77,3 +77,25 @@ export const SORT_FILES_OPTIONS: ContextMenuOption[] = [
     key: SORT_FILES.createdDesc,
   },
 ];
+
+export const TABLE_COLUMN_TYPES: Record<string, string> = {
+  name: "name",
+  modified: "modified",
+  created: "created",
+  size: "size",
+  frontMatter: "frontMatter",
+};
+
+export const TABLE_COLUMN_LABELS: Record<string, string> = {
+  name: "File name",
+  modified: "Modified time",
+  created: "Created time",
+  size: "Size",
+  frontMatter: "Property",
+};
+
+export const ALIGN_OPTIONS: Record<string, string> = {
+  left: "left",
+  center: "center",
+  right: "right",
+};

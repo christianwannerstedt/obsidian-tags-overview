@@ -1,16 +1,18 @@
 import * as React from "react";
 
-import { App, PluginSettingTab, Setting } from "obsidian";
-import { DISPLAY_TYPE, SORT_FILES, SORT_TAGS } from "./constants";
+import { App, ButtonComponent, PluginSettingTab, Setting } from "obsidian";
+import {
+  ALIGN_OPTIONS,
+  DISPLAY_TYPE,
+  SORT_FILES,
+  SORT_TAGS,
+  TABLE_COLUMN_TYPES,
+} from "./constants";
 import TagsOverviewPlugin from "./main";
 import { formatDate } from "./utils";
 import { createRoot } from "react-dom/client";
 import { SettingsView } from "./views/settings-view";
 import { TableColumn } from "./types";
-import {
-  ALIGN_OPTIONS,
-  TABLE_COLUMN_TYPES,
-} from "./components/table-columns-select";
 
 export interface TagsOverviewSettings {
   filterAnd: boolean;
@@ -113,12 +115,24 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
       });
 
     const root = document.createElement("div");
-    root.id = `test-test`;
-    root.className = "tags-overview";
-    root.style.marginTop = "0.75em";
+    root.className = "tags-overview-table-settings";
     containerEl.appendChild(root);
 
     const reactRoot = createRoot(root);
     reactRoot.render(<SettingsView plugin={this.plugin} />);
+
+    new Setting(containerEl)
+      .setName("Reset settings")
+      .setDesc("Reset all settings to their default values")
+      .addButton((button: ButtonComponent) =>
+        button.setButtonText("Reset settings").onClick(async () => {
+          if (confirm("Are you sure you want to reset the settings?")) {
+            this.plugin.settings = Object.assign({}, DEFAULT_SETTINGS);
+            await this.plugin.saveData(this.plugin.settings);
+            this.display();
+            this.plugin.refreshView();
+          }
+        })
+      );
   }
 }

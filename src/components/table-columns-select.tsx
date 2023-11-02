@@ -1,21 +1,13 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
+import { useEffect, useState } from "react";
 import { ICON_TYPE, Icon } from "./icon";
 import TagsOverviewPlugin from "src/main";
 import { TableColumn } from "src/types";
-
-export const TABLE_COLUMN_TYPES = {
-  name: "name",
-  modified: "modified",
-  created: "created",
-  size: "size",
-  frontMatter: "frontMatter",
-};
-
-export const ALIGN_OPTIONS = {
-  left: "left",
-  center: "center",
-  right: "right",
-};
+import {
+  ALIGN_OPTIONS,
+  TABLE_COLUMN_LABELS,
+  TABLE_COLUMN_TYPES,
+} from "src/constants";
 
 export const TableColumnsSelector = ({
   plugin,
@@ -89,18 +81,21 @@ export const TableColumnsSelector = ({
       <tr>
         <td colSpan={3} className="no-columns-added">
           <i>No columns added</i>
+          <p>The default ones will be displayed</p>
         </td>
       </tr>
     ) : (
       selectedColumns.map((column: TableColumn, index: number) => (
         <tr key={`${column}-${index}`}>
           <td>
-            {column.type}
+            {column.type !== "frontMatter" && TABLE_COLUMN_LABELS[column.type]}
             {column.type === "frontMatter" && (
-              <span className="front-matter-note">
+              <>
+                <span>Property: </span>
                 <select
                   onChange={(e) => setProperty(column, e.target.value)}
                   value={column.data}
+                  className="front-matter-property-select"
                 >
                   <option value="">Select property</option>
                   {frontMatterProperties.map((property) => (
@@ -112,7 +107,7 @@ export const TableColumnsSelector = ({
                     </option>
                   ))}
                 </select>
-              </span>
+              </>
             )}
           </td>
           <td style={{ textAlign: "center" }}>
@@ -193,7 +188,7 @@ export const TableColumnsSelector = ({
                   })
                   .map((column, index) => (
                     <option key={`${column}-${index}`} value={column}>
-                      {column}
+                      {TABLE_COLUMN_LABELS[column]}
                     </option>
                   ))}
               </select>

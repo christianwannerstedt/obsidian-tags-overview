@@ -17,17 +17,11 @@ export const SettingsView = ({ plugin }: { plugin: TagsOverviewPlugin }) => {
 
   return (
     <>
-      <div className="setting-item setting-item-heading">
-        <div className="setting-item-info">
-          <div className="setting-item-name">Table columns</div>
-          <div className="setting-item-description"></div>
-        </div>
-      </div>
       <div className="setting-item">
         <div className="setting-item-info">
           <div className="setting-item-name">Table columns</div>
           <div className="setting-item-description">
-            Select which columns to show in the table.
+            Select which columns to show in the list view table.
           </div>
         </div>
       </div>

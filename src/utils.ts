@@ -19,31 +19,26 @@ export const pluralize = (count: number, singular: string, plural: string) => {
   return count === 1 ? `1 ${singular}` : `${count} ${plural}`;
 };
 
-export const getTagsFromFile = (app: App, file: TFile): string[] => {
+export const getTaggedFileFromFile = (app: App, file: TFile): TaggedFile => {
   const cache = app.metadataCache.getFileCache(file);
   const fileTags = cache
     ? getAllTags(cache)?.map((tag) => tag.substring(1)) || []
     : [];
-  return fileTags.length > 0 ? [...new Set(fileTags)] : fileTags;
-};
-
-export const getFrontMatterFromFile = (app: App, file: TFile) => {
-  const cache = app.metadataCache.getFileCache(file);
-  return { ...cache?.frontmatter };
+  return {
+    file,
+    frontMatter: { ...cache?.frontmatter },
+    tags: fileTags.length > 0 ? [...new Set(fileTags)] : fileTags,
+  };
 };
 
 export const getAllTagsAndFiles = (app: App) => {
   const taggedFilesMap = new Map<TFile, TaggedFile>();
   let allTags: string[] = [];
   app.vault.getMarkdownFiles().forEach((markdownFile: TFile) => {
-    const fileTags: string[] = getTagsFromFile(app, markdownFile);
-    if (fileTags.length) {
-      allTags = allTags.concat(fileTags);
-      taggedFilesMap.set(markdownFile, {
-        file: markdownFile,
-        frontMatter: getFrontMatterFromFile(app, markdownFile),
-        tags: fileTags,
-      });
+    const taggedFile: TaggedFile = getTaggedFileFromFile(app, markdownFile);
+    if (taggedFile.tags.length) {
+      allTags = allTags.concat(taggedFile.tags);
+      taggedFilesMap.set(markdownFile, taggedFile);
     }
   });
   // Remove duplicates and sort

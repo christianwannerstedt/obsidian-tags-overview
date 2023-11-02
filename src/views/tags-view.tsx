@@ -71,7 +71,7 @@ export const TagsView = ({
       })
     : [...allTaggedFiles];
 
-  // Curry the files with a formatted version of the last modified date
+  // Curry the files with a formatted version of the last modified and created date
   const getFormattedDate = (date: Date): string => {
     return plugin.settings.showCalendarDates
       ? formatCalendardDate(date, plugin.settings.dateFormat)

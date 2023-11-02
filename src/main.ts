@@ -39,7 +39,7 @@ export default class TagsOverviewPlugin extends Plugin {
   async refreshView() {
     const leaf = this.getLeaf();
     if (leaf?.view) {
-      leaf.view.refresh();
+      (leaf.view as RootView).refresh();
     }
   }
 

@@ -105,11 +105,11 @@
 .tags-overview .align-right {
   text-align: right;
 }
-.tags-overview .last-modified {
-  text-align: right;
-  color: var(--color-base-70);
-  font-size: var(--font-ui-smallest);
+.tags-overview .col-modified, .tags-overview .col-created {
   white-space: nowrap;
+}
+.tags-overview .col-size {
+  width: 80px;
 }
 .tags-overview .tags-table-container tbody tr > td:first-child {
   color: var(--link-color);
@@ -248,9 +248,14 @@
   background-color: unset;
 }
 
+.tags-overview-table-settings {
+  padding: 0.75em 0;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
 .tags-overview-settings-table {
   width: 100%;
-  margin-top: 5px;
+  margin-bottom: 5px;
   border: 0 !important;
 }
 .tags-overview-settings-table th, .tags-overview-settings-table td {
@@ -259,12 +264,16 @@
 .tags-overview-settings-table th {
   text-align: left;
   padding: 8px 10px;
-  font-size: var(--font-ui-small);
+  font-size: var(--font-ui-smaller);
 }
 .tags-overview-settings-table .no-columns-added {
-  padding: 10px;
+  padding: 15px;
   text-align: center;
   background-color: var(--background-secondary);
+}
+.tags-overview-settings-table .no-columns-added p {
+  margin: 4px;
+  font-size: 10px;
 }
 .tags-overview-settings-table thead {
   border-bottom: 1px solid var(--color-base-40) !important;
@@ -280,6 +289,9 @@
 }
 .tags-overview-settings-table tfoot td {
   padding: 8px 10px;
+}
+.tags-overview-settings-table .front-matter-property-select {
+  margin-left: 20px;
 }
 .tags-overview-settings-table .custom-icon {
   display: inline-block;
