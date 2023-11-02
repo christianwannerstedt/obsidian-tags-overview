@@ -71,9 +71,9 @@ export const TagsTable = ({
             <table>
               <tbody>
                 {tagLevel.files &&
-                  tagLevel.files.map((file: TaggedFile) => (
+                  tagLevel.files.map((file: TaggedFile, fileIndex: number) => (
                     <React.Fragment
-                      key={`${tagLevel.tag}-${file.file.basename}`}
+                      key={`${tagLevel.tag}-${file.file.basename}-${fileIndex}`}
                     >
                       <tr
                         className="file-row"
@@ -83,7 +83,7 @@ export const TagsTable = ({
                       >
                         {tableColumns.map((column, index) => (
                           <td
-                            key={`${tagLevel.tag}-${file.file.basename}-${index}`}
+                            key={`${tagLevel.tag}-${file.file.basename}-${fileIndex}-${index}`}
                             className={`align-${column.align} col-${column.type}`}
                           >
                             {column.type === "name" && file.file.basename}
