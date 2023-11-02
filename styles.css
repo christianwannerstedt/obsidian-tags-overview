@@ -96,13 +96,22 @@
 .tags-overview .tags-table-container tbody tr.sub-tags-row > td {
   border-top: 0 !important;
 }
-.tags-overview .last-modified {
+.tags-overview .align-left {
+  text-align: left;
+}
+.tags-overview .align-center {
+  text-align: center;
+}
+.tags-overview .align-right {
   text-align: right;
-  color: var(--color-base-70);
-  font-size: var(--font-ui-smallest);
+}
+.tags-overview .col-modified, .tags-overview .col-created {
   white-space: nowrap;
 }
-.tags-overview .display-type-list .file-link {
+.tags-overview .col-size {
+  width: 80px;
+}
+.tags-overview .tags-table-container tbody tr > td:first-child {
   color: var(--link-color);
 }
 .tags-overview .has-sub-tags > .tag-content {
@@ -121,7 +130,7 @@
   background-color: var(--nav-item-background-hover);
   cursor: pointer;
 }
-.tags-overview .tags-table-container tbody tr.file-row:hover .file-link {
+.tags-overview .tags-table-container tbody tr.file-row:hover > :first-child {
   color: var(--link-color-hover);
 }
 .tags-overview .tags-filter-select {
@@ -237,4 +246,62 @@
 }
 .tags-overview .custom-icon.is-disabled:hover {
   background-color: unset;
+}
+
+.tags-overview-table-settings {
+  padding: 0.75em 0;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.tags-overview-settings-table {
+  width: 100%;
+  margin-bottom: 5px;
+  border: 0 !important;
+}
+.tags-overview-settings-table th, .tags-overview-settings-table td {
+  border: 0 !important;
+}
+.tags-overview-settings-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: var(--font-ui-smaller);
+}
+.tags-overview-settings-table .no-columns-added {
+  padding: 15px;
+  text-align: center;
+  background-color: var(--background-secondary);
+}
+.tags-overview-settings-table .no-columns-added p {
+  margin: 4px;
+  font-size: 10px;
+}
+.tags-overview-settings-table thead {
+  border-bottom: 1px solid var(--color-base-40) !important;
+}
+.tags-overview-settings-table tbody tr {
+  background-color: var(--background-secondary);
+}
+.tags-overview-settings-table tbody tr:nth-child(odd) {
+  background-color: var(--background-secondary-alt);
+}
+.tags-overview-settings-table tbody td {
+  padding: 4px 8px;
+}
+.tags-overview-settings-table tfoot td {
+  padding: 8px 10px;
+}
+.tags-overview-settings-table .front-matter-property-select {
+  margin-left: 20px;
+}
+.tags-overview-settings-table .custom-icon {
+  display: inline-block;
+  margin: 2px 2px 0 2px;
+}
+.tags-overview-settings-table .custom-icon svg {
+  width: 18px !important;
+  height: 18px;
+}
+.tags-overview-settings-table .custom-icon:hover {
+  color: var(--icon-color-hover);
+  cursor: pointer;
 }

@@ -30,7 +30,6 @@ export const TagsList = ({
     if (isCollapsed) {
       containerClasses += " is-collapsed";
     }
-
     return (
       <div key={tagLevel.tag} className={containerClasses}>
         {isCollapsable && (
@@ -57,9 +56,9 @@ export const TagsList = ({
           <div className="nested-container">
             {!!tagLevel.files.length && (
               <div>
-                {tagLevel.files.map((file: TaggedFile) => (
+                {tagLevel.files.map((file: TaggedFile, index: number) => (
                   <span
-                    key={file.file.basename}
+                    key={`${file.file.basename}-${index}`}
                     onClick={(event) =>
                       onFileClick(file.file, event.ctrlKey || event.metaKey)
                     }

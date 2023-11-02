@@ -1,11 +1,11 @@
-import { ItemView, TFile, WorkspaceLeaf, getAllTags } from "obsidian";
+import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
 
 import * as React from "react";
 import { TagsView } from "./tags-view";
 import { Root, createRoot } from "react-dom/client";
 import TagsOverviewPlugin from "../main";
 import { TaggedFile } from "src/types";
-import { getAllTagsAndFiles, getTagsFromFile } from "src/utils";
+import { getAllTagsAndFiles, getTaggedFileFromFile } from "src/utils";
 
 export const VIEW_TYPE = "tags-overview-view";
 
@@ -31,36 +31,23 @@ export class RootView extends ItemView {
     // Listen on file changes and update the list of tagged files
     plugin.registerEvent(
       this.app.metadataCache.on("changed", (modifiedFile: TFile) => {
-        const tags: string[] = getTagsFromFile(this.app, modifiedFile);
-        const existingFile: TaggedFile | undefined =
-          this.taggedFilesMap.get(modifiedFile);
-        let tagsModified: boolean = false;
-        if (tags.length && !existingFile) {
-          this.taggedFilesMap.set(modifiedFile, { file: modifiedFile, tags });
-          tagsModified = true;
-        } else if (
-          tags.length &&
-          existingFile &&
-          tags.sort().join() !== existingFile.tags.sort().join()
-        ) {
-          existingFile.tags = tags;
-          tagsModified = true;
-        }
+        this.taggedFilesMap.set(
+          modifiedFile,
+          getTaggedFileFromFile(this.app, modifiedFile)
+        );
 
-        if (tagsModified) {
-          // Update the allTags list
-          this.allTags = [
-            ...new Set(
-              [...this.taggedFilesMap.values()].reduce(
-                (tags: string[], taggedFile: TaggedFile) => {
-                  return [...taggedFile.tags, ...tags];
-                },
-                []
-              )
-            ),
-          ].sort();
-          this.render();
-        }
+        // Update the allTags list
+        this.allTags = [
+          ...new Set(
+            [...this.taggedFilesMap.values()].reduce(
+              (tags: string[], taggedFile: TaggedFile) => {
+                return [...taggedFile.tags, ...tags];
+              },
+              []
+            )
+          ),
+        ].sort();
+        this.render();
       })
     );
 
@@ -71,6 +58,10 @@ export class RootView extends ItemView {
         this.render();
       })
     );
+  }
+
+  refresh() {
+    this.render();
   }
 
   getViewType() {

@@ -36,6 +36,13 @@ export default class TagsOverviewPlugin extends Plugin {
     this.app.workspace.revealLeaf(leaf);
   }
 
+  async refreshView() {
+    const leaf = this.getLeaf();
+    if (leaf?.view) {
+      (leaf.view as RootView).refresh();
+    }
+  }
+
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
   }

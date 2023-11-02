@@ -1,7 +1,18 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
-import { DISPLAY_TYPE, SORT_FILES, SORT_TAGS } from "./constants";
+import * as React from "react";
+
+import { App, ButtonComponent, PluginSettingTab, Setting } from "obsidian";
+import {
+  ALIGN_OPTIONS,
+  DISPLAY_TYPE,
+  SORT_FILES,
+  SORT_TAGS,
+  TABLE_COLUMN_TYPES,
+} from "./constants";
 import TagsOverviewPlugin from "./main";
 import { formatDate } from "./utils";
+import { createRoot } from "react-dom/client";
+import { SettingsView } from "./views/settings-view";
+import { TableColumn } from "./types";
 
 export interface TagsOverviewSettings {
   filterAnd: boolean;
@@ -13,6 +24,7 @@ export interface TagsOverviewSettings {
   showRelatedTags: boolean;
   showCalendarDates: boolean;
   dateFormat: string;
+  tableColumns: TableColumn[];
 }
 
 export const DEFAULT_SETTINGS: TagsOverviewSettings = {
@@ -25,6 +37,10 @@ export const DEFAULT_SETTINGS: TagsOverviewSettings = {
   showRelatedTags: true,
   showCalendarDates: true,
   dateFormat: "YYYY-MM-DD",
+  tableColumns: [
+    { type: TABLE_COLUMN_TYPES.name },
+    { type: TABLE_COLUMN_TYPES.modified, align: ALIGN_OPTIONS.right },
+  ],
 };
 
 export class TagsOverviewSettingTab extends PluginSettingTab {
@@ -48,7 +64,7 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.keepFilters = value;
             await this.plugin.saveData(this.plugin.settings);
-            this.plugin.activateView();
+            this.plugin.refreshView();
           })
       );
 
@@ -63,7 +79,7 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.showCalendarDates = value;
             await this.plugin.saveData(this.plugin.settings);
-            this.plugin.activateView();
+            this.plugin.refreshView();
           })
       );
 
@@ -94,8 +110,29 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
         dropdown.onChange(async (value) => {
           this.plugin.settings.dateFormat = value;
           await this.plugin.saveData(this.plugin.settings);
-          this.plugin.activateView();
+          this.plugin.refreshView();
         });
       });
+
+    const root = document.createElement("div");
+    root.className = "tags-overview-table-settings";
+    containerEl.appendChild(root);
+
+    const reactRoot = createRoot(root);
+    reactRoot.render(<SettingsView plugin={this.plugin} />);
+
+    new Setting(containerEl)
+      .setName("Reset settings")
+      .setDesc("Reset all settings to their default values")
+      .addButton((button: ButtonComponent) =>
+        button.setButtonText("Reset settings").onClick(async () => {
+          if (confirm("Are you sure you want to reset the settings?")) {
+            this.plugin.settings = Object.assign({}, DEFAULT_SETTINGS);
+            await this.plugin.saveData(this.plugin.settings);
+            this.display();
+            this.plugin.refreshView();
+          }
+        })
+      );
   }
 }

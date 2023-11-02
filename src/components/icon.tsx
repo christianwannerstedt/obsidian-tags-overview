@@ -8,6 +8,9 @@ export const ICON_TYPE = {
   collapse: "collapse",
   expand: "expand",
   tags: "tags",
+  moveUp: "moveUp",
+  moveDown: "moveDown",
+  trash: "trash",
 };
 Object.freeze(ICON_TYPE);
 
@@ -76,6 +79,29 @@ export const Icon = ({
           <>
             <path d="m7 20 5-5 5 5"></path>
             <path d="m7 4 5 5 5-5"></path>
+          </>
+        ) : iconType === ICON_TYPE.moveUp ? (
+          <>
+            {/* <path d="M8 6L12 2L16 6" />
+            <path d="M12 2V22" />
+             */}
+            <path d="m5 12 7-7 7 7" />
+            <path d="M12 19V5" />
+          </>
+        ) : iconType === ICON_TYPE.moveDown ? (
+          <>
+            {/* <path d="M8 18L12 22L16 18" />
+            <path d="M12 2V22" /> */}
+            <path d="M12 5v14" />
+            <path d="m19 12-7 7-7-7" />
+          </>
+        ) : iconType === ICON_TYPE.trash ? (
+          <>
+            <path d="M3 6h18" />
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+            <line x1="10" x2="10" y1="11" y2="17" />
+            <line x1="14" x2="14" y1="11" y2="17" />
           </>
         ) : iconType === ICON_TYPE.tags ? (
           <>
