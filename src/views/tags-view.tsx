@@ -63,7 +63,7 @@ export const TagsView = ({
   // Get files to be displayed
   const selectedTags: string[] =
     selectedOptions?.map((option: SelectOption) => option.value) || [];
-  let displayFiles: TaggedFile[] = selectedTags.length
+  const displayFiles: TaggedFile[] = selectedTags.length
     ? allTaggedFiles.filter((file: TaggedFile) => {
         return filterAnd
           ? selectedTags.every((selectedTag) => file.tags.includes(selectedTag))
@@ -88,7 +88,7 @@ export const TagsView = ({
 
   // Get tags to be displayed
   const tagsTree: FilesByTag = {};
-  let displayTags = new Set<string>();
+  const displayTags = new Set<string>();
 
   // Include related tags
   displayFiles.forEach((taggedFile: TaggedFile) => {
@@ -110,8 +110,7 @@ export const TagsView = ({
   let tagsCount = 0;
   [...displayTags].forEach((tag: string) => {
     let activePart: TagData[] = nestedTags;
-    let tagPaths: string[] = [];
-    let filesCount = 0;
+    const tagPaths: string[] = [];
     // Split the tag into nested ones, if the setting is enabled
     (showNested ? tag.split("/") : [tag]).forEach((part: string) => {
       tagPaths.push(part);
@@ -127,7 +126,6 @@ export const TagsView = ({
           files: tagsTree[tagPaths.join("/")] || [],
           subFilesCount: 0,
         };
-        filesCount += (tagsTree[tagPaths.join("/")] || []).length;
         activePart.push(checkPart);
       }
       activePart = checkPart.sub;

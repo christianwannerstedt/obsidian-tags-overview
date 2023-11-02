@@ -165,7 +165,7 @@ export const Tags = ({
             className="nested-icon"
             iconType={ICON_TYPE.nested}
             label="Show nested tags"
-            onClick={(e: MouseEvent) => setShowNested(!showNested)}
+            onClick={() => setShowNested(!showNested)}
             active={hasAnySub && showNested}
             disabled={!hasAnySub}
           />

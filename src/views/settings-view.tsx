@@ -3,9 +3,9 @@ import { TableColumnsSelector } from "../components/table-columns-select";
 import TagsOverviewPlugin from "src/main";
 
 export const SettingsView = ({ plugin }: { plugin: TagsOverviewPlugin }) => {
-  let frontMatterPropertiesSet = new Set<string>();
+  const frontMatterPropertiesSet = new Set<string>();
   plugin.app.vault.getMarkdownFiles().forEach((file) => {
-    let cache = plugin.app.metadataCache.getFileCache(file);
+    const cache = plugin.app.metadataCache.getFileCache(file);
     if (cache?.frontmatter) {
       Object.keys(cache.frontmatter).forEach((key) =>
         frontMatterPropertiesSet.add(key)
