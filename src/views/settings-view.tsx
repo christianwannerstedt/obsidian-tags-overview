@@ -13,7 +13,9 @@ export const SettingsView = ({ plugin }: { plugin: TagsOverviewPlugin }) => {
     }
   });
 
+  // Convert to array and sort
   const frontMatterProperties: string[] = Array.from(frontMatterPropertiesSet);
+  frontMatterProperties.sort((a, b) => a.localeCompare(b));
 
   return (
     <>
