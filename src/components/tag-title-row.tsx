@@ -7,7 +7,7 @@ export const TagTitleRow = ({
 }: {
   title: string;
   filesInfo: string;
-  onTagClick: Function;
+  onTagClick: (arg0: React.MouseEvent<HTMLHeadingElement, MouseEvent>) => void;
 }) => (
   <div className="tag-title-row">
     <h3 className="tag-title" onClick={onTagClick}>

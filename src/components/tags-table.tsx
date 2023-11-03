@@ -6,6 +6,7 @@ import { TagData, TaggedFile } from "../types";
 import { addOrRemove, pluralize } from "../utils";
 import TagsOverviewPlugin from "src/main";
 import { DEFAULT_SETTINGS } from "src/settings";
+import { TFile } from "obsidian";
 
 export const TagsTable = ({
   plugin,
@@ -17,10 +18,10 @@ export const TagsTable = ({
 }: {
   plugin: TagsOverviewPlugin;
   tags: TagData[];
-  onFileClick: Function;
+  onFileClick: (file: TFile, inNewLeaf: boolean) => void;
   collapsedTags: string[];
-  setCollapsedTags: Function;
-  onTagClick: Function;
+  setCollapsedTags: (arg0: string[]) => void;
+  onTagClick: (tagData: TagData) => void;
 }) => {
   const getTagTable = (tagLevel: TagData, depth: number) => {
     const hasSubTags: boolean = !!tagLevel.sub.length;
@@ -58,7 +59,9 @@ export const TagsTable = ({
         <TagTitleRow
           title={tagLevel.tag}
           filesInfo={filesInfo}
-          onTagClick={(event: MouseEvent) => {
+          onTagClick={(
+            event: React.MouseEvent<HTMLHeadingElement, MouseEvent>
+          ) => {
             if (isCollapsable && (event.ctrlKey || event.metaKey)) {
               onTagClick(tagLevel);
             } else {

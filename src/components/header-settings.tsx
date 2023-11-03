@@ -1,4 +1,5 @@
 import * as React from "react";
+import { SetStateAction } from "react";
 import { HeaderSetting } from "src/types";
 
 export const HeaderSettings = ({
@@ -10,7 +11,7 @@ export const HeaderSettings = ({
   title: string;
   value: string | boolean;
   settings: HeaderSetting[];
-  setFunction: Function;
+  setFunction: (arg0: SetStateAction<string> | SetStateAction<boolean>) => void;
 }) => {
   return (
     <div className="header-with-settings">

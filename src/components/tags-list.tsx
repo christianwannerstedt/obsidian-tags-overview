@@ -4,6 +4,7 @@ import { TagData, TaggedFile } from "../types";
 import { addOrRemove } from "src/utils";
 import { ICON_TYPE, Icon } from "./icon";
 import { TagTitleRow } from "./tag-title-row";
+import { TFile } from "obsidian";
 
 export const TagsList = ({
   tags,
@@ -13,10 +14,10 @@ export const TagsList = ({
   onTagClick,
 }: {
   tags: TagData[];
-  onFileClick: Function;
+  onFileClick: (file: TFile, inNewLeaf: boolean) => void;
   collapsedTags: string[];
-  setCollapsedTags: Function;
-  onTagClick: Function;
+  setCollapsedTags: (arg0: string[]) => void;
+  onTagClick: (tagData: TagData) => void;
 }) => {
   const getTagList = (tagLevel: TagData, depth: number) => {
     const hasSubTags: boolean = !!tagLevel.sub.length;
@@ -44,7 +45,9 @@ export const TagsList = ({
         <TagTitleRow
           title={tagLevel.tag}
           filesInfo={`(${tagLevel.files.length + tagLevel.subFilesCount})`}
-          onTagClick={(event: MouseEvent) => {
+          onTagClick={(
+            event: React.MouseEvent<HTMLHeadingElement, MouseEvent>
+          ) => {
             if (isCollapsable && (event.ctrlKey || event.metaKey)) {
               onTagClick(tagLevel);
             } else {

@@ -13,7 +13,7 @@ import { pluralize, sortTagsAndFiles } from "src/utils";
 import TagsOverviewPlugin from "src/main";
 import { ICON_TYPE, Icon } from "./icon";
 import { HeaderSettings } from "./header-settings";
-import { Menu } from "obsidian";
+import { Menu, TFile } from "obsidian";
 
 export const Tags = ({
   plugin,
@@ -30,15 +30,15 @@ export const Tags = ({
 }: {
   plugin: TagsOverviewPlugin;
   tags: TagData[];
-  onFileClick: Function;
+  onFileClick: (file: TFile, inNewLeaf: boolean) => void;
   hasFilters: boolean;
   showNested: boolean;
-  setShowNested: Function;
+  setShowNested: (arg0: boolean) => void;
   showRelatedTags: boolean;
-  setShowRelatedTags: Function;
+  setShowRelatedTags: (arg0: boolean) => void;
   tagsCount: number;
   filesCount: number;
-  onTagClick: Function;
+  onTagClick: (tagData: TagData) => void;
 }) => {
   const [showCollapseAll, setShowCollapseAll] = useState(true);
   const [displayType, setDisplayType] = useState(plugin.settings.displayType);

@@ -23,7 +23,7 @@ export const Icon = ({
   disabled,
 }: {
   iconType: string;
-  onClick: Function;
+  onClick: (e: MouseEvent) => void;
   className: string;
   label?: string;
   active?: boolean;
