@@ -12,6 +12,19 @@ export function formatCalendardDate(mtime: Date, dateFormat: string): string {
   });
 }
 
+export const getNestedTags = (taggedFile: TaggedFile): string[] => {
+  const nestedTags: string[] = [];
+  taggedFile.tags.forEach((tag: string) => {
+    if (tag.includes("/")) {
+      const splitTags = tag.split("/");
+      for (let i = 0; i < splitTags.length; i++) {
+        nestedTags.push(splitTags.slice(0, i + 1).join("/"));
+      }
+    }
+  });
+  return nestedTags;
+};
+
 export const addOrRemove = (arr: string[], item: string) =>
   arr.includes(item) ? arr.filter((i) => i !== item) : [...arr, item];
 
@@ -37,7 +50,7 @@ export const getAllTagsAndFiles = (app: App) => {
   app.vault.getMarkdownFiles().forEach((markdownFile: TFile) => {
     const taggedFile: TaggedFile = getTaggedFileFromFile(app, markdownFile);
     if (taggedFile.tags.length) {
-      allTags = allTags.concat(taggedFile.tags);
+      allTags = [...allTags, ...getNestedTags(taggedFile), ...taggedFile.tags];
       taggedFilesMap.set(markdownFile, taggedFile);
     }
   });

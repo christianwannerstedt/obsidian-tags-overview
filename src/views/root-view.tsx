@@ -5,7 +5,11 @@ import { TagsView } from "./tags-view";
 import { Root, createRoot } from "react-dom/client";
 import TagsOverviewPlugin from "../main";
 import { TaggedFile } from "src/types";
-import { getAllTagsAndFiles, getTaggedFileFromFile } from "src/utils";
+import {
+  getAllTagsAndFiles,
+  getNestedTags,
+  getTaggedFileFromFile,
+} from "src/utils";
 
 export const VIEW_TYPE = "tags-overview-view";
 
@@ -40,9 +44,11 @@ export class RootView extends ItemView {
         this.allTags = [
           ...new Set(
             [...this.taggedFilesMap.values()].reduce(
-              (tags: string[], taggedFile: TaggedFile) => {
-                return [...taggedFile.tags, ...tags];
-              },
+              (tags: string[], taggedFile: TaggedFile) => [
+                ...getNestedTags(taggedFile),
+                ...taggedFile.tags,
+                ...tags,
+              ],
               []
             )
           ),
