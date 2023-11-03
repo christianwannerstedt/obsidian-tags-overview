@@ -56,7 +56,7 @@ export const TagsView = ({
     });
   }, [selectedOptions]);
 
-  const onFileClicked: Function = (file: TFile, inNewLeaf: boolean = false) => {
+  const onFileClicked = (file: TFile, inNewLeaf: boolean = false) => {
     openFile(app, file, inNewLeaf);
   };
 
@@ -66,8 +66,18 @@ export const TagsView = ({
   const displayFiles: TaggedFile[] = selectedTags.length
     ? allTaggedFiles.filter((file: TaggedFile) => {
         return filterAnd
-          ? selectedTags.every((selectedTag) => file.tags.includes(selectedTag))
-          : file.tags.some((tag) => selectedTags.includes(tag));
+          ? selectedTags.every(
+              (selectedTag) =>
+                file.tags.includes(selectedTag) ||
+                file.tags.some((tag) => tag.startsWith(`${selectedTag}/`))
+            )
+          : file.tags.some(
+              (tag) =>
+                selectedTags.includes(tag) ||
+                selectedTags.some((selectedTag) =>
+                  tag.startsWith(`${selectedTag}/`)
+                )
+            );
       })
     : [...allTaggedFiles];
 
@@ -95,7 +105,10 @@ export const TagsView = ({
     let tags: string[] = taggedFile.tags;
     if (!showRelatedTags) {
       tags = tags.filter(
-        (tag: string) => !selectedTags.length || selectedTags.contains(tag)
+        (tag: string) =>
+          !selectedTags.length ||
+          selectedTags.contains(tag) ||
+          selectedTags.some((selectedTag) => tag.startsWith(`${selectedTag}/`))
       );
     }
     tags.forEach((tag) => {
@@ -132,7 +145,7 @@ export const TagsView = ({
     });
   });
 
-  const sumUpNestedFilesCount: Function = (tags: TagData[]) => {
+  const sumUpNestedFilesCount = (tags: TagData[]) => {
     tags.forEach((tagData: TagData) => {
       if (tagData.sub.length) {
         tagData.subFilesCount = tagData.sub.reduce(
