@@ -23,16 +23,20 @@ The plugin supports [nested tags](https://help.obsidian.md/Editing+and+formattin
 
 ![nested-tags](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/3c551140-1c97-4fa4-aeb0-a8bef7608bb3)
 
-### Different views
-Choose between a table view or a more minimalistic list view. The table view will display the date when the file was last modified. It is possible to change the format of the dates in the plugin settings.
-
-![display-types](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/bc677992-f1e9-4eb3-93bb-59955aee7120)
-
 ### Filter
 Filter the list easily by selecting one or more tags in the dropdown menu. You can choose whether the results must match all search criterias (AND) or just any of them (OR). It is also possible to toggle a tag in the search by clicking on the tag in the results list while holding down ctrl/cmd.
 
 ![filter](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/f8374340-17da-4fd0-bde3-cebde2e74815)
 
+### Different views
+Choose between a table view or a more minimalistic list view. The table view will display the date when the file was last modified. It is possible to change the format of the dates in the plugin settings.
+
+![display-types](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/bc677992-f1e9-4eb3-93bb-59955aee7120)
+
+#### Table view customizations
+It is possible to customize which columns should be displayed in the table view, as well as how the content should be aligned. Use the dropdown below the table to add a new column, then use the arrow icons to change the position of the column. The column at the top of the list will appear at the far left of the table.
+
+It is also possible to add properties (Front Matter). Just select the option `Property` in the *"Add column"* dropdown, and then select which property you want the column to hold. If you add a property column it will also be possible to order the files based on that property.
 
 ## Install
 
