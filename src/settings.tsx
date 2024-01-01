@@ -21,6 +21,7 @@ export interface TagsOverviewSettings {
   sortFiles: string;
   keepFilters: boolean;
   storedFilters: string;
+  showNested: boolean;
   showRelatedTags: boolean;
   showCalendarDates: boolean;
   dateFormat: string;
@@ -34,6 +35,7 @@ export const DEFAULT_SETTINGS: TagsOverviewSettings = {
   sortFiles: SORT_FILES.nameAsc,
   keepFilters: true,
   storedFilters: "",
+  showNested: false,
   showRelatedTags: true,
   showCalendarDates: true,
   dateFormat: "YYYY-MM-DD",
