@@ -57,10 +57,11 @@ export const Tags = ({
 
   useEffect(() => {
     plugin.saveSettings({
+      displayType,
       sortTags,
       sortFiles,
     });
-  }, [sortTags, sortFiles]);
+  }, [displayType, sortTags, sortFiles]);
 
   const collectTags = (tags: TagData[]): string[] => {
     const nestedTags: string[] = [];
