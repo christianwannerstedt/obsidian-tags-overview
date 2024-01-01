@@ -38,7 +38,7 @@ export const TagsView = ({
   const [selectedOptions, setSelectedOptions] =
     useState<SelectOption[]>(defaultOptions);
   const [filterAnd, setFilterAnd] = useState(plugin.settings.filterAnd);
-  const [showNested, setShowNested] = useState(true);
+  const [showNested, setShowNested] = useState(plugin.settings.showNested);
   const [showRelatedTags, setShowRelatedTags] = useState(
     plugin.settings.showRelatedTags
   );
@@ -46,9 +46,10 @@ export const TagsView = ({
   useEffect(() => {
     plugin.saveSettings({
       filterAnd,
+      showNested,
       showRelatedTags,
     });
-  }, [filterAnd, showRelatedTags]);
+  }, [filterAnd, showNested, showRelatedTags]);
 
   useEffect(() => {
     plugin.saveSettings({
