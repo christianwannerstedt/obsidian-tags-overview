@@ -142,11 +142,14 @@ export const sortTagsAndFiles = (
     const nameA: string = tFileA.file.basename.toLowerCase();
     const nameB: string = tFileB.file.basename.toLowerCase();
 
+    // Sort by name
     if (sortFiles == SORT_FILES.nameAsc) {
       return nameA > nameB ? 1 : -1;
     } else if (sortFiles == SORT_FILES.nameDesc) {
       return nameA < nameB ? 1 : -1;
     }
+
+    // Sort by modified timestamp
     if (tFileA.file.stat.mtime && tFileB.file.stat.mtime) {
       if (sortFiles == SORT_FILES.modifiedAsc) {
         return tFileA.file.stat.mtime < tFileB.file.stat.mtime ? 1 : -1;
@@ -154,6 +157,8 @@ export const sortTagsAndFiles = (
         return tFileA.file.stat.mtime < tFileB.file.stat.mtime ? -1 : 1;
       }
     }
+
+    // Sort by created timestamp
     if (tFileA.file.stat.ctime && tFileB.file.stat.ctime) {
       if (sortFiles == SORT_FILES.createdAsc) {
         return tFileA.file.stat.ctime < tFileB.file.stat.ctime ? 1 : -1;
@@ -161,7 +166,34 @@ export const sortTagsAndFiles = (
         return tFileA.file.stat.ctime < tFileB.file.stat.ctime ? -1 : 1;
       }
     }
-    return 0;
+
+    // Sort by frontmatter property
+    if (
+      sortFiles.includes("property__") &&
+      tFileA.frontMatter &&
+      tFileB.frontMatter
+    ) {
+      let property = sortFiles.replace("property__", "");
+      let desc = false;
+      if (property.startsWith("-")) {
+        desc = true;
+        property = property.substring(1);
+      }
+      const frontMatterA = tFileA.frontMatter[property];
+      const frontMatterB = tFileB.frontMatter[property];
+      if (frontMatterA && frontMatterB) {
+        const frontMatterValueA = frontMatterA.join("").toLowerCase();
+        const frontMatterValueB = frontMatterB.join("").toLowerCase();
+        if (desc) {
+          return frontMatterValueA < frontMatterValueB ? 1 : -1;
+        } else {
+          return frontMatterValueA > frontMatterValueB ? 1 : -1;
+        }
+      }
+    }
+
+    // Default sort by name
+    return nameA > nameB ? 1 : -1;
   };
   const sortTagsFn = (tagA: TagData, tagB: TagData) => {
     const nameA: string = tagA.tag.toLowerCase();

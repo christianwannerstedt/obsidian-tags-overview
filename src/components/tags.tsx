@@ -14,6 +14,7 @@ import TagsOverviewPlugin from "src/main";
 import { ICON_TYPE, Icon } from "./icon";
 import { HeaderSettings } from "./header-settings";
 import { Menu, TFile } from "obsidian";
+import { DEFAULT_SETTINGS } from "src/settings";
 
 export const Tags = ({
   plugin,
@@ -105,7 +106,31 @@ export const Tags = ({
 
     menu.addSeparator();
 
-    SORT_FILES_OPTIONS.forEach((menuItem: ContextMenuOption) => {
+    // Construct options for sorting files.
+    // If the user has added additional property columns, add those to the list.
+    const tableColumns = plugin.settings.tableColumns.length
+      ? plugin.settings.tableColumns
+      : DEFAULT_SETTINGS.tableColumns;
+    const additionalProperties: string[] = tableColumns
+      .filter((column) => column.type === "frontMatter" && column.data)
+      .map((column): string => column.data || "");
+    [
+      ...SORT_FILES_OPTIONS,
+      ...additionalProperties.reduce(
+        (acc: ContextMenuOption[], property: string) => {
+          acc.push({
+            key: `property__${property}`,
+            label: `property: ${property} (ascending)`,
+          });
+          acc.push({
+            key: `-property__${property}`,
+            label: `property: ${property} (descending)`,
+          });
+          return acc;
+        },
+        []
+      ),
+    ].forEach((menuItem: ContextMenuOption) => {
       menu.addItem((item) =>
         item
           .setTitle(`Sort files on ${menuItem.label}`)
