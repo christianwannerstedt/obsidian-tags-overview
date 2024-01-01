@@ -36,7 +36,11 @@ Choose between a table view or a more minimalistic list view. The table view wil
 #### Table view customizations
 It is possible to customize which columns should be displayed in the table view, as well as how the content should be aligned. Use the dropdown below the table to add a new column, then use the arrow icons to change the position of the column. The column at the top of the list will appear at the far left of the table.
 
+![table-columns](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/73dda1c8-c75f-4994-b206-f6067b2552f8)
+
 It is also possible to add properties (Front Matter). Just select the option `Property` in the *"Add column"* dropdown, and then select which property you want the column to hold. If you add a property column it will also be possible to order the files based on that property.
+
+![table-columns-property](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/dcc36907-114b-490d-badf-5620333495dd)
 
 ## Install
 
