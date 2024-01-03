@@ -182,13 +182,28 @@ export const sortTagsAndFiles = (
       const frontMatterA = tFileA.frontMatter[property];
       const frontMatterB = tFileB.frontMatter[property];
       if (frontMatterA && frontMatterB) {
-        const frontMatterValueA = frontMatterA.join("").toLowerCase();
-        const frontMatterValueB = frontMatterB.join("").toLowerCase();
-        if (desc) {
-          return frontMatterValueA < frontMatterValueB ? 1 : -1;
-        } else {
-          return frontMatterValueA > frontMatterValueB ? 1 : -1;
-        }
+        const frontMatterValueA = Array.isArray(frontMatterA)
+          ? frontMatterA.join("").toLowerCase()
+          : typeof frontMatterA === "string"
+          ? (frontMatterA as string).toLowerCase()
+          : typeof frontMatterA === "object"
+          ? ""
+          : frontMatterA;
+        const frontMatterValueB = Array.isArray(frontMatterB)
+          ? frontMatterB.join("").toLowerCase()
+          : typeof frontMatterB === "string"
+          ? (frontMatterB as string).toLowerCase()
+          : typeof frontMatterB === "object"
+          ? ""
+          : frontMatterB;
+
+        return desc
+          ? frontMatterValueA < frontMatterValueB
+            ? 1
+            : -1
+          : frontMatterValueA > frontMatterValueB
+          ? 1
+          : -1;
       }
     }
 
