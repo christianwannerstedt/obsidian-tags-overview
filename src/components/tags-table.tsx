@@ -2,11 +2,12 @@ import * as React from "react";
 
 import { ICON_TYPE, Icon } from "./icon";
 import { TagTitleRow } from "./tag-title-row";
-import { TagData, TaggedFile } from "../types";
+import { TableColumn, TagData, TaggedFile } from "../types";
 import { addOrRemove, pluralize } from "../utils";
 import TagsOverviewPlugin from "src/main";
 import { DEFAULT_SETTINGS } from "src/settings";
 import { TFile } from "obsidian";
+import { TABLE_COLUMN_TYPES } from "src/constants";
 
 export const TagsTable = ({
   plugin,
@@ -41,9 +42,26 @@ export const TagsTable = ({
       filesInfo += ` (${tagLevel.files.length + tagLevel.subFilesCount} total)`;
     }
 
-    const tableColumns = plugin.settings.tableColumns.length
+    const tableColumns: TableColumn[] = plugin.settings.tableColumns.length
       ? plugin.settings.tableColumns
       : DEFAULT_SETTINGS.tableColumns;
+
+    const getColStyle = (column: TableColumn) => {
+      if (column.type == TABLE_COLUMN_TYPES.name) {
+        return {
+          minWidth: "200px",
+        };
+      } else if (
+        [TABLE_COLUMN_TYPES.modified, TABLE_COLUMN_TYPES.created].includes(
+          column.type
+        )
+      ) {
+        return {
+          width: "150px",
+        };
+      }
+      return {};
+    };
 
     return (
       <div key={tagLevel.tag} className={containerClasses}>
@@ -84,25 +102,36 @@ export const TagsTable = ({
                           onFileClick(file.file, event.ctrlKey || event.metaKey)
                         }
                       >
-                        {tableColumns.map((column, index) => (
-                          <td
-                            key={`${tagLevel.tag}-${file.file.basename}-${fileIndex}-${index}`}
-                            className={`align-${column.align} col-${column.type}`}
-                          >
-                            {column.type === "name" && file.file.basename}
-                            {column.type === "modified" &&
-                              file.formattedModified}
-                            {column.type === "created" && file.formattedCreated}
-                            {column.type === "size" && file.file.stat.size}
-                            {column.type === "frontMatter" &&
-                              file.frontMatter &&
-                              column.data &&
-                              file.frontMatter[column.data] &&
-                              (typeof file.frontMatter[column.data] === "string"
-                                ? file.frontMatter[column.data]
-                                : file.frontMatter[column.data].join(", "))}
-                          </td>
-                        ))}
+                        {tableColumns.map(
+                          (column: TableColumn, index: number) => (
+                            <td
+                              key={`${tagLevel.tag}-${file.file.basename}-${fileIndex}-${index}`}
+                              className={`align-${column.align} col-${column.type}`}
+                              style={getColStyle(column)}
+                            >
+                              {column.type === TABLE_COLUMN_TYPES.name &&
+                                file.file.basename}
+                              {column.type === TABLE_COLUMN_TYPES.modified &&
+                                file.formattedModified}
+                              {column.type === TABLE_COLUMN_TYPES.created &&
+                                file.formattedCreated}
+                              {column.type === TABLE_COLUMN_TYPES.size &&
+                                file.file.stat.size}
+                              {column.type === TABLE_COLUMN_TYPES.frontMatter &&
+                                file.frontMatter &&
+                                column.data &&
+                                file.frontMatter[column.data] !== undefined &&
+                                (Array.isArray(file.frontMatter[column.data])
+                                  ? file.frontMatter[column.data].join(", ")
+                                  : typeof file.frontMatter[column.data] ===
+                                    "boolean"
+                                  ? file.frontMatter[column.data]
+                                    ? "Yes"
+                                    : "No"
+                                  : file.frontMatter[column.data])}
+                            </td>
+                          )
+                        )}
                       </tr>
                     </React.Fragment>
                   ))}
