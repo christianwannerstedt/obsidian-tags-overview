@@ -189,6 +189,7 @@
         padding: 3px 6px 4px;
         bottom: -1px;
         position: relative;
+        display: inline;
 
         &.active {
             background-color: var(--color-base-40);
