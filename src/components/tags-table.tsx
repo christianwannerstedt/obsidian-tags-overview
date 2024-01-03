@@ -128,6 +128,9 @@ export const TagsTable = ({
                                   ? file.frontMatter[column.data]
                                     ? "Yes"
                                     : "No"
+                                  : typeof file.frontMatter[column.data] ===
+                                    "object"
+                                  ? ""
                                   : file.frontMatter[column.data])}
                             </td>
                           )
