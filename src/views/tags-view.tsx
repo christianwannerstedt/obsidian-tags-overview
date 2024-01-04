@@ -12,8 +12,20 @@ import {
   formatCalendardDate,
   openFile,
   setMaxTimesForTags,
+  convertStringsToOptions,
+  camelCaseString,
 } from "src/utils";
-import { FilesByTag, SelectOption, TagData, TaggedFile } from "src/types";
+import {
+  AvailableFilterOptions,
+  FilesByTag,
+  PropertyFilter,
+  PropertyFilterDataList,
+  SelectOption,
+  StringMap,
+  TagData,
+  TaggedFile,
+} from "src/types";
+import { FILTER_TYPES } from "src/constants";
 
 export const TagsView = ({
   rootView,
@@ -42,6 +54,53 @@ export const TagsView = ({
   const [showRelatedTags, setShowRelatedTags] = useState(
     plugin.settings.showRelatedTags
   );
+  const [propertyFilterDataList, setSelectedFilters] =
+    useState<PropertyFilterDataList>({});
+
+  // Construct a map of property filters and their types
+  const propertyFilterTypeMap: StringMap =
+    plugin.settings.propertyFilters.reduce(
+      (typeMap: StringMap, propertyFilter: PropertyFilter) => {
+        typeMap[propertyFilter.property] = propertyFilter.type;
+        return typeMap;
+      },
+      {}
+    );
+
+  // Construct the map of available filter options
+  const availableFilterOptions: AvailableFilterOptions =
+    plugin.settings.propertyFilters.reduce(
+      (options: AvailableFilterOptions, propertyFilter: PropertyFilter) => {
+        options[propertyFilter.property] = [];
+        return options;
+      },
+      {}
+    );
+  if (plugin.settings.propertyFilters.length) {
+    plugin.app.vault.getMarkdownFiles().forEach((file) => {
+      const cache = plugin.app.metadataCache.getFileCache(file);
+      if (cache?.frontmatter) {
+        Object.keys(cache.frontmatter).forEach((key) => {
+          if (cache.frontmatter && availableFilterOptions[key] !== undefined) {
+            const frontMatterVal = cache.frontmatter[key];
+
+            if (Array.isArray(frontMatterVal)) {
+              frontMatterVal.forEach((val) => {
+                availableFilterOptions[key].push(val.toString());
+              });
+            } else {
+              availableFilterOptions[key].push(frontMatterVal.toString());
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // Remove duplicates
+  Object.keys(availableFilterOptions).forEach((key) => {
+    availableFilterOptions[key] = [...new Set(availableFilterOptions[key])];
+  });
 
   useEffect(() => {
     plugin.saveSettings({
@@ -61,10 +120,31 @@ export const TagsView = ({
     openFile(app, file, inNewLeaf);
   };
 
+  const onFiltersChange = (propertyFilterKey: string, values: string[]) => {
+    const newSelectedFilters = { ...propertyFilterDataList };
+    newSelectedFilters[propertyFilterKey] = {
+      selected: values,
+    };
+    setSelectedFilters(newSelectedFilters);
+  };
+
+  const setPropertyFilterAnd = (propertyFilterKey: string, value: boolean) => {
+    const newSelectedFilters = { ...propertyFilterDataList };
+    if (newSelectedFilters[propertyFilterKey] === undefined) {
+      newSelectedFilters[propertyFilterKey] = {
+        selected: [],
+        filterAnd: value,
+      };
+    } else {
+      newSelectedFilters[propertyFilterKey].filterAnd = value;
+    }
+    setSelectedFilters(newSelectedFilters);
+  };
+
   // Get files to be displayed
   const selectedTags: string[] =
     selectedOptions?.map((option: SelectOption) => option.value) || [];
-  const displayFiles: TaggedFile[] = selectedTags.length
+  let displayFiles: TaggedFile[] = selectedTags.length
     ? allTaggedFiles.filter((file: TaggedFile) => {
         return filterAnd
           ? selectedTags.every(
@@ -81,6 +161,57 @@ export const TagsView = ({
             );
       })
     : [...allTaggedFiles];
+
+  // Filter the list of files based on the property filters
+  if (Object.keys(propertyFilterDataList).length > 0) {
+    displayFiles = displayFiles.filter((file: TaggedFile) => {
+      const cache = plugin.app.metadataCache.getFileCache(file.file);
+      if (!cache?.frontmatter) {
+        return false;
+      }
+
+      for (let i = 0; i < Object.keys(propertyFilterDataList).length; i++) {
+        const propertyFilterKey = Object.keys(propertyFilterDataList)[i];
+        const propertyFilterData = propertyFilterDataList[propertyFilterKey];
+        if (
+          propertyFilterData.selected.length &&
+          propertyFilterData.selected[0]
+        ) {
+          const frontMatterVal = cache.frontmatter[propertyFilterKey];
+          const propertyFilterAnd: boolean =
+            propertyFilterData.filterAnd || false;
+          let includeFile;
+          if (!frontMatterVal) return false;
+
+          if (propertyFilterTypeMap[propertyFilterKey] === FILTER_TYPES.text) {
+            const searchString = propertyFilterData.selected[0].toLowerCase();
+            if (Array.isArray(frontMatterVal)) {
+              includeFile = frontMatterVal.some((val) =>
+                val.toLowerCase().contains(searchString)
+              );
+            } else {
+              includeFile = frontMatterVal.contains(searchString);
+            }
+          } else if (propertyFilterAnd) {
+            includeFile = Array.isArray(frontMatterVal)
+              ? propertyFilterData.selected.every((val) =>
+                  frontMatterVal.includes(val)
+                )
+              : propertyFilterData.selected.includes(frontMatterVal.toString());
+          } else {
+            includeFile = Array.isArray(frontMatterVal)
+              ? frontMatterVal.some((val) =>
+                  propertyFilterData.selected.includes(val.toString())
+                )
+              : propertyFilterData.selected.includes(frontMatterVal.toString());
+          }
+
+          if (!includeFile) return false;
+        }
+      }
+      return true;
+    });
+  }
 
   // Curry the files with a formatted version of the last modified and created date
   const getFormattedDate = (date: Date): string => {
@@ -183,6 +314,7 @@ export const TagsView = ({
           { label: "AND", value: true },
           { label: "OR", value: false },
         ]}
+        className="slim"
       />
       <Select
         className="tags-filter-select"
@@ -190,20 +322,106 @@ export const TagsView = ({
         onChange={(val: SelectOption[]) => {
           setSelectedOptions(val);
         }}
-        options={allTags
-          .map((tag: string) => ({
-            value: tag,
-            label: tag,
-          }))
-          .sort((optionA: SelectOption, optionB: SelectOption): number => {
+        options={convertStringsToOptions(allTags).sort(
+          (optionA: SelectOption, optionB: SelectOption): number => {
             const lblA: string = optionA.label.toLowerCase();
             const lblB: string = optionB.label.toLowerCase();
             return lblA === lblB ? 0 : lblA > lblB ? 1 : -1;
-          })}
+          }
+        )}
         name="Filter"
         placeholder="Select tags..."
         isMulti
       />
+
+      <div>
+        {plugin.settings.propertyFilters &&
+          plugin.settings.propertyFilters.map((propertyFilter) => (
+            <div key={propertyFilter.property}>
+              <HeaderSettings
+                title={camelCaseString(propertyFilter.property)}
+                value={
+                  propertyFilterDataList[propertyFilter.property]?.filterAnd ||
+                  false
+                }
+                setFunction={(val: boolean) => {
+                  setPropertyFilterAnd(propertyFilter.property, val);
+                }}
+                settings={
+                  propertyFilter.type === FILTER_TYPES.select
+                    ? [
+                        { label: "AND", value: true },
+                        { label: "OR", value: false },
+                      ]
+                    : []
+                }
+                className="slim"
+              />
+
+              {propertyFilter.type === FILTER_TYPES.select && (
+                <Select
+                  className="tags-filter-select"
+                  value={(
+                    propertyFilterDataList[propertyFilter.property]?.selected ||
+                    []
+                  ).map((val: string) => ({
+                    value: val,
+                    label: val,
+                  }))}
+                  onChange={(val: SelectOption[]) => {
+                    onFiltersChange(
+                      propertyFilter.property,
+                      val.map((value: SelectOption) => value.value)
+                    );
+                  }}
+                  options={availableFilterOptions[propertyFilter.property]
+                    .map((tag: string) => ({
+                      value: tag,
+                      label: tag,
+                    }))
+                    .sort(
+                      (
+                        optionA: SelectOption,
+                        optionB: SelectOption
+                      ): number => {
+                        const lblA: string = (
+                          optionA.label !== undefined ? optionA.label : ""
+                        )
+                          .toString()
+                          .toLowerCase();
+                        const lblB: string = (
+                          optionB.label !== undefined ? optionB.label : ""
+                        )
+                          .toString()
+                          .toLowerCase();
+                        return lblA === lblB ? 0 : lblA > lblB ? 1 : -1;
+                      }
+                    )}
+                  name="Filter"
+                  placeholder={`Select ${propertyFilter.property}`}
+                  isMulti
+                />
+              )}
+              {propertyFilter.type === FILTER_TYPES.text && (
+                <input
+                  type="text"
+                  value={
+                    propertyFilterDataList[propertyFilter.property]?.selected
+                      ? propertyFilterDataList[propertyFilter.property]
+                          ?.selected[0]
+                      : ""
+                  }
+                  className="tags-filter-text"
+                  placeholder={`Filter ${propertyFilter.property}`}
+                  onChange={(event) => {
+                    const val = event.target.value;
+                    onFiltersChange(propertyFilter.property, val ? [val] : []);
+                  }}
+                />
+              )}
+            </div>
+          ))}
+      </div>
 
       <Tags
         plugin={plugin}

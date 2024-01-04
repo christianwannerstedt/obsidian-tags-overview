@@ -99,3 +99,8 @@ export const ALIGN_OPTIONS: Record<string, string> = {
   center: "center",
   right: "right",
 };
+
+export const FILTER_TYPES: Record<string, string> = {
+  select: "Select",
+  text: "Text",
+};
