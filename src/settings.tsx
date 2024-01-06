@@ -31,7 +31,7 @@ export interface TagsOverviewSettings {
 
 export const DEFAULT_SETTINGS: TagsOverviewSettings = {
   filterAnd: true,
-  displayType: DISPLAY_TYPE.compact,
+  displayType: DISPLAY_TYPE.list,
   sortTags: SORT_TAGS.nameAsc,
   sortFiles: SORT_FILES.nameAsc,
   keepFilters: true,
