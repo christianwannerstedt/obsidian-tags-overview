@@ -56,7 +56,6 @@ export interface PropertyFilter {
 
 export interface PropertyFilterData {
   selected: string[];
-  // value?: string;
   filterAnd?: boolean;
 }
 

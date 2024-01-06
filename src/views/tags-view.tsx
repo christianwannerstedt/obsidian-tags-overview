@@ -86,10 +86,14 @@ export const TagsView = ({
 
             if (Array.isArray(frontMatterVal)) {
               frontMatterVal.forEach((val) => {
-                availableFilterOptions[key].push(val.toString());
+                if (val !== undefined && val !== null) {
+                  availableFilterOptions[key].push(val.toString());
+                }
               });
             } else {
-              availableFilterOptions[key].push(frontMatterVal.toString());
+              if (frontMatterVal !== undefined && frontMatterVal !== null) {
+                availableFilterOptions[key].push(frontMatterVal.toString());
+              }
             }
           }
         });
@@ -122,9 +126,14 @@ export const TagsView = ({
 
   const onFiltersChange = (propertyFilterKey: string, values: string[]) => {
     const newSelectedFilters = { ...propertyFilterDataList };
-    newSelectedFilters[propertyFilterKey] = {
-      selected: values,
-    };
+    if (newSelectedFilters[propertyFilterKey] === undefined) {
+      newSelectedFilters[propertyFilterKey] = {
+        selected: values,
+        filterAnd: false,
+      };
+    } else {
+      newSelectedFilters[propertyFilterKey].selected = values;
+    }
     setSelectedFilters(newSelectedFilters);
   };
 
@@ -195,9 +204,10 @@ export const TagsView = ({
           } else if (propertyFilterAnd) {
             includeFile = Array.isArray(frontMatterVal)
               ? propertyFilterData.selected.every((val) =>
-                  frontMatterVal.includes(val)
+                  frontMatterVal.includes(val.toString())
                 )
-              : propertyFilterData.selected.includes(frontMatterVal.toString());
+              : propertyFilterData.selected.length === 1 &&
+                frontMatterVal === propertyFilterData.selected[0].toString();
           } else {
             includeFile = Array.isArray(frontMatterVal)
               ? frontMatterVal.some((val) =>
@@ -361,42 +371,33 @@ export const TagsView = ({
               {propertyFilter.type === FILTER_TYPES.select && (
                 <Select
                   className="tags-filter-select"
-                  value={(
+                  value={convertStringsToOptions(
                     propertyFilterDataList[propertyFilter.property]?.selected ||
-                    []
-                  ).map((val: string) => ({
-                    value: val,
-                    label: val,
-                  }))}
+                      []
+                  )}
                   onChange={(val: SelectOption[]) => {
                     onFiltersChange(
                       propertyFilter.property,
                       val.map((value: SelectOption) => value.value)
                     );
                   }}
-                  options={availableFilterOptions[propertyFilter.property]
-                    .map((tag: string) => ({
-                      value: tag,
-                      label: tag,
-                    }))
-                    .sort(
-                      (
-                        optionA: SelectOption,
-                        optionB: SelectOption
-                      ): number => {
-                        const lblA: string = (
-                          optionA.label !== undefined ? optionA.label : ""
-                        )
-                          .toString()
-                          .toLowerCase();
-                        const lblB: string = (
-                          optionB.label !== undefined ? optionB.label : ""
-                        )
-                          .toString()
-                          .toLowerCase();
-                        return lblA === lblB ? 0 : lblA > lblB ? 1 : -1;
-                      }
-                    )}
+                  options={convertStringsToOptions(
+                    availableFilterOptions[propertyFilter.property]
+                  ).sort(
+                    (optionA: SelectOption, optionB: SelectOption): number => {
+                      const lblA: string = (
+                        optionA.label !== undefined ? optionA.label : ""
+                      )
+                        .toString()
+                        .toLowerCase();
+                      const lblB: string = (
+                        optionB.label !== undefined ? optionB.label : ""
+                      )
+                        .toString()
+                        .toLowerCase();
+                      return lblA === lblB ? 0 : lblA > lblB ? 1 : -1;
+                    }
+                  )}
                   name="Filter"
                   placeholder={`Select ${propertyFilter.property}`}
                   isMulti
