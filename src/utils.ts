@@ -254,7 +254,7 @@ export const sortTagsAndFiles = (
 export function convertStringsToOptions(strings: string[]): SelectOption[] {
   return strings.map((val: string) => ({
     value: val,
-    label: val,
+    label: upperCaseFirstChar(val),
   }));
 }
 
@@ -265,4 +265,8 @@ export function camelCaseString(str: string): string {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ")
     : "";
+}
+
+export function upperCaseFirstChar(str: string): string {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 }

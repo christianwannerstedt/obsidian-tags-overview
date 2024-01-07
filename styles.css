@@ -308,6 +308,7 @@
 }
 .tags-overview-settings-table tbody td {
   padding: 4px 8px;
+  font-size: var(--font-ui-small);
 }
 .tags-overview-settings-table tfoot td {
   padding: 8px 10px;
