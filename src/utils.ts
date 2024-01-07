@@ -1,4 +1,4 @@
-import { TagData, TaggedFile } from "./types";
+import { SelectOption, TagData, TaggedFile } from "./types";
 import { App, TFile, moment, getAllTags } from "obsidian";
 import { SORT_FILES, SORT_TAGS } from "./constants";
 
@@ -250,3 +250,23 @@ export const sortTagsAndFiles = (
   };
   sortNestedTags(nestedTags);
 };
+
+export function convertStringsToOptions(strings: string[]): SelectOption[] {
+  return strings.map((val: string) => ({
+    value: val,
+    label: upperCaseFirstChar(val),
+  }));
+}
+
+export function camelCaseString(str: string): string {
+  return str
+    ? str
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+    : "";
+}
+
+export function upperCaseFirstChar(str: string): string {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+}

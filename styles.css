@@ -135,23 +135,44 @@
 }
 .tags-overview .tags-filter-select {
   color: #222;
-  margin-bottom: 40px;
+  margin-bottom: 10px;
+  font-size: var(--font-ui-small);
+}
+.tags-overview .tags-filter-text {
+  background-color: hsl(0, 0%, 100%);
+  border-color: hsl(0, 0%, 80%);
+  border-radius: 4px;
+  width: 100%;
+  padding: 20px 10px;
+  color: hsl(0, 0%, 20%);
+}
+.tags-overview .tags-filter-text::placeholder {
+  color: hsl(0, 0%, 50%);
+  font-size: var(--font-ui-small);
 }
 .tags-overview .header-with-settings {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  border-bottom: 1px solid var(--color-base-40);
-  margin-top: 10px;
-  margin-bottom: 2px;
 }
 .tags-overview .header-with-settings .title {
-  margin: 3px 0;
+  margin: 3px 0 0;
   color: var(--color-base-70);
   font-size: var(--font-ui-small);
 }
+.tags-overview .header-with-settings.slim {
+  margin: 10px 3px 2px;
+}
+.tags-overview .header-with-settings:not(.slim) {
+  border-bottom: 1px solid var(--color-base-40);
+  margin-top: 40px;
+  margin-bottom: 2px;
+}
+.tags-overview .header-with-settings:not(.slim) .title {
+  margin: 3px 0 1px;
+}
 .tags-overview .settings-switch span {
-  font-size: var(--font-ui-smaller);
+  font-size: 10px;
   border: 1px solid var(--color-base-40);
   padding: 3px 6px 4px;
   bottom: -1px;
@@ -287,6 +308,7 @@
 }
 .tags-overview-settings-table tbody td {
   padding: 4px 8px;
+  font-size: var(--font-ui-small);
 }
 .tags-overview-settings-table tfoot td {
   padding: 8px 10px;

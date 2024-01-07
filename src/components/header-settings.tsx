@@ -7,14 +7,16 @@ export const HeaderSettings = ({
   value,
   settings,
   setFunction,
+  className,
 }: {
   title: string;
   value: string | boolean;
   settings: HeaderSetting[];
   setFunction: (arg0: SetStateAction<string> | SetStateAction<boolean>) => void;
+  className?: string;
 }) => {
   return (
-    <div className="header-with-settings">
+    <div className={`header-with-settings ${className || ""}`}>
       <p className="title">{title}</p>
       <div className="settings-switch filter-type-setting">
         {settings.map((setting: HeaderSetting) => {

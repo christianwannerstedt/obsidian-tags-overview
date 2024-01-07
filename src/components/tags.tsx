@@ -159,8 +159,8 @@ export const Tags = ({
         value={displayType}
         setFunction={setDisplayType}
         settings={[
-          { label: "Compact", value: DISPLAY_TYPE.compact },
           { label: "List", value: DISPLAY_TYPE.list },
+          { label: "Compact", value: DISPLAY_TYPE.compact },
         ]}
       />
       <div className="tags-info-container">

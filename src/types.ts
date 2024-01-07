@@ -48,3 +48,25 @@ export interface TableColumn {
   align?: string;
   data?: string;
 }
+
+export interface PropertyFilter {
+  property: string;
+  type: string;
+}
+
+export interface PropertyFilterData {
+  selected: string[];
+  filterAnd?: boolean;
+}
+
+export interface PropertyFilterDataList {
+  [key: string]: PropertyFilterData;
+}
+
+export interface AvailableFilterOptions {
+  [key: string]: string[];
+}
+
+export interface StringMap {
+  [key: string]: string;
+}

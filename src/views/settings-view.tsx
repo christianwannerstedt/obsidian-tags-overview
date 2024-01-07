@@ -1,5 +1,6 @@
 import * as React from "react";
 import { TableColumnsSelector } from "../components/table-columns-select";
+import { PropertyFilterSelector } from "../components/property-filter-select";
 import TagsOverviewPlugin from "src/main";
 
 export const SettingsView = ({ plugin }: { plugin: TagsOverviewPlugin }) => {
@@ -19,6 +20,19 @@ export const SettingsView = ({ plugin }: { plugin: TagsOverviewPlugin }) => {
 
   return (
     <>
+      <div className="setting-item">
+        <div className="setting-item-info">
+          <div className="setting-item-name">Property filters</div>
+          <div className="setting-item-description">
+            Add additional filters.
+          </div>
+        </div>
+      </div>
+      <PropertyFilterSelector
+        plugin={plugin}
+        frontMatterProperties={frontMatterProperties}
+      />
+
       <div className="setting-item">
         <div className="setting-item-info">
           <div className="setting-item-name">Table columns</div>
