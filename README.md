@@ -28,6 +28,19 @@ Filter the list easily by selecting one or more tags in the dropdown menu. You c
 
 ![filter](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/f8374340-17da-4fd0-bde3-cebde2e74815)
 
+#### Filter on custom properties (Front matter)
+It is possible to extend the filter functionality by adding filters for specific properties (YAML/Front matter). This is easily done from the plugin's settings page.
+
+![property-filters-settings](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/9d7ced26-f77d-4b0e-81a6-d2bdbc07a38c)
+
+In the example above, you can see how to add and remove properties to be used for filtering. It is also possible to determine the position on the filter row, as well as the type of filter. There are two different filter types:
+- Select: The filter is displayed as a dropdown where all existing values are selectable (same widget as for filtering tags).
+- Text: Filtering takes place with free text.
+In the above scenario, the result looks like this:
+
+![property-filters](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/f2c86422-f794-4d29-8cd4-81d6fb6461bf)
+
+
 ### Different views
 Choose between a table view or a more minimalistic list view. The table view will display the date when the file was last modified. It is possible to change the format of the dates in the plugin settings.
 
