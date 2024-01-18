@@ -55,6 +55,9 @@ It is also possible to add properties (Front Matter). Just select the option `Pr
 
 ![table-columns-property](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/dcc36907-114b-490d-badf-5620333495dd)
 
+## Ignore files
+It is possible to exclude files to be picked up by the plugin, by adding the custom property `tagsoverview`and set the value to `ignore`. No tags will be retrieved from excluded files, nor will they show in the list views.
+
 ## Install
 
 ### Manual installation
