@@ -44,12 +44,22 @@ export const getTaggedFileFromFile = (app: App, file: TFile): TaggedFile => {
   };
 };
 
+export const shouldIgnoreFile = (tagsoverview: string | string[]): boolean => {
+  return Array.isArray(tagsoverview)
+    ? tagsoverview.includes("ignore")
+    : tagsoverview === "ignore";
+};
+
 export const getAllTagsAndFiles = (app: App) => {
   const taggedFilesMap = new Map<TFile, TaggedFile>();
   let allTags: string[] = [];
   app.vault.getMarkdownFiles().forEach((markdownFile: TFile) => {
     const taggedFile: TaggedFile = getTaggedFileFromFile(app, markdownFile);
-    if (taggedFile.tags.length) {
+    // Check if the file should be included
+    if (
+      taggedFile.tags.length &&
+      !shouldIgnoreFile(taggedFile.frontMatter?.tagsoverview)
+    ) {
       allTags = [...allTags, ...getNestedTags(taggedFile), ...taggedFile.tags];
       taggedFilesMap.set(markdownFile, taggedFile);
     }

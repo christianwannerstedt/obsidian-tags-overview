@@ -9,6 +9,7 @@ import {
   getAllTagsAndFiles,
   getNestedTags,
   getTaggedFileFromFile,
+  shouldIgnoreFile,
 } from "src/utils";
 
 export const VIEW_TYPE = "tags-overview-view";
@@ -35,10 +36,21 @@ export class RootView extends ItemView {
     // Listen on file changes and update the list of tagged files
     plugin.registerEvent(
       this.app.metadataCache.on("changed", (modifiedFile: TFile) => {
-        this.taggedFilesMap.set(
-          modifiedFile,
-          getTaggedFileFromFile(this.app, modifiedFile)
+        const taggedFile: TaggedFile = getTaggedFileFromFile(
+          this.app,
+          modifiedFile
         );
+
+        // If the file is ignored, remove it from the taggedFilesMap
+        if (shouldIgnoreFile(taggedFile.frontMatter?.tagsoverview)) {
+          this.taggedFilesMap.delete(modifiedFile);
+        } else {
+          // Otherwise, update the taggedFilesMap
+          this.taggedFilesMap.set(
+            modifiedFile,
+            getTaggedFileFromFile(this.app, modifiedFile)
+          );
+        }
 
         // Update the allTags list
         this.allTags = [
