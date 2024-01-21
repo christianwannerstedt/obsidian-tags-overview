@@ -103,4 +103,5 @@ export const ALIGN_OPTIONS: Record<string, string> = {
 export const FILTER_TYPES: Record<string, string> = {
   select: "Select",
   text: "Text",
+  number: "Number",
 };

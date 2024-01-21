@@ -33,9 +33,11 @@ It is possible to extend the filter functionality by adding filters for specific
 
 ![property-filters-settings](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/9d7ced26-f77d-4b0e-81a6-d2bdbc07a38c)
 
-In the example above, you can see how to add and remove properties to be used for filtering. It is also possible to determine the position on the filter row, as well as the type of filter. There are two different filter types:
+In the example above, you can see how to add and remove properties to be used for filtering. It is also possible to determine the position on the filter row, as well as the type of filter. There are three different filter types:
 - Select: The filter is displayed as a dropdown where all existing values are selectable (same widget as for filtering tags).
 - Text: Filtering takes place with free text.
+- Number: Only numeric input is allowed. It's possible to choose which compare operator to use (`=`, `!=`, `>`, `>=`, `<=`, `<`).
+
 In the above scenario, the result looks like this:
 
 ![property-filters](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/f2c86422-f794-4d29-8cd4-81d6fb6461bf)

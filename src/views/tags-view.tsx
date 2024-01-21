@@ -137,19 +137,28 @@ export const TagsView = ({
     setSelectedFilters(newSelectedFilters);
   };
 
-  const setPropertyFilterAnd = (propertyFilterKey: string, value: boolean) => {
+  const updatePropertyFilter = (
+    propertyFilterKey: string,
+    filterOperator: string | undefined,
+    filterAnd: boolean | undefined
+  ) => {
     const newSelectedFilters = { ...propertyFilterDataList };
     if (newSelectedFilters[propertyFilterKey] === undefined) {
       newSelectedFilters[propertyFilterKey] = {
         selected: [],
-        filterAnd: value,
+        filterOperator: filterOperator || "eq",
+        filterAnd: filterAnd || false,
       };
     } else {
-      newSelectedFilters[propertyFilterKey].filterAnd = value;
+      if (filterOperator !== undefined) {
+        newSelectedFilters[propertyFilterKey].filterOperator = filterOperator;
+      }
+      if (filterAnd !== undefined) {
+        newSelectedFilters[propertyFilterKey].filterAnd = filterAnd;
+      }
     }
     setSelectedFilters(newSelectedFilters);
   };
-
   // Get files to be displayed
   const selectedTags: string[] =
     selectedOptions?.map((option: SelectOption) => option.value) || [];
@@ -174,50 +183,99 @@ export const TagsView = ({
   // Filter the list of files based on the property filters
   if (Object.keys(propertyFilterDataList).length > 0) {
     displayFiles = displayFiles.filter((file: TaggedFile) => {
-      const cache = plugin.app.metadataCache.getFileCache(file.file);
-      if (!cache?.frontmatter) {
-        return false;
-      }
+      const frontMatter = plugin.app.metadataCache.getFileCache(
+        file.file
+      )?.frontmatter;
 
       for (let i = 0; i < Object.keys(propertyFilterDataList).length; i++) {
         const propertyFilterKey = Object.keys(propertyFilterDataList)[i];
         const propertyFilterData = propertyFilterDataList[propertyFilterKey];
         if (
-          propertyFilterData.selected.length &&
-          propertyFilterData.selected[0]
+          propertyFilterData.selected.length === 0 ||
+          !propertyFilterData.selected[0]
         ) {
-          const frontMatterVal = cache.frontmatter[propertyFilterKey];
-          const propertyFilterAnd: boolean =
-            propertyFilterData.filterAnd || false;
-          let includeFile;
-          if (!frontMatterVal) return false;
-
-          if (propertyFilterTypeMap[propertyFilterKey] === FILTER_TYPES.text) {
-            const searchString = propertyFilterData.selected[0].toLowerCase();
-            if (Array.isArray(frontMatterVal)) {
-              includeFile = frontMatterVal.some((val) =>
-                val.toLowerCase().contains(searchString)
-              );
-            } else {
-              includeFile = frontMatterVal.contains(searchString);
-            }
-          } else if (propertyFilterAnd) {
-            includeFile = Array.isArray(frontMatterVal)
-              ? propertyFilterData.selected.every((val) =>
-                  frontMatterVal.includes(val.toString())
-                )
-              : propertyFilterData.selected.length === 1 &&
-                frontMatterVal === propertyFilterData.selected[0].toString();
-          } else {
-            includeFile = Array.isArray(frontMatterVal)
-              ? frontMatterVal.some((val) =>
-                  propertyFilterData.selected.includes(val.toString())
-                )
-              : propertyFilterData.selected.includes(frontMatterVal.toString());
-          }
-
-          if (!includeFile) return false;
+          continue;
         }
+        const propertyFilterVal = propertyFilterData.selected[0];
+        const frontMatterVal = frontMatter
+          ? frontMatter[propertyFilterKey]
+          : false;
+        if (!frontMatterVal) return false;
+
+        let includeFile;
+        if (propertyFilterTypeMap[propertyFilterKey] === FILTER_TYPES.text) {
+          const searchString = propertyFilterVal.toLowerCase();
+          if (Array.isArray(frontMatterVal)) {
+            includeFile = frontMatterVal.some((val) =>
+              val.toLowerCase().contains(searchString)
+            );
+          } else {
+            includeFile = frontMatterVal.contains(searchString);
+          }
+        } else if (
+          propertyFilterTypeMap[propertyFilterKey] === FILTER_TYPES.number
+        ) {
+          const filterOperator = propertyFilterData.filterOperator || "eq";
+          if (Array.isArray(frontMatterVal)) {
+            includeFile = frontMatterVal.some((val) => {
+              switch (filterOperator) {
+                case "eq":
+                  return val === propertyFilterVal;
+                case "neq":
+                  return val !== propertyFilterVal;
+                case "gt":
+                  return val > propertyFilterVal;
+                case "gte":
+                  return val >= propertyFilterVal;
+                case "lt":
+                  return val < propertyFilterVal;
+                case "lte":
+                  return val <= propertyFilterVal;
+                default:
+                  return false;
+              }
+            });
+          } else {
+            switch (filterOperator) {
+              case "eq":
+                includeFile = frontMatterVal === propertyFilterVal;
+                break;
+              case "neq":
+                includeFile = frontMatterVal !== propertyFilterVal;
+                break;
+              case "gt":
+                includeFile = frontMatterVal > propertyFilterVal;
+                break;
+              case "gte":
+                includeFile = frontMatterVal >= propertyFilterVal;
+                break;
+              case "lt":
+                includeFile = frontMatterVal < propertyFilterVal;
+                break;
+              case "lte":
+                includeFile = frontMatterVal <= propertyFilterVal;
+                break;
+              default:
+                includeFile = false;
+                break;
+            }
+          }
+        } else if (propertyFilterData.filterAnd || false) {
+          includeFile = Array.isArray(frontMatterVal)
+            ? propertyFilterData.selected.every((val) =>
+                frontMatterVal.includes(val.toString())
+              )
+            : propertyFilterData.selected.length === 1 &&
+              frontMatterVal === propertyFilterVal.toString();
+        } else {
+          includeFile = Array.isArray(frontMatterVal)
+            ? frontMatterVal.some((val) =>
+                propertyFilterData.selected.includes(val.toString())
+              )
+            : propertyFilterData.selected.includes(frontMatterVal.toString());
+        }
+
+        if (!includeFile) return false;
       }
       return true;
     });
@@ -259,7 +317,6 @@ export const TagsView = ({
       tagsTree[tag].push(taggedFile);
     });
   });
-
   // Construct the tree of nested tags
   const nestedTags: TagData[] = [];
   let tagsCount = 0;
@@ -351,17 +408,41 @@ export const TagsView = ({
               <HeaderSettings
                 title={camelCaseString(propertyFilter.property)}
                 value={
-                  propertyFilterDataList[propertyFilter.property]?.filterAnd ||
-                  false
+                  propertyFilter.type === FILTER_TYPES.number
+                    ? propertyFilterDataList[propertyFilter.property]
+                        ?.filterOperator || "eq"
+                    : propertyFilterDataList[propertyFilter.property]
+                        ?.filterAnd || false
                 }
-                setFunction={(val: boolean) => {
-                  setPropertyFilterAnd(propertyFilter.property, val);
+                setFunction={(val: boolean | string) => {
+                  if (propertyFilter.type === FILTER_TYPES.number) {
+                    updatePropertyFilter(
+                      propertyFilter.property,
+                      val.toString(),
+                      undefined
+                    );
+                  } else {
+                    updatePropertyFilter(
+                      propertyFilter.property,
+                      undefined,
+                      Boolean(val)
+                    );
+                  }
                 }}
                 settings={
                   propertyFilter.type === FILTER_TYPES.select
                     ? [
                         { label: "AND", value: true },
                         { label: "OR", value: false },
+                      ]
+                    : propertyFilter.type === FILTER_TYPES.number
+                    ? [
+                        { label: "=", value: "eq" },
+                        { label: "!=", value: "neq" },
+                        { label: ">", value: "gt" },
+                        { label: ">=", value: "gte" },
+                        { label: "<=", value: "lte" },
+                        { label: "<", value: "lt" },
                       ]
                     : []
                 }
@@ -409,10 +490,27 @@ export const TagsView = ({
                   value={
                     propertyFilterDataList[propertyFilter.property]?.selected
                       ? propertyFilterDataList[propertyFilter.property]
-                          ?.selected[0]
+                          ?.selected[0] || ""
                       : ""
                   }
                   className="tags-filter-text"
+                  placeholder={`Filter ${propertyFilter.property}`}
+                  onChange={(event) => {
+                    const val = event.target.value;
+                    onFiltersChange(propertyFilter.property, val ? [val] : []);
+                  }}
+                />
+              )}
+              {propertyFilter.type === FILTER_TYPES.number && (
+                <input
+                  type="number"
+                  value={
+                    propertyFilterDataList[propertyFilter.property]?.selected
+                      ? propertyFilterDataList[propertyFilter.property]
+                          ?.selected[0] || ""
+                      : ""
+                  }
+                  className="tags-filter-text tags-filter-number"
                   placeholder={`Filter ${propertyFilter.property}`}
                   onChange={(event) => {
                     const val = event.target.value;
