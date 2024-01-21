@@ -31,7 +31,7 @@ Filter the list easily by selecting one or more tags in the dropdown menu. You c
 #### Filter on custom properties (Front matter)
 It is possible to extend the filter functionality by adding filters for specific properties (YAML/Front matter). This is easily done from the plugin's settings page.
 
-![property-filters-settings](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/9d7ced26-f77d-4b0e-81a6-d2bdbc07a38c)
+![property-filters-settings-II](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/7aa5e43c-36fb-4e72-86c2-a260eaf47034)
 
 In the example above, you can see how to add and remove properties to be used for filtering. It is also possible to determine the position on the filter row, as well as the type of filter. There are three different filter types:
 - Select: The filter is displayed as a dropdown where all existing values are selectable (same widget as for filtering tags).
@@ -40,7 +40,7 @@ In the example above, you can see how to add and remove properties to be used fo
 
 In the above scenario, the result looks like this:
 
-![property-filters](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/f2c86422-f794-4d29-8cd4-81d6fb6461bf)
+![property-filters-II](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/5f79431f-41a1-4d3e-802e-fc8a9f9f151e)
 
 
 ### Different views
