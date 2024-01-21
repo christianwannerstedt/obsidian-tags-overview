@@ -20,6 +20,7 @@ export interface TagsOverviewSettings {
   sortTags: string;
   sortFiles: string;
   keepFilters: boolean;
+  displayHeaders: boolean;
   storedFilters: string;
   showNested: boolean;
   showRelatedTags: boolean;
@@ -35,6 +36,7 @@ export const DEFAULT_SETTINGS: TagsOverviewSettings = {
   sortTags: SORT_TAGS.nameAsc,
   sortFiles: SORT_FILES.nameAsc,
   keepFilters: true,
+  displayHeaders: false,
   storedFilters: "",
   showNested: false,
   showRelatedTags: true,
@@ -124,6 +126,19 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
 
     const reactRoot = createRoot(root);
     reactRoot.render(<SettingsView plugin={this.plugin} />);
+
+    new Setting(containerEl)
+      .setName("Display table headers")
+      .setDesc("If table headers should be displayed or not in the list view.")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.displayHeaders)
+          .onChange(async (value) => {
+            this.plugin.settings.displayHeaders = value;
+            await this.plugin.saveData(this.plugin.settings);
+            this.plugin.refreshView();
+          })
+      );
 
     new Setting(containerEl)
       .setName("Reset settings")

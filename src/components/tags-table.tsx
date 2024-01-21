@@ -3,7 +3,7 @@ import * as React from "react";
 import { ICON_TYPE, Icon } from "./icon";
 import { TagTitleRow } from "./tag-title-row";
 import { TableColumn, TagData, TaggedFile } from "../types";
-import { addOrRemove, pluralize } from "../utils";
+import { addOrRemove, pluralize, upperCaseFirstChar } from "../utils";
 import TagsOverviewPlugin from "src/main";
 import { DEFAULT_SETTINGS } from "src/settings";
 import { TFile } from "obsidian";
@@ -57,7 +57,7 @@ export const TagsTable = ({
         )
       ) {
         return {
-          width: "150px",
+          minWidth: "150px",
         };
       }
       return {};
@@ -90,6 +90,24 @@ export const TagsTable = ({
         {!isCollapsed && (
           <div className="tag-content">
             <table>
+              {plugin.settings.displayHeaders && (
+                <thead>
+                  <tr>
+                    {tableColumns.map((column: TableColumn) => (
+                      <th
+                        key={`${tagLevel.tag}-${column.type}`}
+                        className={`align-${column.align} col-${column.type}`}
+                      >
+                        {upperCaseFirstChar(
+                          column.type === TABLE_COLUMN_TYPES.frontMatter
+                            ? column.data || "-"
+                            : column.type
+                        )}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+              )}
               <tbody>
                 {tagLevel.files &&
                   tagLevel.files.map((file: TaggedFile, fileIndex: number) => (

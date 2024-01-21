@@ -103,6 +103,15 @@
 
         th {
             text-align: left;
+            font-size: var(--font-ui-smaller);
+            color: var(--color-base-70);
+
+            &.align-center {
+                text-align: center;
+            }
+            &.align-right {
+                text-align: right;
+            }
         }
 
         tbody td {
