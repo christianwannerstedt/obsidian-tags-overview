@@ -1,6 +1,6 @@
 {
   "name": "obsidian-tags-overview",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Adds an overview page of your tags in Obsidian",
   "main": "main.js",
   "scripts": {
