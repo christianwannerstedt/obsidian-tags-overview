@@ -83,6 +83,8 @@
 }
 .tags-overview .tags-table-container th {
   text-align: left;
+  font-size: var(--font-ui-smaller);
+  color: var(--color-base-70);
 }
 .tags-overview .tags-table-container tbody td {
   border-top: 1px solid var(--color-base-40);
