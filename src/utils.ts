@@ -207,6 +207,14 @@ export const sortTagsAndFiles = (
           ? ""
           : frontMatterB;
 
+        // If both values starts with "-" we should flip the sort order
+        if (
+          frontMatterValueA.startsWith("-") &&
+          frontMatterValueB.startsWith("-")
+        ) {
+          desc = !desc;
+        }
+
         return desc
           ? frontMatterValueA < frontMatterValueB
             ? 1
