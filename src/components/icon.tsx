@@ -11,6 +11,7 @@ export const ICON_TYPE = {
   moveUp: "moveUp",
   moveDown: "moveDown",
   trash: "trash",
+  save: "save",
 };
 Object.freeze(ICON_TYPE);
 
@@ -23,7 +24,7 @@ export const Icon = ({
   disabled,
 }: {
   iconType: string;
-  onClick: (e: MouseEvent) => void;
+  onClick?: (e: MouseEvent) => void;
   className: string;
   label?: string;
   active?: boolean;
@@ -40,11 +41,15 @@ export const Icon = ({
     <div
       aria-label={label}
       className={classes}
-      onClick={(e: MouseEvent) => {
-        if (!disabled) {
-          onClick(e);
-        }
-      }}
+      onClick={
+        onClick
+          ? (e: MouseEvent) => {
+              if (!disabled) {
+                onClick(e);
+              }
+            }
+          : undefined
+      }
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -56,7 +61,7 @@ export const Icon = ({
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={`svg-icon-icon`}
+        className={`svg-icon-icon ${className}-svg`}
       >
         {iconType === ICON_TYPE.arrow ? (
           <path d="M3 8L12 17L21 8"></path>
@@ -108,6 +113,12 @@ export const Icon = ({
             <path d="M9 5H2v7l6.29 6.29c.94.94 2.48.94 3.42 0l3.58-3.58c.94-.94.94-2.48 0-3.42L9 5Z"></path>
             <path d="M6 9.01V9"></path>
             <path d="m15 5 6.3 6.3a2.4 2.4 0 0 1 0 3.4L17 19"></path>
+          </>
+        ) : iconType === ICON_TYPE.save ? (
+          <>
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
           </>
         ) : (
           <>
