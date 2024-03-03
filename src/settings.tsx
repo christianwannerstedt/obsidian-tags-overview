@@ -12,7 +12,7 @@ import TagsOverviewPlugin from "./main";
 import { formatDate } from "./utils";
 import { createRoot } from "react-dom/client";
 import { SettingsView } from "./views/settings-view";
-import { PropertyFilter, TableColumn } from "./types";
+import { PropertyFilter, SavedFilter, TableColumn } from "./types";
 
 export interface TagsOverviewSettings {
   filterAnd: boolean;
@@ -28,6 +28,7 @@ export interface TagsOverviewSettings {
   dateFormat: string;
   tableColumns: TableColumn[];
   propertyFilters: PropertyFilter[];
+  savedFilters: SavedFilter[];
 }
 
 export const DEFAULT_SETTINGS: TagsOverviewSettings = {
@@ -47,6 +48,7 @@ export const DEFAULT_SETTINGS: TagsOverviewSettings = {
     { type: TABLE_COLUMN_TYPES.modified, align: ALIGN_OPTIONS.right },
   ],
   propertyFilters: [],
+  savedFilters: [],
 };
 
 export class TagsOverviewSettingTab extends PluginSettingTab {

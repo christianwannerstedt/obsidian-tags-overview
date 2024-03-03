@@ -7,6 +7,8 @@ import TagsOverviewPlugin from "../main";
 import { RootView } from "./root-view";
 import { HeaderSettings } from "../components/header-settings";
 import { Tags } from "../components/tags";
+import { NameInputModal } from "../components/name-input-modal";
+import { SaveFilterMenu } from "../components/save-filter-menu";
 import {
   formatDate,
   formatCalendardDate,
@@ -14,12 +16,14 @@ import {
   setMaxTimesForTags,
   convertStringsToOptions,
   camelCaseString,
+  deepCopy,
 } from "src/utils";
 import {
   AvailableFilterOptions,
   FilesByTag,
   PropertyFilter,
   PropertyFilterDataList,
+  SavedFilter,
   SelectOption,
   StringMap,
   TagData,
@@ -54,6 +58,12 @@ export const TagsView = ({
   const [showRelatedTags, setShowRelatedTags] = useState(
     plugin.settings.showRelatedTags
   );
+
+  const [savedFilters, setSavedFilters] = useState(
+    plugin.settings.savedFilters
+  );
+
+  // PropertyFiltersDataList is a map of property filters and their selected values
   const [propertyFilterDataList, setSelectedFilters] =
     useState<PropertyFilterDataList>({});
 
@@ -109,10 +119,11 @@ export const TagsView = ({
   useEffect(() => {
     plugin.saveSettings({
       filterAnd,
+      savedFilters,
       showNested,
       showRelatedTags,
     });
-  }, [filterAnd, showNested, showRelatedTags]);
+  }, [filterAnd, savedFilters, showNested, showRelatedTags]);
 
   useEffect(() => {
     plugin.saveSettings({
@@ -371,8 +382,85 @@ export const TagsView = ({
   sumUpNestedFilesCount(nestedTags);
   setMaxTimesForTags(nestedTags);
 
+  const loadSavedFilter = (filter: SavedFilter) => {
+    setSelectedOptions(filter.selectedOptions);
+    setFilterAnd(filter.filterAnd);
+    // Loop through the property filters and update the selected filters.
+    // Ignore filters that are not in the enabled in the settings.
+    const newPropertyFilter: PropertyFilterDataList = {};
+    Object.keys(filter.properyFilters).forEach((key: string) => {
+      if (propertyFilterTypeMap[key]) {
+        if (
+          propertyFilterTypeMap[key] === FILTER_TYPES.number &&
+          (filter.properyFilters[key].selected.length !== 1 ||
+            Number.isNaN(parseInt(filter.properyFilters[key].selected[0])))
+        ) {
+          filter.properyFilters[key].selected = ["0"];
+        }
+        newPropertyFilter[key] = deepCopy(filter.properyFilters[key]);
+      }
+    });
+    setSelectedFilters(newPropertyFilter);
+  };
+
+  const saveFilter = () => {
+    new NameInputModal(app, async (name: string) => {
+      // Check if the filter already exists
+      const filterExists = savedFilters.find(
+        (filter: SavedFilter) => filter.name === name
+      );
+
+      if (filterExists) {
+        if (
+          await confirm(
+            "There is already a filter with that name. Do you want to update it?"
+          )
+        ) {
+          const newFilters = [...savedFilters];
+          const index = newFilters.findIndex(
+            (filter: SavedFilter) => filter.name === name
+          );
+          newFilters[index] = {
+            name,
+            selectedOptions,
+            filterAnd,
+            properyFilters: deepCopy(propertyFilterDataList),
+          };
+          setSavedFilters(newFilters);
+        }
+        return;
+      }
+
+      setSavedFilters(
+        [
+          ...savedFilters,
+          {
+            name,
+            selectedOptions,
+            filterAnd,
+            properyFilters: deepCopy(propertyFilterDataList),
+          },
+        ].sort((a: SavedFilter, b: SavedFilter) => a.name.localeCompare(b.name))
+      );
+    }).open();
+  };
+
+  const removeFilter = async (index: number) => {
+    if (await confirm("Do you really want to delete the filter?")) {
+      const newFilters = [...savedFilters];
+      newFilters.splice(index, 1);
+      setSavedFilters(newFilters);
+    }
+  };
+
   return (
     <div className="tags-overview">
+      <SaveFilterMenu
+        savedFilters={savedFilters}
+        loadSavedFilter={loadSavedFilter}
+        saveFilter={saveFilter}
+        removeFilter={removeFilter}
+      />
       <HeaderSettings
         title="Filter"
         value={filterAnd}

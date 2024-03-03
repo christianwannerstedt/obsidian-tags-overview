@@ -297,41 +297,50 @@
     .is-collapsed > .collapse-icon svg {
         transform: rotate(-90deg);
     }
+
     .tags-info-container .custom-icon {
+        display: flex;
+        padding: var(--size-2-2) var(--size-2-3);
+    }
+
+    .custom-icon {
         -webkit-app-region: no-drag;
         background-color: transparent;
-        display: flex;
         align-items: center;
         justify-content: center;
-        padding: var(--size-2-2) var(--size-2-3);
         cursor: var(--cursor);
         border-radius: var(--clickable-icon-radius);
         transition: opacity 0.15s ease-in-out;
         height: auto;
-    }
-    .tags-info-container .custom-icon:hover {
-        box-shadow: none;
-        opacity: var(--icon-opacity-hover);
-        color: var(--icon-color-hover);
-        background-color: var(--background-modifier-hover);
-    }
-    .tags-info-container .custom-icon svg {
-        height: var(--icon-size);
-        width: var(--icon-size);
-        stroke-width: var(--icon-stroke);
-    }
-    .custom-icon.is-active {
-        opacity: var(--icon-opacity-hover);
-        color: var(--icon-color-active);
-        background-color: var(--background-modifier-active-hover);
-    }
-    .custom-icon.is-disabled, .custom-icon.is-disabled:hover {
-        background-color: unset;
-        color: var(--text-muted);
-        opacity: 0.4;
-    }
-    .custom-icon.is-disabled:hover {
-        background-color: unset;   
+        
+        &:hover {
+            box-shadow: none;
+            opacity: var(--icon-opacity-hover);
+            color: var(--icon-color-hover);
+            background-color: var(--background-modifier-hover);
+        }
+
+        svg {
+            height: var(--icon-size);
+            width: var(--icon-size);
+            stroke-width: var(--icon-stroke);
+        }
+
+        &.is-active {
+            opacity: var(--icon-opacity-hover);
+            color: var(--icon-color-active);
+            background-color: var(--background-modifier-active-hover);
+        }
+
+        &.is-disabled, &.is-disabled:hover {
+            background-color: unset;
+            color: var(--text-muted);
+            opacity: 0.4;
+        }
+
+        &.is-disabled:hover {
+            background-color: unset;   
+        }
     }
 }
 
@@ -407,5 +416,97 @@
             color: var(--icon-color-hover);
             cursor: pointer;
         }
+    }
+}
+
+.save-load-filters-icon {
+    display: inline-block;
+    padding: var(--size-2-2) var(--size-2-3);
+}
+
+.tag-view-popover {
+    position: absolute;
+    top: 28px;
+    left: 0;
+    background-color: var(--background-primary);
+    padding: 0px 10px 15px 10px;
+    border: 1px solid var(--background-modifier-border-focus);
+    border-radius: 10px;
+    z-index: 1000;
+
+    h4 {
+        padding: 0 10px;
+        margin-bottom: 4px;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 10px;
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 10px;
+
+            > span {
+                flex-grow: 1;
+                display: inline-block;
+                padding-right: 20px;
+                font-size: var(--font-smaller);
+                cursor: pointer;
+
+                &:hover {
+                    color: var(--link-color-hover)
+                }
+            }
+
+            .trash-icon {
+                width: 16px;
+                height: 16px;
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                }
+            }
+
+            &:nth-child(even) {
+                background-color: var(--background-secondary);
+            }
+        }
+    }
+
+    hr {
+        margin: 15px 0;
+    }
+
+    .save-link {
+        margin-left: 10px;
+
+        .save-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            vertical-align: top;
+            margin-right: 8px;
+            color: var(--link-color);
+
+            svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        &:hover .save-icon {
+            color: var(--link-color-hover);
+        }
+    }
+
+    .no-saved-filters {
+        padding: 5px 35px;
+        text-align: center;
+        color: var(--color-base-70);
+        font-size: var(--font-smaller);
     }
 }
