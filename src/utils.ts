@@ -288,3 +288,7 @@ export function camelCaseString(str: string): string {
 export function upperCaseFirstChar(str: string): string {
   return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 }
+
+export function deepCopy<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
+}

@@ -248,24 +248,26 @@
   transform: rotate(-90deg);
 }
 .tags-overview .tags-info-container .custom-icon {
+  display: flex;
+  padding: var(--size-2-2) var(--size-2-3);
+}
+.tags-overview .custom-icon {
   -webkit-app-region: no-drag;
   background-color: transparent;
-  display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--size-2-2) var(--size-2-3);
   cursor: var(--cursor);
   border-radius: var(--clickable-icon-radius);
   transition: opacity 0.15s ease-in-out;
   height: auto;
 }
-.tags-overview .tags-info-container .custom-icon:hover {
+.tags-overview .custom-icon:hover {
   box-shadow: none;
   opacity: var(--icon-opacity-hover);
   color: var(--icon-color-hover);
   background-color: var(--background-modifier-hover);
 }
-.tags-overview .tags-info-container .custom-icon svg {
+.tags-overview .custom-icon svg {
   height: var(--icon-size);
   width: var(--icon-size);
   stroke-width: var(--icon-stroke);
@@ -341,4 +343,82 @@
 .tags-overview-settings-table .custom-icon:hover {
   color: var(--icon-color-hover);
   cursor: pointer;
+}
+
+.save-load-filters-icon {
+  display: inline-block;
+  padding: var(--size-2-2) var(--size-2-3);
+}
+
+.tag-view-popover {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  background-color: var(--background-primary);
+  padding: 0px 10px 15px 10px;
+  border: 1px solid var(--background-modifier-border-focus);
+  border-radius: 10px;
+  z-index: 1000;
+}
+.tag-view-popover h4 {
+  padding: 0 10px;
+  margin-bottom: 4px;
+}
+.tag-view-popover ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+}
+.tag-view-popover ul li {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 10px;
+}
+.tag-view-popover ul li > span {
+  flex-grow: 1;
+  display: inline-block;
+  padding-right: 20px;
+  font-size: var(--font-smaller);
+  cursor: pointer;
+}
+.tag-view-popover ul li > span:hover {
+  color: var(--link-color-hover);
+}
+.tag-view-popover ul li .trash-icon {
+  width: 16px;
+  height: 16px;
+}
+.tag-view-popover ul li .trash-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.tag-view-popover ul li:nth-child(even) {
+  background-color: var(--background-secondary);
+}
+.tag-view-popover hr {
+  margin: 15px 0;
+}
+.tag-view-popover .save-link {
+  margin-left: 10px;
+}
+.tag-view-popover .save-link .save-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  vertical-align: top;
+  margin-right: 8px;
+  color: var(--link-color);
+}
+.tag-view-popover .save-link .save-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.tag-view-popover .save-link:hover .save-icon {
+  color: var(--link-color-hover);
+}
+.tag-view-popover .no-saved-filters {
+  padding: 5px 35px;
+  text-align: center;
+  color: var(--color-base-70);
+  font-size: var(--font-smaller);
 }

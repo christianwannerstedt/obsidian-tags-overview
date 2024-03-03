@@ -71,3 +71,10 @@ export interface AvailableFilterOptions {
 export interface StringMap {
   [key: string]: string;
 }
+
+export interface SavedFilter {
+  name: string;
+  selectedOptions: SelectOption[];
+  filterAnd: boolean;
+  properyFilters: PropertyFilterDataList;
+}
