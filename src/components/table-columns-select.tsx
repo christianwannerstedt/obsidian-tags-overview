@@ -76,6 +76,9 @@ export const TableColumnsSelector = ({
     (column: TableColumn) => column.type
   );
 
+  const columnKey = (column: TableColumn, index: number) =>
+    `${column.type}-${column.data ?? ""}-${index}`;
+
   const tableRows =
     selectedColumns.length === 0 ? (
       <tr>
@@ -86,7 +89,7 @@ export const TableColumnsSelector = ({
       </tr>
     ) : (
       selectedColumns.map((column: TableColumn, index: number) => (
-        <tr key={`${column}-${index}`}>
+        <tr key={columnKey(column, index)}>
           <td>
             {column.type !== "frontMatter" && TABLE_COLUMN_LABELS[column.type]}
             {column.type === "frontMatter" && (
@@ -100,7 +103,7 @@ export const TableColumnsSelector = ({
                   <option value="">Select property</option>
                   {frontMatterProperties.map((property) => (
                     <option
-                      key={`${column}-${index}-${property}`}
+                      key={columnKey(column, index) + property}
                       value={property}
                     >
                       {property}
@@ -117,7 +120,7 @@ export const TableColumnsSelector = ({
             >
               {Object.values(ALIGN_OPTIONS).map((alignOption) => (
                 <option
-                  key={`${column}-${index}-${alignOption}`}
+                  key={columnKey(column, index) + alignOption}
                   value={alignOption}
                 >
                   {alignOption}

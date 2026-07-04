@@ -12,6 +12,7 @@ import TagsOverviewPlugin from "./main";
 import { formatDate } from "./utils";
 import { createRoot } from "react-dom/client";
 import { SettingsView } from "./views/settings-view";
+import { ConfirmModal } from "./components/confirm-modal";
 import { PropertyFilter, SavedFilter, TableColumn } from "./types";
 
 export interface TagsOverviewSettings {
@@ -122,8 +123,7 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
         });
       });
 
-    const root = document.createElement("div");
-    root.className = "tags-overview-table-settings";
+    const root = createDiv({ cls: "tags-overview-table-settings" });
     containerEl.appendChild(root);
 
     const reactRoot = createRoot(root);
@@ -146,13 +146,19 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
       .setName("Reset settings")
       .setDesc("Reset all settings to their default values")
       .addButton((button: ButtonComponent) =>
-        button.setButtonText("Reset settings").onClick(async () => {
-          if (confirm("Are you sure you want to reset the settings?")) {
-            this.plugin.settings = Object.assign({}, DEFAULT_SETTINGS);
-            await this.plugin.saveData(this.plugin.settings);
-            this.display();
-            this.plugin.refreshView();
-          }
+        button.setButtonText("Reset settings").onClick(() => {
+          new ConfirmModal(
+            this.app,
+            "Are you sure you want to reset the settings?",
+            () => {
+              void (async () => {
+                this.plugin.settings = Object.assign({}, DEFAULT_SETTINGS);
+                await this.plugin.saveData(this.plugin.settings);
+                this.display();
+                this.plugin.refreshView();
+              })();
+            }
+          ).open();
         })
       );
   }

@@ -8,6 +8,7 @@ import { RootView } from "./root-view";
 import { HeaderSettings } from "../components/header-settings";
 import { Tags } from "../components/tags";
 import { NameInputModal } from "../components/name-input-modal";
+import { ConfirmModal } from "../components/confirm-modal";
 import { SaveFilterMenu } from "../components/save-filter-menu";
 import {
   formatDate,
@@ -404,30 +405,29 @@ export const TagsView = ({
   };
 
   const saveFilter = () => {
-    new NameInputModal(app, async (name: string) => {
-      // Check if the filter already exists
+    new NameInputModal(app, (name: string) => {
       const filterExists = savedFilters.find(
         (filter: SavedFilter) => filter.name === name
       );
 
       if (filterExists) {
-        if (
-          await confirm(
-            "There is already a filter with that name. Do you want to update it?"
-          )
-        ) {
-          const newFilters = [...savedFilters];
-          const index = newFilters.findIndex(
-            (filter: SavedFilter) => filter.name === name
-          );
-          newFilters[index] = {
-            name,
-            selectedOptions,
-            filterAnd,
-            properyFilters: deepCopy(propertyFilterDataList),
-          };
-          setSavedFilters(newFilters);
-        }
+        new ConfirmModal(
+          app,
+          "There is already a filter with that name. Do you want to update it?",
+          () => {
+            const newFilters = [...savedFilters];
+            const index = newFilters.findIndex(
+              (filter: SavedFilter) => filter.name === name
+            );
+            newFilters[index] = {
+              name,
+              selectedOptions,
+              filterAnd,
+              properyFilters: deepCopy(propertyFilterDataList),
+            };
+            setSavedFilters(newFilters);
+          }
+        ).open();
         return;
       }
 
@@ -445,12 +445,12 @@ export const TagsView = ({
     }).open();
   };
 
-  const removeFilter = async (index: number) => {
-    if (await confirm("Do you really want to delete the filter?")) {
+  const removeFilter = (index: number) => {
+    new ConfirmModal(app, "Do you really want to delete the filter?", () => {
       const newFilters = [...savedFilters];
       newFilters.splice(index, 1);
       setSavedFilters(newFilters);
-    }
+    }).open();
   };
 
   return (

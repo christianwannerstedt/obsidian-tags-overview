@@ -36,9 +36,9 @@ export const SaveFilterMenu = ({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    activeDocument.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      activeDocument.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
