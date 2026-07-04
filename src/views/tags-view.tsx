@@ -65,7 +65,7 @@ export const TagsView = ({
   );
 
   // PropertyFiltersDataList is a map of property filters and their selected values
-  const [propertyFilterDataList, setSelectedFilters] =
+  const [propertyFilterDataList, setPropertyFilterDataList] =
     useState<PropertyFilterDataList>({});
 
   // Construct a map of property filters and their types
@@ -124,13 +124,13 @@ export const TagsView = ({
       showNested,
       showRelatedTags,
     });
-  }, [filterAnd, savedFilters, showNested, showRelatedTags]);
+  }, [plugin, filterAnd, savedFilters, showNested, showRelatedTags]);
 
   useEffect(() => {
     void plugin.saveSettings({
       storedFilters: selectedOptions.map((option) => option.value).join(","),
     });
-  }, [selectedOptions]);
+  }, [plugin, selectedOptions]);
 
   const onFileClicked = (file: TFile, inNewLeaf: boolean = false) => {
     openFile(app, file, inNewLeaf);
@@ -146,7 +146,7 @@ export const TagsView = ({
     } else {
       newSelectedFilters[propertyFilterKey].selected = values;
     }
-    setSelectedFilters(newSelectedFilters);
+    setPropertyFilterDataList(newSelectedFilters);
   };
 
   const updatePropertyFilter = (
@@ -169,7 +169,7 @@ export const TagsView = ({
         newSelectedFilters[propertyFilterKey].filterAnd = filterAnd;
       }
     }
-    setSelectedFilters(newSelectedFilters);
+    setPropertyFilterDataList(newSelectedFilters);
   };
   // Get files to be displayed
   const selectedTags: string[] =
@@ -401,7 +401,7 @@ export const TagsView = ({
         newPropertyFilter[key] = deepCopy(filter.properyFilters[key]);
       }
     });
-    setSelectedFilters(newPropertyFilter);
+    setPropertyFilterDataList(newPropertyFilter);
   };
 
   const saveFilter = () => {

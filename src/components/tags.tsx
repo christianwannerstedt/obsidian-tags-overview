@@ -61,7 +61,7 @@ export const Tags = ({
       sortTags,
       sortFiles,
     });
-  }, [displayType, sortTags, sortFiles]);
+  }, [plugin, displayType, sortTags, sortFiles]);
 
   const collectTags = (tags: TagData[]): string[] => {
     const nestedTags: string[] = [];

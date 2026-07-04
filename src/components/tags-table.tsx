@@ -24,6 +24,9 @@ export const TagsTable = ({
   setCollapsedTags: (arg0: string[]) => void;
   onTagClick: (tagData: TagData) => void;
 }) => {
+  const getColumnKey = (column: TableColumn) =>
+    `${column.type}-${column.data ?? ""}`;
+
   const getTagTable = (tagLevel: TagData, depth: number) => {
     const hasSubTags: boolean = !!tagLevel.sub.length;
     const isCollapsable: boolean = hasSubTags || !!tagLevel.files.length;
@@ -95,7 +98,7 @@ export const TagsTable = ({
                   <tr>
                     {tableColumns.map((column: TableColumn) => (
                       <th
-                        key={`${tagLevel.tag}-${column.type}`}
+                        key={`${tagLevel.tag}-${getColumnKey(column)}`}
                         className={`align-${column.align} col-${column.type}`}
                       >
                         {upperCaseFirstChar(
@@ -110,20 +113,17 @@ export const TagsTable = ({
               )}
               <tbody>
                 {tagLevel.files &&
-                  tagLevel.files.map((file: TaggedFile, fileIndex: number) => (
-                    <React.Fragment
-                      key={`${tagLevel.tag}-${file.file.basename}-${fileIndex}`}
-                    >
+                  tagLevel.files.map((file: TaggedFile) => (
+                    <React.Fragment key={`${tagLevel.tag}-${file.file.path}`}>
                       <tr
                         className="file-row"
                         onClick={(event) =>
                           onFileClick(file.file, event.ctrlKey || event.metaKey)
                         }
                       >
-                        {tableColumns.map(
-                          (column: TableColumn, index: number) => (
+                        {tableColumns.map((column: TableColumn) => (
                             <td
-                              key={`${tagLevel.tag}-${file.file.basename}-${fileIndex}-${index}`}
+                              key={`${tagLevel.tag}-${file.file.path}-${getColumnKey(column)}`}
                               className={`align-${column.align} col-${column.type}`}
                               style={getColStyle(column)}
                             >
@@ -151,8 +151,7 @@ export const TagsTable = ({
                                   ? ""
                                   : file.frontMatter[column.data])}
                             </td>
-                          )
-                        )}
+                          ))}
                       </tr>
                     </React.Fragment>
                   ))}

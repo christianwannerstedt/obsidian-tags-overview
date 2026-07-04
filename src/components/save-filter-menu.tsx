@@ -61,7 +61,7 @@ export const SaveFilterMenu = ({
           {savedFilters && savedFilters.length ? (
             <ul>
               {savedFilters.map((filter: SavedFilter, index: number) => (
-                <li key={`saved-filter-${index}`}>
+                <li key={`saved-filter-${filter.name}`}>
                   <span
                     onClick={() => {
                       loadSavedFilter(filter);

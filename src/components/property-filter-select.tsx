@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ICON_TYPE, Icon } from "./icon";
 import TagsOverviewPlugin from "src/main";
 import { PropertyFilter } from "src/types";
@@ -16,9 +16,15 @@ export const PropertyFilterSelector = ({
     PropertyFilter[]
   >(plugin.settings.propertyFilters);
 
+  const savePropertyFilters = useCallback(async () => {
+    plugin.settings.propertyFilters = selectedPropertyFilters;
+    await plugin.saveData(plugin.settings);
+    plugin.refreshView();
+  }, [plugin, selectedPropertyFilters]);
+
   useEffect(() => {
     void savePropertyFilters();
-  }, [selectedPropertyFilters]);
+  }, [savePropertyFilters]);
 
   const addPropertyFilter = (property: string) => {
     if (
@@ -58,12 +64,6 @@ export const PropertyFilterSelector = ({
     setSelectedPropertyFilters(tempPropertyFilters);
   };
 
-  const savePropertyFilters = async () => {
-    plugin.settings.propertyFilters = selectedPropertyFilters;
-    await plugin.saveData(plugin.settings);
-    plugin.refreshView();
-  };
-
   const selectedTypes: string[] = selectedPropertyFilters.map(
     (propertyFilter: PropertyFilter) => propertyFilter.property
   );
@@ -79,7 +79,7 @@ export const PropertyFilterSelector = ({
     ) : (
       selectedPropertyFilters.map(
         (propertyFilter: PropertyFilter, index: number) => (
-          <tr key={`${propertyFilter.property}-${index}`}>
+          <tr key={propertyFilter.property}>
             <td>{propertyFilter.property}</td>
             <td style={{ textAlign: "center" }}>
               <select
@@ -88,7 +88,7 @@ export const PropertyFilterSelector = ({
               >
                 {Object.values(FILTER_TYPES).map((filterType) => (
                   <option
-                    key={`${propertyFilter.property}-${index}-${filterType}`}
+                    key={`${propertyFilter.property}-${filterType}`}
                     value={filterType}
                   >
                     {filterType}

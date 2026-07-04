@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ICON_TYPE, Icon } from "./icon";
 import TagsOverviewPlugin from "src/main";
 import { TableColumn } from "src/types";
@@ -20,9 +20,15 @@ export const TableColumnsSelector = ({
     plugin.settings.tableColumns
   );
 
+  const saveColumns = useCallback(async () => {
+    plugin.settings.tableColumns = selectedColumns;
+    await plugin.saveData(plugin.settings);
+    plugin.refreshView();
+  }, [plugin, selectedColumns]);
+
   useEffect(() => {
     void saveColumns();
-  }, [selectedColumns]);
+  }, [saveColumns]);
 
   const addColumn = (columnType: string) => {
     // Front matter is the only column that can be added multiple times
@@ -64,12 +70,6 @@ export const TableColumnsSelector = ({
     const tempColumns = [...selectedColumns];
     tempColumns[index].data = value;
     setSelectedColumns(tempColumns);
-  };
-
-  const saveColumns = async () => {
-    plugin.settings.tableColumns = selectedColumns;
-    await plugin.saveData(plugin.settings);
-    plugin.refreshView();
   };
 
   const selectedTypes: string[] = selectedColumns.map(
@@ -189,9 +189,9 @@ export const TableColumnsSelector = ({
                       columnType === TABLE_COLUMN_TYPES.frontMatter
                     );
                   })
-                  .map((column, index) => (
-                    <option key={`${column}-${index}`} value={column}>
-                      {TABLE_COLUMN_LABELS[column]}
+                  .map((columnType) => (
+                    <option key={`add-column-${columnType}`} value={columnType}>
+                      {TABLE_COLUMN_LABELS[columnType]}
                     </option>
                   ))}
               </select>
