@@ -21,7 +21,7 @@ export const TableColumnsSelector = ({
   );
 
   useEffect(() => {
-    saveColumns();
+    void saveColumns();
   }, [selectedColumns]);
 
   const addColumn = (columnType: string) => {

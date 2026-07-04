@@ -17,7 +17,7 @@ export const PropertyFilterSelector = ({
   >(plugin.settings.propertyFilters);
 
   useEffect(() => {
-    savePropertyFilters();
+    void savePropertyFilters();
   }, [selectedPropertyFilters]);
 
   const addPropertyFilter = (property: string) => {

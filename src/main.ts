@@ -16,27 +16,35 @@ export default class TagsOverviewPlugin extends Plugin {
     // Add the view
     this.registerView(VIEW_TYPE, (leaf) => new RootView(leaf, this));
     this.addRibbonIcon("tag", "Tags overview", () => {
-      this.activateView();
+      void this.activateView();
     });
 
     // Add a settings tab
     this.addSettingTab(new TagsOverviewSettingTab(this.app, this));
   }
 
+  onunload() {
+    this.app.workspace.detachLeavesOfType(VIEW_TYPE);
+  }
+
   async activateView() {
     let leaf: WorkspaceLeaf | null = this.getLeaf();
     if (!leaf) {
       leaf = this.app.workspace.getRightLeaf(false);
-      await leaf.setViewState({
-        type: VIEW_TYPE,
-        active: true,
-      });
+      if (leaf) {
+        await leaf.setViewState({
+          type: VIEW_TYPE,
+          active: true,
+        });
+      }
     }
 
-    this.app.workspace.revealLeaf(leaf);
+    if (leaf) {
+      await this.app.workspace.revealLeaf(leaf);
+    }
   }
 
-  async refreshView() {
+  refreshView() {
     const leaf = this.getLeaf();
     if (leaf?.view) {
       (leaf.view as RootView).refresh();

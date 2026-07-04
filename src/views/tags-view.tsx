@@ -117,7 +117,7 @@ export const TagsView = ({
   });
 
   useEffect(() => {
-    plugin.saveSettings({
+    void plugin.saveSettings({
       filterAnd,
       savedFilters,
       showNested,
@@ -126,7 +126,7 @@ export const TagsView = ({
   }, [filterAnd, savedFilters, showNested, showRelatedTags]);
 
   useEffect(() => {
-    plugin.saveSettings({
+    void plugin.saveSettings({
       storedFilters: selectedOptions.map((option) => option.value).join(","),
     });
   }, [selectedOptions]);

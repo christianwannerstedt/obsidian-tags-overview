@@ -56,7 +56,7 @@ export const Tags = ({
   };
 
   useEffect(() => {
-    plugin.saveSettings({
+    void plugin.saveSettings({
       displayType,
       sortTags,
       sortFiles,

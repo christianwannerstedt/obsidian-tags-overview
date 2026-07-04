@@ -78,7 +78,7 @@ export const openFile = (app: App, file: TFile, inNewLeaf = false): void => {
     if (inNewLeaf || leaf.getViewState().pinned) {
       leaf = app.workspace.getLeaf("tab");
     }
-    leaf.openFile(file);
+    void leaf.openFile(file);
   }
 };
 
