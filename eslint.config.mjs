@@ -7,7 +7,7 @@ export default tseslint.config(
     ignores: ["main.js"],
   },
   eslintJs.configs.recommended,
-  ...tseslint.configs.recommended,
+  tseslint.configs.recommended,
   eslintReact.configs["recommended-typescript"],
   {
     files: ["**/*.{ts,tsx}"],
