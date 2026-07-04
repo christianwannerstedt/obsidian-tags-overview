@@ -41,7 +41,7 @@
   vertical-align: top;
   display: inline-block;
   font-size: 12px;
-  color: #aaa;
+  color: var(--text-muted);
 }
 .tags-overview .tag-title {
   margin: 0;
@@ -79,7 +79,7 @@
   width: 100%;
   border-spacing: 0;
   border-collapse: initial;
-  border: 0 !important;
+  border: none;
 }
 .tags-overview .tags-table-container th {
   text-align: left;
@@ -94,15 +94,15 @@
 }
 .tags-overview .tags-table-container tbody td {
   border-top: 1px solid var(--color-base-40);
-  border-left: 0 !important;
-  border-right: 0 !important;
-  border-bottom: 0 !important;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
   font-size: var(--font-ui-small);
   padding: 4px;
   margin: 0;
 }
 .tags-overview .tags-table-container tbody tr.sub-tags-row > td {
-  border-top: 0 !important;
+  border-top: none;
 }
 .tags-overview .align-left {
   text-align: left;
@@ -142,9 +142,25 @@
   color: var(--link-color-hover);
 }
 .tags-overview .tags-filter-select {
-  color: #222;
   margin-bottom: 10px;
   font-size: var(--font-ui-small);
+  color: #222222;
+}
+.tags-overview .tags-filter-select .react-select__multi-value__label,
+.tags-overview .tags-filter-select .react-select__single-value,
+.tags-overview .tags-filter-select .react-select__input-container,
+.tags-overview .tags-filter-select .react-select__placeholder,
+.tags-overview .tags-filter-select .react-select__option {
+  color: #222222;
+}
+.tags-overview .tags-filter-select .react-select__multi-value__remove {
+  color: #222222;
+  opacity: 0.55;
+}
+.tags-overview .tags-filter-select .react-select__multi-value__remove:hover {
+  opacity: 1;
+  color: #222222;
+  background-color: rgba(0, 0, 0, 0.08);
 }
 .tags-overview .tags-filter-text {
   background-color: hsl(0, 0%, 100%);
@@ -219,7 +235,7 @@
   border-color: var(--background-secondary-alt);
 }
 .tags-overview .has-sub-tags.is-collapsed > .nested-container {
-  border-left: 1px solid #333;
+  border-left: 1px solid var(--color-base-30);
 }
 .tags-overview .nested-tags-container {
   position: relative;
@@ -231,27 +247,6 @@
 .tags-overview .custom-icon {
   color: var(--icon-color);
   opacity: var(--icon-opacity);
-}
-.tags-overview .collapse-icon {
-  position: absolute;
-  top: 4px;
-  margin-left: -17px;
-  width: 16px;
-}
-.tags-overview .collapse-icon svg {
-  stroke-width: 4px;
-  width: 10px;
-  height: 10px;
-  transition: transform 100ms ease-in-out;
-}
-.tags-overview .is-collapsed > .collapse-icon svg {
-  transform: rotate(-90deg);
-}
-.tags-overview .tags-info-container .custom-icon {
-  display: flex;
-  padding: var(--size-2-2) var(--size-2-3);
-}
-.tags-overview .custom-icon {
   -webkit-app-region: no-drag;
   background-color: transparent;
   align-items: center;
@@ -285,6 +280,25 @@
 .tags-overview .custom-icon.is-disabled:hover {
   background-color: unset;
 }
+.tags-overview .tags-info-container .custom-icon {
+  display: flex;
+  padding: var(--size-2-2) var(--size-2-3);
+}
+.tags-overview .collapse-icon {
+  position: absolute;
+  top: 4px;
+  margin-left: -17px;
+  width: 16px;
+}
+.tags-overview .collapse-icon svg {
+  stroke-width: 4px;
+  width: 10px;
+  height: 10px;
+  transition: transform 100ms ease-in-out;
+}
+.tags-overview .is-collapsed > .collapse-icon svg {
+  transform: rotate(-90deg);
+}
 
 .tags-overview-table-settings {
   padding: 0.75em 0;
@@ -294,10 +308,10 @@
 .tags-overview-settings-table {
   width: 100%;
   margin-bottom: 5px;
-  border: 0 !important;
+  border: none;
 }
 .tags-overview-settings-table th, .tags-overview-settings-table td {
-  border: 0 !important;
+  border: none;
 }
 .tags-overview-settings-table th {
   text-align: left;
@@ -314,7 +328,7 @@
   font-size: 10px;
 }
 .tags-overview-settings-table thead {
-  border-bottom: 1px solid var(--color-base-40) !important;
+  border-bottom: 1px solid var(--color-base-40);
 }
 .tags-overview-settings-table tbody tr {
   background-color: var(--background-secondary);
@@ -334,10 +348,10 @@
 }
 .tags-overview-settings-table .custom-icon {
   display: inline-block;
-  margin: 2px 2px 0 2px;
+  margin: 2px 2px 0;
 }
 .tags-overview-settings-table .custom-icon svg {
-  width: 18px !important;
+  width: 18px;
   height: 18px;
 }
 .tags-overview-settings-table .custom-icon:hover {
@@ -355,7 +369,7 @@
   top: 28px;
   left: 0;
   background-color: var(--background-primary);
-  padding: 0px 10px 15px 10px;
+  padding: 0 10px 15px;
   border: 1px solid var(--background-modifier-border-focus);
   border-radius: 10px;
   z-index: 1000;

@@ -53,7 +53,7 @@
             vertical-align: top;
             display: inline-block;
             font-size: 12px;
-            color: #aaa;
+            color: var(--text-muted);
         }
     }
 
@@ -98,7 +98,7 @@
             width: 100%;
             border-spacing: 0;
             border-collapse: initial;
-            border: 0 !important;
+            border: none;
         }
 
         th {
@@ -116,16 +116,16 @@
 
         tbody td {
             border-top: 1px solid var(--color-base-40);
-            border-left: 0 !important;
-            border-right: 0 !important;
-            border-bottom: 0 !important;
+            border-left: none;
+            border-right: none;
+            border-bottom: none;
             font-size: var(--font-ui-small);
             padding: 4px;
             margin: 0;
         }
 
         tbody tr.sub-tags-row > td {
-            border-top: 0 !important;
+            border-top: none;
         }
     }
 
@@ -170,11 +170,30 @@
     }
 
 
-    // Filter select
+    // Filter select (react-select uses a light control background)
     .tags-filter-select {
-        color: #222;
         margin-bottom: 10px;
         font-size: var(--font-ui-small);
+        color: #222222;
+
+        .react-select__multi-value__label,
+        .react-select__single-value,
+        .react-select__input-container,
+        .react-select__placeholder,
+        .react-select__option {
+            color: #222222;
+        }
+
+        .react-select__multi-value__remove {
+            color: #222222;
+            opacity: 0.55;
+
+            &:hover {
+                opacity: 1;
+                color: #222222;
+                background-color: rgba(0, 0, 0, 0.08);
+            }
+        }
     }
 
     .tags-filter-text {
@@ -265,7 +284,7 @@
         border-color: var(--background-secondary-alt);
     }
     .has-sub-tags.is-collapsed > .nested-container {
-        border-left: 1px solid #333;
+        border-left: 1px solid var(--color-base-30);
     }
     .nested-tags-container {
         position: relative;
@@ -276,34 +295,10 @@
     }
 
 
-    // Icons 
+    // Icons
     .custom-icon {
         color: var(--icon-color);
         opacity: var(--icon-opacity);
-    }
-    .collapse-icon {
-        position: absolute;
-        top: 4px;
-        margin-left: -17px;
-        width: 16px;
-        
-        svg {
-            stroke-width: 4px;
-            width: 10px;
-            height: 10px;
-            transition: transform 100ms ease-in-out;
-        }
-    }
-    .is-collapsed > .collapse-icon svg {
-        transform: rotate(-90deg);
-    }
-
-    .tags-info-container .custom-icon {
-        display: flex;
-        padding: var(--size-2-2) var(--size-2-3);
-    }
-
-    .custom-icon {
         -webkit-app-region: no-drag;
         background-color: transparent;
         align-items: center;
@@ -342,6 +337,33 @@
             background-color: unset;   
         }
     }
+
+    .tags-info-container .custom-icon {
+        display: flex;
+        padding: var(--size-2-2) var(--size-2-3);
+    }
+
+    .collapse-icon {
+        position: absolute;
+        top: 4px;
+        margin-left: -17px;
+        width: 16px;
+        
+        svg {
+            stroke-width: 4px;
+            width: 10px;
+            height: 10px;
+            transition: transform 100ms ease-in-out;
+        }
+    }
+    .is-collapsed > .collapse-icon svg {
+        transform: rotate(-90deg);
+    }
+}
+
+.tags-overview-excluded-paths textarea {
+    min-height: 8em;
+    resize: vertical;
 }
 
 .tags-overview-table-settings {
@@ -352,10 +374,10 @@
 .tags-overview-settings-table {
     width: 100%;
     margin-bottom: 5px;
-    border: 0 !important;
+    border: none;
 
     th, td {
-        border: 0 !important;
+        border: none;
     }
 
     th {
@@ -376,7 +398,7 @@
     }
 
     thead  {
-        border-bottom: 1px solid var(--color-base-40) !important;
+        border-bottom: 1px solid var(--color-base-40);
     }
 
     tbody  {
@@ -405,10 +427,10 @@
 
     .custom-icon {
         display: inline-block;
-        margin: 2px 2px 0 2px;
+        margin: 2px 2px 0;
 
         svg {
-            width: 18px !important;
+            width: 18px;
             height: 18px;
         }
 
@@ -429,7 +451,7 @@
     top: 28px;
     left: 0;
     background-color: var(--background-primary);
-    padding: 0px 10px 15px 10px;
+    padding: 0 10px 15px;
     border: 1px solid var(--background-modifier-border-focus);
     border-radius: 10px;
     z-index: 1000;

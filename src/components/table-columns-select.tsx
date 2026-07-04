@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ICON_TYPE, Icon } from "./icon";
 import TagsOverviewPlugin from "src/main";
 import { TableColumn } from "src/types";
@@ -20,9 +20,15 @@ export const TableColumnsSelector = ({
     plugin.settings.tableColumns
   );
 
+  const saveColumns = useCallback(async () => {
+    plugin.settings.tableColumns = selectedColumns;
+    await plugin.saveData(plugin.settings);
+    plugin.refreshView();
+  }, [plugin, selectedColumns]);
+
   useEffect(() => {
-    saveColumns();
-  }, [selectedColumns]);
+    void saveColumns();
+  }, [saveColumns]);
 
   const addColumn = (columnType: string) => {
     // Front matter is the only column that can be added multiple times
@@ -66,15 +72,12 @@ export const TableColumnsSelector = ({
     setSelectedColumns(tempColumns);
   };
 
-  const saveColumns = async () => {
-    plugin.settings.tableColumns = selectedColumns;
-    await plugin.saveData(plugin.settings);
-    plugin.refreshView();
-  };
-
   const selectedTypes: string[] = selectedColumns.map(
     (column: TableColumn) => column.type
   );
+
+  const columnKey = (column: TableColumn, index: number) =>
+    `${column.type}-${column.data ?? ""}-${index}`;
 
   const tableRows =
     selectedColumns.length === 0 ? (
@@ -86,7 +89,7 @@ export const TableColumnsSelector = ({
       </tr>
     ) : (
       selectedColumns.map((column: TableColumn, index: number) => (
-        <tr key={`${column}-${index}`}>
+        <tr key={columnKey(column, index)}>
           <td>
             {column.type !== "frontMatter" && TABLE_COLUMN_LABELS[column.type]}
             {column.type === "frontMatter" && (
@@ -100,7 +103,7 @@ export const TableColumnsSelector = ({
                   <option value="">Select property</option>
                   {frontMatterProperties.map((property) => (
                     <option
-                      key={`${column}-${index}-${property}`}
+                      key={columnKey(column, index) + property}
                       value={property}
                     >
                       {property}
@@ -117,7 +120,7 @@ export const TableColumnsSelector = ({
             >
               {Object.values(ALIGN_OPTIONS).map((alignOption) => (
                 <option
-                  key={`${column}-${index}-${alignOption}`}
+                  key={columnKey(column, index) + alignOption}
                   value={alignOption}
                 >
                   {alignOption}
@@ -186,9 +189,9 @@ export const TableColumnsSelector = ({
                       columnType === TABLE_COLUMN_TYPES.frontMatter
                     );
                   })
-                  .map((column, index) => (
-                    <option key={`${column}-${index}`} value={column}>
-                      {TABLE_COLUMN_LABELS[column]}
+                  .map((columnType) => (
+                    <option key={`add-column-${columnType}`} value={columnType}>
+                      {TABLE_COLUMN_LABELS[columnType]}
                     </option>
                   ))}
               </select>

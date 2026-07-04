@@ -36,9 +36,9 @@ export const SaveFilterMenu = ({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    activeDocument.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      activeDocument.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -61,7 +61,7 @@ export const SaveFilterMenu = ({
           {savedFilters && savedFilters.length ? (
             <ul>
               {savedFilters.map((filter: SavedFilter, index: number) => (
-                <li key={`saved-filter-${index}`}>
+                <li key={`saved-filter-${filter.name}`}>
                   <span
                     onClick={() => {
                       loadSavedFilter(filter);

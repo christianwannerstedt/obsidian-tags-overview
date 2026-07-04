@@ -59,9 +59,9 @@ export const TagsList = ({
           <div className="nested-container">
             {!!tagLevel.files.length && (
               <div>
-                {tagLevel.files.map((file: TaggedFile, index: number) => (
+                {tagLevel.files.map((file: TaggedFile) => (
                   <span
-                    key={`${file.file.basename}-${index}`}
+                    key={file.file.path}
                     onClick={(event) =>
                       onFileClick(file.file, event.ctrlKey || event.metaKey)
                     }

@@ -12,6 +12,7 @@ import TagsOverviewPlugin from "./main";
 import { formatDate } from "./utils";
 import { createRoot } from "react-dom/client";
 import { SettingsView } from "./views/settings-view";
+import { ConfirmModal } from "./components/confirm-modal";
 import { PropertyFilter, SavedFilter, TableColumn } from "./types";
 
 export interface TagsOverviewSettings {
@@ -29,6 +30,7 @@ export interface TagsOverviewSettings {
   tableColumns: TableColumn[];
   propertyFilters: PropertyFilter[];
   savedFilters: SavedFilter[];
+  excludedPaths: string[];
 }
 
 export const DEFAULT_SETTINGS: TagsOverviewSettings = {
@@ -49,6 +51,7 @@ export const DEFAULT_SETTINGS: TagsOverviewSettings = {
   ],
   propertyFilters: [],
   savedFilters: [],
+  excludedPaths: [],
 };
 
 export class TagsOverviewSettingTab extends PluginSettingTab {
@@ -122,8 +125,27 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
         });
       });
 
-    const root = document.createElement("div");
-    root.className = "tags-overview-table-settings";
+    new Setting(containerEl)
+      .setClass("tags-overview-excluded-paths")
+      .setName("Excluded paths")
+      .setDesc(
+        "One path per line. Prefix with / to match from vault root only. Trailing / matches folders only. Example: /archive"
+      )
+      .addTextArea((text) => {
+        text.inputEl.rows = 6;
+        text
+          .setValue(this.plugin.settings.excludedPaths.join("\n"))
+          .onChange(async (value) => {
+            this.plugin.settings.excludedPaths = value
+              .split("\n")
+              .map((line) => line.trim())
+              .filter(Boolean);
+            await this.plugin.saveData(this.plugin.settings);
+            this.plugin.rescanView();
+          });
+      });
+
+    const root = createDiv({ cls: "tags-overview-table-settings" });
     containerEl.appendChild(root);
 
     const reactRoot = createRoot(root);
@@ -146,13 +168,19 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
       .setName("Reset settings")
       .setDesc("Reset all settings to their default values")
       .addButton((button: ButtonComponent) =>
-        button.setButtonText("Reset settings").onClick(async () => {
-          if (confirm("Are you sure you want to reset the settings?")) {
-            this.plugin.settings = Object.assign({}, DEFAULT_SETTINGS);
-            await this.plugin.saveData(this.plugin.settings);
-            this.display();
-            this.plugin.refreshView();
-          }
+        button.setButtonText("Reset settings").onClick(() => {
+          new ConfirmModal(
+            this.app,
+            "Are you sure you want to reset the settings?",
+            () => {
+              void (async () => {
+                this.plugin.settings = Object.assign({}, DEFAULT_SETTINGS);
+                await this.plugin.saveData(this.plugin.settings);
+                this.display();
+                this.plugin.rescanView();
+              })();
+            }
+          ).open();
         })
       );
   }

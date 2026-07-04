@@ -9,7 +9,7 @@ import {
   getAllTagsAndFiles,
   getNestedTags,
   getTaggedFileFromFile,
-  shouldIgnoreFile,
+  shouldIncludeTaggedFile,
 } from "src/utils";
 
 export const VIEW_TYPE = "tags-overview-view";
@@ -24,58 +24,64 @@ export class RootView extends ItemView {
     super(leaf);
     this.plugin = plugin;
 
-    // Collect all tags and files
-    const {
-      allTags,
-      taggedFilesMap,
-    }: { allTags: string[]; taggedFilesMap: Map<TFile, TaggedFile> } =
-      getAllTagsAndFiles(this.app);
+    const { allTags, taggedFilesMap } = getAllTagsAndFiles(
+      this.app,
+      this.plugin.settings.excludedPaths
+    );
     this.allTags = allTags;
     this.taggedFilesMap = taggedFilesMap;
 
-    // Listen on file changes and update the list of tagged files
     plugin.registerEvent(
       this.app.metadataCache.on("changed", (modifiedFile: TFile) => {
-        const taggedFile: TaggedFile = getTaggedFileFromFile(
-          this.app,
-          modifiedFile
-        );
-
-        // If the file is ignored, remove it from the taggedFilesMap
-        if (shouldIgnoreFile(taggedFile.frontMatter?.tagsoverview)) {
-          this.taggedFilesMap.delete(modifiedFile);
-        } else {
-          // Otherwise, update the taggedFilesMap
-          this.taggedFilesMap.set(
-            modifiedFile,
-            getTaggedFileFromFile(this.app, modifiedFile)
-          );
-        }
-
-        // Update the allTags list
-        this.allTags = [
-          ...new Set(
-            [...this.taggedFilesMap.values()].reduce(
-              (tags: string[], taggedFile: TaggedFile) => [
-                ...getNestedTags(taggedFile),
-                ...taggedFile.tags,
-                ...tags,
-              ],
-              []
-            )
-          ),
-        ].sort();
+        this.updateTaggedFile(modifiedFile);
+        this.rebuildAllTags();
         this.render();
       })
     );
 
-    // Remove deleted files from the list
     plugin.registerEvent(
       this.app.vault.on("delete", (deletedFile: TFile) => {
         this.taggedFilesMap.delete(deletedFile);
+        this.rebuildAllTags();
         this.render();
       })
     );
+  }
+
+  private updateTaggedFile(modifiedFile: TFile) {
+    const taggedFile = getTaggedFileFromFile(this.app, modifiedFile);
+    if (
+      shouldIncludeTaggedFile(taggedFile, this.plugin.settings.excludedPaths)
+    ) {
+      this.taggedFilesMap.set(modifiedFile, taggedFile);
+    } else {
+      this.taggedFilesMap.delete(modifiedFile);
+    }
+  }
+
+  private rebuildAllTags() {
+    this.allTags = [
+      ...new Set(
+        [...this.taggedFilesMap.values()].reduce(
+          (tags: string[], taggedFile: TaggedFile) => [
+            ...getNestedTags(taggedFile),
+            ...taggedFile.tags,
+            ...tags,
+          ],
+          []
+        )
+      ),
+    ].sort();
+  }
+
+  rescan() {
+    const { allTags, taggedFilesMap } = getAllTagsAndFiles(
+      this.app,
+      this.plugin.settings.excludedPaths
+    );
+    this.allTags = allTags;
+    this.taggedFilesMap = taggedFilesMap;
+    this.render();
   }
 
   refresh() {

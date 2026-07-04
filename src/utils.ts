@@ -50,16 +50,82 @@ export const shouldIgnoreFile = (tagsoverview: string | string[]): boolean => {
     : tagsoverview === "ignore";
 };
 
-export const getAllTagsAndFiles = (app: App) => {
+export const matchesExcludePattern = (
+  filePath: string,
+  rawPattern: string
+): boolean => {
+  const pattern = rawPattern.trim();
+  if (!pattern) return false;
+
+  let path = pattern;
+  const rootOnly = path.startsWith("/");
+  if (rootOnly) path = path.slice(1);
+
+  const directoryOnly = path.endsWith("/");
+  if (directoryOnly) path = path.slice(0, -1);
+
+  if (!path) return false;
+
+  if (path.endsWith(".md")) {
+    if (rootOnly) {
+      return filePath === path;
+    }
+    return filePath === path || filePath.endsWith(`/${path}`);
+  }
+
+  const matchesPrefix = (prefix: string): boolean => {
+    if (filePath === `${prefix}.md`) return true;
+    if (filePath.startsWith(`${prefix}/`)) return true;
+    return false;
+  };
+
+  const matchesAnywhere = (prefix: string): boolean => {
+    if (matchesPrefix(prefix)) return true;
+    if (filePath.includes(`/${prefix}/`)) return true;
+    if (filePath.endsWith(`/${prefix}.md`)) return true;
+    return false;
+  };
+
+  if (directoryOnly) {
+    if (rootOnly || path.includes("/")) {
+      return filePath.startsWith(`${path}/`);
+    }
+    return (
+      filePath.startsWith(`${path}/`) || filePath.includes(`/${path}/`)
+    );
+  }
+
+  if (rootOnly || path.includes("/")) {
+    return matchesPrefix(path);
+  }
+
+  return matchesAnywhere(path);
+};
+
+export const shouldExcludeByPath = (
+  filePath: string,
+  patterns: string[]
+): boolean => {
+  return patterns.some((pattern) => matchesExcludePattern(filePath, pattern));
+};
+
+export const shouldIncludeTaggedFile = (
+  taggedFile: TaggedFile,
+  excludePaths: string[]
+): boolean => {
+  return (
+    taggedFile.tags.length > 0 &&
+    !shouldIgnoreFile(taggedFile.frontMatter?.tagsoverview) &&
+    !shouldExcludeByPath(taggedFile.file.path, excludePaths)
+  );
+};
+
+export const getAllTagsAndFiles = (app: App, excludePaths: string[] = []) => {
   const taggedFilesMap = new Map<TFile, TaggedFile>();
   let allTags: string[] = [];
   app.vault.getMarkdownFiles().forEach((markdownFile: TFile) => {
     const taggedFile: TaggedFile = getTaggedFileFromFile(app, markdownFile);
-    // Check if the file should be included
-    if (
-      taggedFile.tags.length &&
-      !shouldIgnoreFile(taggedFile.frontMatter?.tagsoverview)
-    ) {
+    if (shouldIncludeTaggedFile(taggedFile, excludePaths)) {
       allTags = [...allTags, ...getNestedTags(taggedFile), ...taggedFile.tags];
       taggedFilesMap.set(markdownFile, taggedFile);
     }
@@ -78,7 +144,7 @@ export const openFile = (app: App, file: TFile, inNewLeaf = false): void => {
     if (inNewLeaf || leaf.getViewState().pinned) {
       leaf = app.workspace.getLeaf("tab");
     }
-    leaf.openFile(file);
+    void leaf.openFile(file);
   }
 };
 

@@ -8,6 +8,7 @@ import { RootView } from "./root-view";
 import { HeaderSettings } from "../components/header-settings";
 import { Tags } from "../components/tags";
 import { NameInputModal } from "../components/name-input-modal";
+import { ConfirmModal } from "../components/confirm-modal";
 import { SaveFilterMenu } from "../components/save-filter-menu";
 import {
   formatDate,
@@ -64,7 +65,7 @@ export const TagsView = ({
   );
 
   // PropertyFiltersDataList is a map of property filters and their selected values
-  const [propertyFilterDataList, setSelectedFilters] =
+  const [propertyFilterDataList, setPropertyFilterDataList] =
     useState<PropertyFilterDataList>({});
 
   // Construct a map of property filters and their types
@@ -117,19 +118,19 @@ export const TagsView = ({
   });
 
   useEffect(() => {
-    plugin.saveSettings({
+    void plugin.saveSettings({
       filterAnd,
       savedFilters,
       showNested,
       showRelatedTags,
     });
-  }, [filterAnd, savedFilters, showNested, showRelatedTags]);
+  }, [plugin, filterAnd, savedFilters, showNested, showRelatedTags]);
 
   useEffect(() => {
-    plugin.saveSettings({
+    void plugin.saveSettings({
       storedFilters: selectedOptions.map((option) => option.value).join(","),
     });
-  }, [selectedOptions]);
+  }, [plugin, selectedOptions]);
 
   const onFileClicked = (file: TFile, inNewLeaf: boolean = false) => {
     openFile(app, file, inNewLeaf);
@@ -145,7 +146,7 @@ export const TagsView = ({
     } else {
       newSelectedFilters[propertyFilterKey].selected = values;
     }
-    setSelectedFilters(newSelectedFilters);
+    setPropertyFilterDataList(newSelectedFilters);
   };
 
   const updatePropertyFilter = (
@@ -168,7 +169,7 @@ export const TagsView = ({
         newSelectedFilters[propertyFilterKey].filterAnd = filterAnd;
       }
     }
-    setSelectedFilters(newSelectedFilters);
+    setPropertyFilterDataList(newSelectedFilters);
   };
   // Get files to be displayed
   const selectedTags: string[] =
@@ -400,34 +401,33 @@ export const TagsView = ({
         newPropertyFilter[key] = deepCopy(filter.properyFilters[key]);
       }
     });
-    setSelectedFilters(newPropertyFilter);
+    setPropertyFilterDataList(newPropertyFilter);
   };
 
   const saveFilter = () => {
-    new NameInputModal(app, async (name: string) => {
-      // Check if the filter already exists
+    new NameInputModal(app, (name: string) => {
       const filterExists = savedFilters.find(
         (filter: SavedFilter) => filter.name === name
       );
 
       if (filterExists) {
-        if (
-          await confirm(
-            "There is already a filter with that name. Do you want to update it?"
-          )
-        ) {
-          const newFilters = [...savedFilters];
-          const index = newFilters.findIndex(
-            (filter: SavedFilter) => filter.name === name
-          );
-          newFilters[index] = {
-            name,
-            selectedOptions,
-            filterAnd,
-            properyFilters: deepCopy(propertyFilterDataList),
-          };
-          setSavedFilters(newFilters);
-        }
+        new ConfirmModal(
+          app,
+          "There is already a filter with that name. Do you want to update it?",
+          () => {
+            const newFilters = [...savedFilters];
+            const index = newFilters.findIndex(
+              (filter: SavedFilter) => filter.name === name
+            );
+            newFilters[index] = {
+              name,
+              selectedOptions,
+              filterAnd,
+              properyFilters: deepCopy(propertyFilterDataList),
+            };
+            setSavedFilters(newFilters);
+          }
+        ).open();
         return;
       }
 
@@ -445,12 +445,12 @@ export const TagsView = ({
     }).open();
   };
 
-  const removeFilter = async (index: number) => {
-    if (await confirm("Do you really want to delete the filter?")) {
+  const removeFilter = (index: number) => {
+    new ConfirmModal(app, "Do you really want to delete the filter?", () => {
       const newFilters = [...savedFilters];
       newFilters.splice(index, 1);
       setSavedFilters(newFilters);
-    }
+    }).open();
   };
 
   return (
