@@ -58,7 +58,16 @@ It is also possible to add properties (Front Matter). Just select the option `Pr
 ![table-columns-property](https://github.com/christianwannerstedt/obsidian-tags-overview/assets/25314/dcc36907-114b-490d-badf-5620333495dd)
 
 ## Ignore files
-It is possible to exclude files to be picked up by the plugin, by adding the custom property `tagsoverview`and set the value to `ignore`. No tags will be retrieved from excluded files, nor will they show in the list views.
+It is possible to exclude files from being picked up by the plugin, either per file or by path. No tags will be retrieved from excluded files, nor will they show in the list views.
+
+To ignore a single file, add the custom property `tagsoverview` and set the value to `ignore`.
+
+You can also exclude files and folders from the plugin settings page by adding one path per line in the `Excluded paths` setting. Paths are matched against vault-relative file paths:
+
+- `/archive` excludes `archive.md` and all files inside the root `archive` folder, but not `notes/archive/example.md`.
+- `archive` excludes `archive.md`, the root `archive` folder, and any folder named `archive` elsewhere in the vault.
+- `/archive/` excludes only files inside the root `archive` folder, not `archive.md`.
+- `notes/drafts.md` excludes that exact file.
 
 ## Install
 

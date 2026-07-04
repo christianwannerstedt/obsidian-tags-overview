@@ -30,6 +30,7 @@ export interface TagsOverviewSettings {
   tableColumns: TableColumn[];
   propertyFilters: PropertyFilter[];
   savedFilters: SavedFilter[];
+  excludedPaths: string[];
 }
 
 export const DEFAULT_SETTINGS: TagsOverviewSettings = {
@@ -50,6 +51,7 @@ export const DEFAULT_SETTINGS: TagsOverviewSettings = {
   ],
   propertyFilters: [],
   savedFilters: [],
+  excludedPaths: [],
 };
 
 export class TagsOverviewSettingTab extends PluginSettingTab {
@@ -123,6 +125,26 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
         });
       });
 
+    new Setting(containerEl)
+      .setClass("tags-overview-excluded-paths")
+      .setName("Excluded paths")
+      .setDesc(
+        "One path per line. Prefix with / to match from vault root only. Trailing / matches folders only. Example: /archive"
+      )
+      .addTextArea((text) => {
+        text.inputEl.rows = 6;
+        text
+          .setValue(this.plugin.settings.excludedPaths.join("\n"))
+          .onChange(async (value) => {
+            this.plugin.settings.excludedPaths = value
+              .split("\n")
+              .map((line) => line.trim())
+              .filter(Boolean);
+            await this.plugin.saveData(this.plugin.settings);
+            this.plugin.rescanView();
+          });
+      });
+
     const root = createDiv({ cls: "tags-overview-table-settings" });
     containerEl.appendChild(root);
 
@@ -155,7 +177,7 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
                 this.plugin.settings = Object.assign({}, DEFAULT_SETTINGS);
                 await this.plugin.saveData(this.plugin.settings);
                 this.display();
-                this.plugin.refreshView();
+                this.plugin.rescanView();
               })();
             }
           ).open();

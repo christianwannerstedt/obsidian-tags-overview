@@ -51,6 +51,13 @@ export default class TagsOverviewPlugin extends Plugin {
     }
   }
 
+  rescanView() {
+    const leaf = this.getLeaf();
+    if (leaf?.view) {
+      (leaf.view as RootView).rescan();
+    }
+  }
+
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
   }

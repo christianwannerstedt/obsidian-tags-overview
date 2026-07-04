@@ -361,6 +361,11 @@
     }
 }
 
+.tags-overview-excluded-paths textarea {
+    min-height: 8em;
+    resize: vertical;
+}
+
 .tags-overview-table-settings {
     padding: 0.75em 0;
     border-top: 1px solid var(--background-modifier-border);

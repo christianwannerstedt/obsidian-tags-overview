@@ -10,19 +10,23 @@ import {
   getAllTagsAndFiles,
   getNestedTags,
   getTaggedFileFromFile,
+  matchesExcludePattern,
   pluralize,
   setMaxTimesForTags,
+  shouldExcludeByPath,
   shouldIgnoreFile,
+  shouldIncludeTaggedFile,
   sortTagsAndFiles,
   upperCaseFirstChar,
 } from "./utils";
 
 const mockFile = (
   basename: string,
+  path?: string,
   stat: { mtime: number; ctime: number } = { mtime: 100, ctime: 50 }
 ): TFile => ({
   basename,
-  path: `${basename}.md`,
+  path: path ?? `${basename}.md`,
   stat,
 });
 
@@ -32,7 +36,7 @@ const mockTaggedFile = (
   frontMatter: Record<string, unknown> = {},
   stat: { mtime: number; ctime: number } = { mtime: 100, ctime: 50 }
 ): TaggedFile => ({
-  file: mockFile(basename, stat),
+  file: mockFile(basename, undefined, stat),
   tags,
   frontMatter: frontMatter as TaggedFile["frontMatter"],
 });
@@ -72,6 +76,86 @@ describe("shouldIgnoreFile", () => {
     expect(shouldIgnoreFile(["visible", "ignore"])).toBe(true);
     expect(shouldIgnoreFile("visible")).toBe(false);
     expect(shouldIgnoreFile(["visible"])).toBe(false);
+  });
+});
+
+describe("matchesExcludePattern", () => {
+  it("matches /archive at vault root only", () => {
+    expect(matchesExcludePattern("archive.md", "/archive")).toBe(true);
+    expect(matchesExcludePattern("archive/foo.md", "/archive")).toBe(true);
+    expect(matchesExcludePattern("notes/archive/foo.md", "/archive")).toBe(
+      false
+    );
+  });
+
+  it("matches archive anywhere in the vault", () => {
+    expect(matchesExcludePattern("archive.md", "archive")).toBe(true);
+    expect(matchesExcludePattern("archive/foo.md", "archive")).toBe(true);
+    expect(matchesExcludePattern("notes/archive/foo.md", "archive")).toBe(true);
+  });
+
+  it("matches /archive/ as directory only at root", () => {
+    expect(matchesExcludePattern("archive/foo.md", "/archive/")).toBe(true);
+    expect(matchesExcludePattern("archive.md", "/archive/")).toBe(false);
+  });
+
+  it("matches exact file paths ending with .md", () => {
+    expect(matchesExcludePattern("notes/drafts.md", "notes/drafts.md")).toBe(
+      true
+    );
+    expect(matchesExcludePattern("notes/drafts/old.md", "notes/drafts.md")).toBe(
+      false
+    );
+  });
+
+  it("matches notes/drafts as a path prefix", () => {
+    expect(matchesExcludePattern("notes/drafts.md", "notes/drafts")).toBe(true);
+    expect(matchesExcludePattern("notes/drafts/old.md", "notes/drafts")).toBe(
+      true
+    );
+    expect(
+      matchesExcludePattern("other/notes/drafts.md", "notes/drafts")
+    ).toBe(false);
+  });
+
+  it("ignores empty or whitespace patterns", () => {
+    expect(matchesExcludePattern("archive.md", "")).toBe(false);
+    expect(matchesExcludePattern("archive.md", "   ")).toBe(false);
+  });
+});
+
+describe("shouldExcludeByPath", () => {
+  it("returns true when any pattern matches", () => {
+    expect(shouldExcludeByPath("archive/foo.md", ["/other", "/archive"])).toBe(
+      true
+    );
+    expect(shouldExcludeByPath("notes/foo.md", ["/archive"])).toBe(false);
+  });
+});
+
+describe("shouldIncludeTaggedFile", () => {
+  it("excludes files without tags, ignored frontmatter, or excluded paths", () => {
+    expect(
+      shouldIncludeTaggedFile(mockTaggedFile("note", ["work"]), [])
+    ).toBe(true);
+    expect(
+      shouldIncludeTaggedFile(mockTaggedFile("note", [], {}), [])
+    ).toBe(false);
+    expect(
+      shouldIncludeTaggedFile(
+        mockTaggedFile("note", ["work"], { tagsoverview: "ignore" }),
+        []
+      )
+    ).toBe(false);
+    expect(
+      shouldIncludeTaggedFile(
+        {
+          ...mockTaggedFile("note", ["work"]),
+          file: mockFile("note", "archive/note.md"),
+        },
+        ["/archive"]
+      )
+    ).toBe(false);
   });
 });
 
@@ -160,6 +244,29 @@ describe("getAllTagsAndFiles", () => {
     expect(allTags).toEqual(["vehicle", "vehicle/car"]);
     expect([...taggedFilesMap.keys()].map((file) => file.basename)).toEqual([
       "included",
+    ]);
+  });
+
+  it("collects tags and skips excluded paths", () => {
+    const included = mockFile("included", "notes/included.md");
+    const excluded = mockFile("excluded", "archive/excluded.md");
+    const app = {
+      metadataCache: {
+        getFileCache: () => ({
+          frontmatter: {},
+          tags: [{ tag: "#work" }],
+        }),
+      },
+      vault: {
+        getMarkdownFiles: () => [included, excluded],
+      },
+    } as unknown as App;
+
+    const { allTags, taggedFilesMap } = getAllTagsAndFiles(app, ["/archive"]);
+
+    expect(allTags).toEqual(["work"]);
+    expect([...taggedFilesMap.keys()].map((file) => file.path)).toEqual([
+      "notes/included.md",
     ]);
   });
 });
