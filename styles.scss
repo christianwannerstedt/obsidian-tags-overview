@@ -170,11 +170,30 @@
     }
 
 
-    // Filter select
+    // Filter select (react-select uses a light control background)
     .tags-filter-select {
-        color: var(--text-normal);
         margin-bottom: 10px;
         font-size: var(--font-ui-small);
+        color: #222222;
+
+        .react-select__multi-value__label,
+        .react-select__single-value,
+        .react-select__input-container,
+        .react-select__placeholder,
+        .react-select__option {
+            color: #222222;
+        }
+
+        .react-select__multi-value__remove {
+            color: #222222;
+            opacity: 0.55;
+
+            &:hover {
+                opacity: 1;
+                color: #222222;
+                background-color: rgba(0, 0, 0, 0.08);
+            }
+        }
     }
 
     .tags-filter-text {

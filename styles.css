@@ -142,9 +142,25 @@
   color: var(--link-color-hover);
 }
 .tags-overview .tags-filter-select {
-  color: var(--text-normal);
   margin-bottom: 10px;
   font-size: var(--font-ui-small);
+  color: #222222;
+}
+.tags-overview .tags-filter-select .react-select__multi-value__label,
+.tags-overview .tags-filter-select .react-select__single-value,
+.tags-overview .tags-filter-select .react-select__input-container,
+.tags-overview .tags-filter-select .react-select__placeholder,
+.tags-overview .tags-filter-select .react-select__option {
+  color: #222222;
+}
+.tags-overview .tags-filter-select .react-select__multi-value__remove {
+  color: #222222;
+  opacity: 0.55;
+}
+.tags-overview .tags-filter-select .react-select__multi-value__remove:hover {
+  opacity: 1;
+  color: #222222;
+  background-color: rgba(0, 0, 0, 0.08);
 }
 .tags-overview .tags-filter-text {
   background-color: hsl(0, 0%, 100%);
