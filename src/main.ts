@@ -18,6 +18,13 @@ export default class TagsOverviewPlugin extends Plugin {
     this.addRibbonIcon("tag", "Tags overview", () => {
       void this.activateView();
     });
+    this.addCommand({
+      id: "show-tags-overview",
+      name: "Show panel",
+      callback: () => {
+        void this.activateView();
+      },
+    });
 
     // Add a settings tab
     this.addSettingTab(new TagsOverviewSettingTab(this.app, this));
@@ -45,16 +52,16 @@ export default class TagsOverviewPlugin extends Plugin {
   }
 
   refreshView() {
-    const leaf = this.getLeaf();
-    if (leaf?.view) {
-      (leaf.view as RootView).refresh();
+    const view = this.getLeaf()?.view;
+    if (view instanceof RootView) {
+      view.refresh();
     }
   }
 
   rescanView() {
-    const leaf = this.getLeaf();
-    if (leaf?.view) {
-      (leaf.view as RootView).rescan();
+    const view = this.getLeaf()?.view;
+    if (view instanceof RootView) {
+      view.rescan();
     }
   }
 
