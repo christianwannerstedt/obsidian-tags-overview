@@ -55,6 +55,7 @@ export const TagsView = ({
   const [selectedOptions, setSelectedOptions] =
     useState<SelectOption[]>(defaultOptions);
   const [filterAnd, setFilterAnd] = useState(plugin.settings.filterAnd);
+  const [filterNot, setFilterNot] = useState(plugin.settings.filterNot);
   const [showNested, setShowNested] = useState(plugin.settings.showNested);
   const [showRelatedTags, setShowRelatedTags] = useState(
     plugin.settings.showRelatedTags
@@ -120,17 +121,39 @@ export const TagsView = ({
   useEffect(() => {
     void plugin.saveSettings({
       filterAnd,
+      filterNot,
       savedFilters,
       showNested,
       showRelatedTags,
     });
-  }, [plugin, filterAnd, savedFilters, showNested, showRelatedTags]);
+  }, [plugin, filterAnd, filterNot, savedFilters, showNested, showRelatedTags]);
 
   useEffect(() => {
     void plugin.saveSettings({
       storedFilters: selectedOptions.map((option) => option.value).join(","),
     });
   }, [plugin, selectedOptions]);
+
+  useEffect(() => {
+    setFilterNot(plugin.settings.filterNot);
+    if (!plugin.settings.showNotFilter) {
+      setPropertyFilterDataList((current) => {
+        const hasPropertyNot = Object.values(current).some(
+          (data) => data.filterNot
+        );
+        if (!hasPropertyNot) {
+          return current;
+        }
+        const newList = { ...current };
+        Object.keys(newList).forEach((key) => {
+          if (newList[key].filterNot) {
+            newList[key] = { ...newList[key], filterNot: false };
+          }
+        });
+        return newList;
+      });
+    }
+  }, [plugin.settings.filterNot, plugin.settings.showNotFilter]);
 
   const onFileClicked = (file: TFile, inNewLeaf: boolean = false) => {
     openFile(app, file, inNewLeaf);
@@ -142,6 +165,7 @@ export const TagsView = ({
       newSelectedFilters[propertyFilterKey] = {
         selected: values,
         filterAnd: false,
+        filterNot: false,
       };
     } else {
       newSelectedFilters[propertyFilterKey].selected = values;
@@ -152,7 +176,8 @@ export const TagsView = ({
   const updatePropertyFilter = (
     propertyFilterKey: string,
     filterOperator: string | undefined,
-    filterAnd: boolean | undefined
+    filterAnd: boolean | undefined,
+    filterNot: boolean | undefined
   ) => {
     const newSelectedFilters = { ...propertyFilterDataList };
     if (newSelectedFilters[propertyFilterKey] === undefined) {
@@ -160,6 +185,7 @@ export const TagsView = ({
         selected: [],
         filterOperator: filterOperator || "eq",
         filterAnd: filterAnd || false,
+        filterNot: filterNot || false,
       };
     } else {
       if (filterOperator !== undefined) {
@@ -168,15 +194,20 @@ export const TagsView = ({
       if (filterAnd !== undefined) {
         newSelectedFilters[propertyFilterKey].filterAnd = filterAnd;
       }
+      if (filterNot !== undefined) {
+        newSelectedFilters[propertyFilterKey].filterNot = filterNot;
+      }
     }
     setPropertyFilterDataList(newSelectedFilters);
   };
+  const showNotFilter = plugin.settings.showNotFilter;
+  const activeFilterNot = showNotFilter && filterNot;
   // Get files to be displayed
   const selectedTags: string[] =
     selectedOptions?.map((option: SelectOption) => option.value) || [];
   let displayFiles: TaggedFile[] = selectedTags.length
     ? allTaggedFiles.filter((file: TaggedFile) => {
-        return filterAnd
+        const matches = filterAnd
           ? selectedTags.every(
               (selectedTag) =>
                 file.tags.includes(selectedTag) ||
@@ -189,6 +220,7 @@ export const TagsView = ({
                   tag.startsWith(`${selectedTag}/`)
                 )
             );
+        return activeFilterNot ? !matches : matches;
       })
     : [...allTaggedFiles];
 
@@ -209,82 +241,87 @@ export const TagsView = ({
           continue;
         }
         const propertyFilterVal = propertyFilterData.selected[0];
-        const frontMatterVal = frontMatter
-          ? frontMatter[propertyFilterKey]
-          : false;
-        if (!frontMatterVal) return false;
+        const frontMatterVal = frontMatter?.[propertyFilterKey];
 
-        let includeFile;
-        if (propertyFilterTypeMap[propertyFilterKey] === FILTER_TYPES.text) {
-          const searchString = propertyFilterVal.toLowerCase();
-          if (Array.isArray(frontMatterVal)) {
-            includeFile = frontMatterVal.some((val) =>
-              val.toLowerCase().contains(searchString)
-            );
-          } else {
-            includeFile = frontMatterVal.contains(searchString);
-          }
-        } else if (
-          propertyFilterTypeMap[propertyFilterKey] === FILTER_TYPES.number
-        ) {
-          const filterOperator = propertyFilterData.filterOperator || "eq";
-          if (Array.isArray(frontMatterVal)) {
-            includeFile = frontMatterVal.some((val) => {
+        let includeFile = false;
+        if (frontMatterVal) {
+          if (propertyFilterTypeMap[propertyFilterKey] === FILTER_TYPES.text) {
+            const searchString = propertyFilterVal.toLowerCase();
+            if (Array.isArray(frontMatterVal)) {
+              includeFile = frontMatterVal.some((val) =>
+                val.toLowerCase().contains(searchString)
+              );
+            } else {
+              includeFile = frontMatterVal.contains(searchString);
+            }
+          } else if (
+            propertyFilterTypeMap[propertyFilterKey] === FILTER_TYPES.number
+          ) {
+            const filterOperator = propertyFilterData.filterOperator || "eq";
+            if (Array.isArray(frontMatterVal)) {
+              includeFile = frontMatterVal.some((val) => {
+                switch (filterOperator) {
+                  case "eq":
+                    return val === propertyFilterVal;
+                  case "neq":
+                    return val !== propertyFilterVal;
+                  case "gt":
+                    return val > propertyFilterVal;
+                  case "gte":
+                    return val >= propertyFilterVal;
+                  case "lt":
+                    return val < propertyFilterVal;
+                  case "lte":
+                    return val <= propertyFilterVal;
+                  default:
+                    return false;
+                }
+              });
+            } else {
               switch (filterOperator) {
                 case "eq":
-                  return val === propertyFilterVal;
+                  includeFile = frontMatterVal === propertyFilterVal;
+                  break;
                 case "neq":
-                  return val !== propertyFilterVal;
+                  includeFile = frontMatterVal !== propertyFilterVal;
+                  break;
                 case "gt":
-                  return val > propertyFilterVal;
+                  includeFile = frontMatterVal > propertyFilterVal;
+                  break;
                 case "gte":
-                  return val >= propertyFilterVal;
+                  includeFile = frontMatterVal >= propertyFilterVal;
+                  break;
                 case "lt":
-                  return val < propertyFilterVal;
+                  includeFile = frontMatterVal < propertyFilterVal;
+                  break;
                 case "lte":
-                  return val <= propertyFilterVal;
+                  includeFile = frontMatterVal <= propertyFilterVal;
+                  break;
                 default:
-                  return false;
+                  includeFile = false;
+                  break;
               }
-            });
-          } else {
-            switch (filterOperator) {
-              case "eq":
-                includeFile = frontMatterVal === propertyFilterVal;
-                break;
-              case "neq":
-                includeFile = frontMatterVal !== propertyFilterVal;
-                break;
-              case "gt":
-                includeFile = frontMatterVal > propertyFilterVal;
-                break;
-              case "gte":
-                includeFile = frontMatterVal >= propertyFilterVal;
-                break;
-              case "lt":
-                includeFile = frontMatterVal < propertyFilterVal;
-                break;
-              case "lte":
-                includeFile = frontMatterVal <= propertyFilterVal;
-                break;
-              default:
-                includeFile = false;
-                break;
             }
+          } else if (propertyFilterData.filterAnd || false) {
+            includeFile = Array.isArray(frontMatterVal)
+              ? propertyFilterData.selected.every((val) =>
+                  frontMatterVal.includes(val.toString())
+                )
+              : propertyFilterData.selected.length === 1 &&
+                frontMatterVal === propertyFilterVal.toString();
+          } else {
+            includeFile = Array.isArray(frontMatterVal)
+              ? frontMatterVal.some((val) =>
+                  propertyFilterData.selected.includes(val.toString())
+                )
+              : propertyFilterData.selected.includes(
+                  frontMatterVal.toString()
+                );
           }
-        } else if (propertyFilterData.filterAnd || false) {
-          includeFile = Array.isArray(frontMatterVal)
-            ? propertyFilterData.selected.every((val) =>
-                frontMatterVal.includes(val.toString())
-              )
-            : propertyFilterData.selected.length === 1 &&
-              frontMatterVal === propertyFilterVal.toString();
-        } else {
-          includeFile = Array.isArray(frontMatterVal)
-            ? frontMatterVal.some((val) =>
-                propertyFilterData.selected.includes(val.toString())
-              )
-            : propertyFilterData.selected.includes(frontMatterVal.toString());
+        }
+
+        if (showNotFilter && propertyFilterData.filterNot) {
+          includeFile = !includeFile;
         }
 
         if (!includeFile) return false;
@@ -386,6 +423,9 @@ export const TagsView = ({
   const loadSavedFilter = (filter: SavedFilter) => {
     setSelectedOptions(filter.selectedOptions);
     setFilterAnd(filter.filterAnd);
+    setFilterNot(
+      plugin.settings.showNotFilter ? (filter.filterNot ?? false) : false
+    );
     // Loop through the property filters and update the selected filters.
     // Ignore filters that are not in the enabled in the settings.
     const newPropertyFilter: PropertyFilterDataList = {};
@@ -399,6 +439,9 @@ export const TagsView = ({
           filter.properyFilters[key].selected = ["0"];
         }
         newPropertyFilter[key] = deepCopy(filter.properyFilters[key]);
+        if (!plugin.settings.showNotFilter) {
+          newPropertyFilter[key].filterNot = false;
+        }
       }
     });
     setPropertyFilterDataList(newPropertyFilter);
@@ -423,6 +466,7 @@ export const TagsView = ({
               name,
               selectedOptions,
               filterAnd,
+              filterNot,
               properyFilters: deepCopy(propertyFilterDataList),
             };
             setSavedFilters(newFilters);
@@ -438,6 +482,7 @@ export const TagsView = ({
             name,
             selectedOptions,
             filterAnd,
+            filterNot,
             properyFilters: deepCopy(propertyFilterDataList),
           },
         ].sort((a: SavedFilter, b: SavedFilter) => a.name.localeCompare(b.name))
@@ -469,6 +514,8 @@ export const TagsView = ({
           { label: "AND", value: true },
           { label: "OR", value: false },
         ]}
+        notValue={activeFilterNot}
+        setNotFunction={showNotFilter ? setFilterNot : undefined}
         className="slim"
       />
       <Select
@@ -507,16 +554,35 @@ export const TagsView = ({
                     updatePropertyFilter(
                       propertyFilter.property,
                       val.toString(),
+                      undefined,
                       undefined
                     );
                   } else {
                     updatePropertyFilter(
                       propertyFilter.property,
                       undefined,
-                      Boolean(val)
+                      Boolean(val),
+                      undefined
                     );
                   }
                 }}
+                notValue={
+                  showNotFilter &&
+                  (propertyFilterDataList[propertyFilter.property]?.filterNot ||
+                    false)
+                }
+                setNotFunction={
+                  showNotFilter
+                    ? (val: boolean) => {
+                        updatePropertyFilter(
+                          propertyFilter.property,
+                          undefined,
+                          undefined,
+                          val
+                        );
+                      }
+                    : undefined
+                }
                 settings={
                   propertyFilter.type === FILTER_TYPES.select
                     ? [

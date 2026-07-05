@@ -58,6 +58,7 @@ export interface PropertyFilterData {
   selected: string[];
   filterAnd?: boolean;
   filterOperator?: string;
+  filterNot?: boolean;
 }
 
 export interface PropertyFilterDataList {
@@ -76,5 +77,6 @@ export interface SavedFilter {
   name: string;
   selectedOptions: SelectOption[];
   filterAnd: boolean;
+  filterNot: boolean;
   properyFilters: PropertyFilterDataList;
 }
