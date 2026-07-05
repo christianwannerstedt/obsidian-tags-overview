@@ -69,6 +69,10 @@ You can also exclude files and folders from the plugin settings page by adding o
 - `/archive/` excludes only files inside the root `archive` folder, not `archive.md`.
 - `notes/drafts.md` excludes that exact file.
 
+## Usage
+
+Open the panel from the tag icon in the left ribbon, or run **Tags Overview: Show panel** from the command palette.
+
 ## Install
 
 ### Manual installation

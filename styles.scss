@@ -244,6 +244,17 @@
             }
         }
     }
+    .header-settings-controls {
+        display: flex;
+        align-items: center;
+    }
+    .filter-not-setting {
+        margin-left: 10px;
+
+        span {
+            border-radius: 5px;
+        }
+    }
     .settings-switch span {
         font-size: 10px;
         border: 1px solid var(--color-base-40);

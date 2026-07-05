@@ -201,6 +201,16 @@
 .tags-overview .header-with-settings:not(.slim) .title {
   margin: 3px 0 1px;
 }
+.tags-overview .header-settings-controls {
+  display: flex;
+  align-items: center;
+}
+.tags-overview .filter-not-setting {
+  margin-left: 10px;
+}
+.tags-overview .filter-not-setting span {
+  border-radius: 5px;
+}
 .tags-overview .settings-switch span {
   font-size: 10px;
   border: 1px solid var(--color-base-40);

@@ -17,6 +17,8 @@ import { PropertyFilter, SavedFilter, TableColumn } from "./types";
 
 export interface TagsOverviewSettings {
   filterAnd: boolean;
+  filterNot: boolean;
+  showNotFilter: boolean;
   displayType: string;
   sortTags: string;
   sortFiles: string;
@@ -35,6 +37,8 @@ export interface TagsOverviewSettings {
 
 export const DEFAULT_SETTINGS: TagsOverviewSettings = {
   filterAnd: true,
+  filterNot: false,
+  showNotFilter: true,
   displayType: DISPLAY_TYPE.list,
   sortTags: SORT_TAGS.nameAsc,
   sortFiles: SORT_FILES.nameAsc,
@@ -74,6 +78,24 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.keepFilters)
           .onChange(async (value) => {
             this.plugin.settings.keepFilters = value;
+            await this.plugin.saveData(this.plugin.settings);
+            this.plugin.refreshView();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Show NOT toggle")
+      .setDesc(
+        "Show a NOT button next to the filter controls to invert filter results."
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.showNotFilter)
+          .onChange(async (value) => {
+            this.plugin.settings.showNotFilter = value;
+            if (!value) {
+              this.plugin.settings.filterNot = false;
+            }
             await this.plugin.saveData(this.plugin.settings);
             this.plugin.refreshView();
           })
