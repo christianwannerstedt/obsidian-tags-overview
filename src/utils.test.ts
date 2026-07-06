@@ -9,6 +9,7 @@ import {
   deepCopy,
   getAllTagsAndFiles,
   getNestedTags,
+  getTagLineForPath,
   getTaggedFileFromFile,
   matchesExcludePattern,
   pluralize,
@@ -192,6 +193,108 @@ describe("string helpers", () => {
     const copy = deepCopy(original);
     copy.filters[0].selected.push("b");
     expect(original.filters[0].selected).toEqual(["a"]);
+  });
+});
+
+describe("getTagLineForPath", () => {
+  const file = mockFile("note");
+  const mockAppWithTags = (cache: Record<string, unknown>) =>
+    ({
+      metadataCache: {
+        getFileCache: () => cache,
+      },
+    }) as unknown as App;
+
+  it("returns the line of an exact inline tag match", () => {
+    const line = getTagLineForPath(
+      mockAppWithTags({
+        tags: [
+          {
+            tag: "#work",
+            position: { start: { line: 5, col: 0, offset: 0 }, end: {} },
+          },
+          {
+            tag: "#home",
+            position: { start: { line: 12, col: 0, offset: 0 }, end: {} },
+          },
+        ],
+      }),
+      file,
+      "work"
+    );
+
+    expect(line).toBe(5);
+  });
+
+  it("prefers exact matches over nested tag matches", () => {
+    const line = getTagLineForPath(
+      mockAppWithTags({
+        tags: [
+          {
+            tag: "#vehicle/car/sports",
+            position: { start: { line: 3, col: 0, offset: 0 }, end: {} },
+          },
+          {
+            tag: "#vehicle/car",
+            position: { start: { line: 10, col: 0, offset: 0 }, end: {} },
+          },
+        ],
+      }),
+      file,
+      "vehicle/car"
+    );
+
+    expect(line).toBe(10);
+  });
+
+  it("falls back to nested tag matches for parent tag rows", () => {
+    const line = getTagLineForPath(
+      mockAppWithTags({
+        tags: [
+          {
+            tag: "#vehicle/car",
+            position: { start: { line: 7, col: 0, offset: 0 }, end: {} },
+          },
+        ],
+      }),
+      file,
+      "vehicle"
+    );
+
+    expect(line).toBe(7);
+  });
+
+  it("returns frontmatter position for frontmatter-only tags", () => {
+    const line = getTagLineForPath(
+      mockAppWithTags({
+        frontmatter: { tags: ["work"] },
+        frontmatterPosition: {
+          start: { line: 1, col: 0, offset: 0 },
+          end: {},
+        },
+      }),
+      file,
+      "work"
+    );
+
+    expect(line).toBe(1);
+  });
+
+  it("returns undefined when no matching tag is found", () => {
+    const line = getTagLineForPath(
+      mockAppWithTags({
+        tags: [
+          {
+            tag: "#other",
+            position: { start: { line: 2, col: 0, offset: 0 }, end: {} },
+          },
+        ],
+      }),
+      file,
+      "work"
+    );
+
+    expect(line).toBeUndefined();
   });
 });
 

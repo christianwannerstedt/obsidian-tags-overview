@@ -14,7 +14,7 @@ export const TagsList = ({
   onTagClick,
 }: {
   tags: TagData[];
-  onFileClick: (file: TFile, inNewLeaf: boolean) => void;
+  onFileClick: (file: TFile, inNewLeaf: boolean, tagPath: string) => void;
   collapsedTags: string[];
   setCollapsedTags: (arg0: string[]) => void;
   onTagClick: (tagData: TagData) => void;
@@ -63,7 +63,11 @@ export const TagsList = ({
                   <span
                     key={file.file.path}
                     onClick={(event) =>
-                      onFileClick(file.file, event.ctrlKey || event.metaKey)
+                      onFileClick(
+                        file.file,
+                        event.ctrlKey || event.metaKey,
+                        tagLevel.tagPath
+                      )
                     }
                     className="file-link"
                   >

@@ -33,6 +33,7 @@ export interface TagsOverviewSettings {
   propertyFilters: PropertyFilter[];
   savedFilters: SavedFilter[];
   excludedPaths: string[];
+  scrollToTagOnClick: boolean;
 }
 
 export const DEFAULT_SETTINGS: TagsOverviewSettings = {
@@ -56,6 +57,7 @@ export const DEFAULT_SETTINGS: TagsOverviewSettings = {
   propertyFilters: [],
   savedFilters: [],
   excludedPaths: [],
+  scrollToTagOnClick: true,
 };
 
 export class TagsOverviewSettingTab extends PluginSettingTab {
@@ -69,6 +71,20 @@ export class TagsOverviewSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
+
+    new Setting(containerEl)
+      .setName("Scroll to tag on click")
+      .setDesc(
+        "When opening a file from the results list, scroll to the tag that was clicked."
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.scrollToTagOnClick)
+          .onChange(async (value) => {
+            this.plugin.settings.scrollToTagOnClick = value;
+            await this.plugin.saveData(this.plugin.settings);
+          })
+      );
 
     new Setting(containerEl)
       .setName("Keep filters")
