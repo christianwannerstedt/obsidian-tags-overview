@@ -155,8 +155,17 @@ export const TagsView = ({
     }
   }, [plugin.settings.filterNot, plugin.settings.showNotFilter]);
 
-  const onFileClicked = (file: TFile, inNewLeaf: boolean = false) => {
-    openFile(app, file, inNewLeaf);
+  const onFileClicked = (
+    file: TFile,
+    inNewLeaf: boolean = false,
+    tagPath?: string
+  ) => {
+    openFile(
+      app,
+      file,
+      inNewLeaf,
+      plugin.settings.scrollToTagOnClick ? tagPath : undefined
+    );
   };
 
   const onFiltersChange = (propertyFilterKey: string, values: string[]) => {

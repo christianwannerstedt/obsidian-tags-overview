@@ -19,7 +19,7 @@ export const TagsTable = ({
 }: {
   plugin: TagsOverviewPlugin;
   tags: TagData[];
-  onFileClick: (file: TFile, inNewLeaf: boolean) => void;
+  onFileClick: (file: TFile, inNewLeaf: boolean, tagPath: string) => void;
   collapsedTags: string[];
   setCollapsedTags: (arg0: string[]) => void;
   onTagClick: (tagData: TagData) => void;
@@ -118,7 +118,11 @@ export const TagsTable = ({
                       <tr
                         className="file-row"
                         onClick={(event) =>
-                          onFileClick(file.file, event.ctrlKey || event.metaKey)
+                          onFileClick(
+                            file.file,
+                            event.ctrlKey || event.metaKey,
+                            tagLevel.tagPath
+                          )
                         }
                       >
                         {tableColumns.map((column: TableColumn) => (

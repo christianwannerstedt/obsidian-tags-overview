@@ -138,13 +138,79 @@ export const getAllTagsAndFiles = (app: App, excludePaths: string[] = []) => {
   };
 };
 
-export const openFile = (app: App, file: TFile, inNewLeaf = false): void => {
+const normalizeTagName = (tag: string): string =>
+  tag.startsWith("#") ? tag.slice(1) : tag;
+
+const tagMatchesPath = (tag: string, tagPath: string): boolean => {
+  const normalized = normalizeTagName(tag);
+  return (
+    normalized === tagPath || normalized.startsWith(`${tagPath}/`)
+  );
+};
+
+export const getTagLineForPath = (
+  app: App,
+  file: TFile,
+  tagPath: string
+): number | undefined => {
+  const cache = app.metadataCache.getFileCache(file);
+  if (!cache) return undefined;
+
+  const sortByLine = (
+    a: { position: { start: { line: number } } },
+    b: { position: { start: { line: number } } }
+  ) => a.position.start.line - b.position.start.line;
+
+  const exactMatches =
+    cache.tags
+      ?.filter((tagCache) => normalizeTagName(tagCache.tag) === tagPath)
+      .sort(sortByLine) ?? [];
+
+  if (exactMatches.length > 0) {
+    return exactMatches[0].position.start.line;
+  }
+
+  const nestedMatches =
+    cache.tags
+      ?.filter((tagCache) =>
+        normalizeTagName(tagCache.tag).startsWith(`${tagPath}/`)
+      )
+      .sort(sortByLine) ?? [];
+
+  if (nestedMatches.length > 0) {
+    return nestedMatches[0].position.start.line;
+  }
+
+  const frontmatterTags = cache.frontmatter?.tags;
+  const hasFrontmatterTag = Array.isArray(frontmatterTags)
+    ? frontmatterTags.some((tag) =>
+        tagMatchesPath(typeof tag === "string" ? tag : `#${tag}`, tagPath)
+      )
+    : false;
+
+  if (hasFrontmatterTag && cache.frontmatterPosition) {
+    return cache.frontmatterPosition.start.line;
+  }
+
+  return undefined;
+};
+
+export const openFile = (
+  app: App,
+  file: TFile,
+  inNewLeaf = false,
+  tagPath?: string
+): void => {
   let leaf = app.workspace.getMostRecentLeaf();
   if (leaf) {
     if (inNewLeaf || leaf.getViewState().pinned) {
       leaf = app.workspace.getLeaf("tab");
     }
-    void leaf.openFile(file);
+    const line = tagPath ? getTagLineForPath(app, file, tagPath) : undefined;
+    void leaf.openFile(
+      file,
+      line !== undefined ? { eState: { line } } : undefined
+    );
   }
 };
 

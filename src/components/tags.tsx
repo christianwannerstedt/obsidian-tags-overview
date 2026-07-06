@@ -31,7 +31,7 @@ export const Tags = ({
 }: {
   plugin: TagsOverviewPlugin;
   tags: TagData[];
-  onFileClick: (file: TFile, inNewLeaf: boolean) => void;
+  onFileClick: (file: TFile, inNewLeaf: boolean, tagPath: string) => void;
   hasFilters: boolean;
   showNested: boolean;
   setShowNested: (arg0: boolean) => void;
