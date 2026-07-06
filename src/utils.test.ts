@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { App, TFile } from "obsidian";
 import { SORT_FILES, SORT_TAGS } from "./constants";
 import { TagData, TaggedFile } from "./types";
@@ -10,6 +10,7 @@ import {
   getAllTagsAndFiles,
   getNestedTags,
   getTagLineForPath,
+  openFile,
   getTaggedFileFromFile,
   matchesExcludePattern,
   pluralize,
@@ -295,6 +296,101 @@ describe("getTagLineForPath", () => {
     );
 
     expect(line).toBeUndefined();
+  });
+});
+
+describe("openFile", () => {
+  const file = mockFile("note", "notes/note.md");
+
+  const createMockLeaf = (type: string, state?: Record<string, unknown>) => {
+    const openFileMock = vi.fn().mockResolvedValue(undefined);
+    return {
+      getViewState: () => ({ type, state, pinned: false }),
+      openFile: openFileMock,
+      openFileMock,
+    };
+  };
+
+  it("reveals an existing leaf when the file is already open", () => {
+    const existingLeaf = createMockLeaf("markdown", { file: file.path });
+    const activeLeaf = createMockLeaf("tags-overview-view");
+    const revealLeaf = vi.fn().mockResolvedValue(undefined);
+
+    const app = {
+      metadataCache: { getFileCache: () => null },
+      workspace: {
+        iterateAllLeaves: (callback: (leaf: unknown) => void) => {
+          callback(existingLeaf);
+          callback(activeLeaf);
+        },
+        revealLeaf,
+        getMostRecentLeaf: () => activeLeaf,
+        getLeaf: vi.fn(),
+      },
+    } as unknown as App;
+
+    openFile(app, file);
+
+    expect(existingLeaf.openFileMock).toHaveBeenCalledWith(file, undefined);
+    expect(revealLeaf).toHaveBeenCalledWith(existingLeaf);
+    expect(activeLeaf.openFileMock).not.toHaveBeenCalled();
+  });
+
+  it("scrolls to the tag line in an existing leaf", () => {
+    const existingLeaf = createMockLeaf("markdown", { file: file.path });
+    const revealLeaf = vi.fn().mockResolvedValue(undefined);
+
+    const app = {
+      metadataCache: {
+        getFileCache: () => ({
+          tags: [
+            {
+              tag: "#work",
+              position: { start: { line: 4, col: 0, offset: 0 }, end: {} },
+            },
+          ],
+        }),
+      },
+      workspace: {
+        iterateAllLeaves: (callback: (leaf: unknown) => void) => {
+          callback(existingLeaf);
+        },
+        revealLeaf,
+        getMostRecentLeaf: () => existingLeaf,
+        getLeaf: vi.fn(),
+      },
+    } as unknown as App;
+
+    openFile(app, file, false, "work");
+
+    expect(existingLeaf.openFileMock).toHaveBeenCalledWith(file, {
+      eState: { line: 4 },
+    });
+    expect(revealLeaf).toHaveBeenCalledWith(existingLeaf);
+  });
+
+  it("opens in a new leaf when requested even if the file is already open", () => {
+    const existingLeaf = createMockLeaf("markdown", { file: file.path });
+    const newLeaf = createMockLeaf("markdown");
+    const getLeaf = vi.fn().mockReturnValue(newLeaf);
+
+    const app = {
+      metadataCache: { getFileCache: () => null },
+      workspace: {
+        iterateAllLeaves: (callback: (leaf: unknown) => void) => {
+          callback(existingLeaf);
+        },
+        revealLeaf: vi.fn(),
+        getMostRecentLeaf: () => existingLeaf,
+        getLeaf,
+      },
+    } as unknown as App;
+
+    openFile(app, file, true);
+
+    expect(getLeaf).toHaveBeenCalledWith("tab");
+    expect(newLeaf.openFileMock).toHaveBeenCalledWith(file, undefined);
+    expect(existingLeaf.openFileMock).not.toHaveBeenCalled();
   });
 });
 

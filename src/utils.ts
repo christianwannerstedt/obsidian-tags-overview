@@ -1,5 +1,5 @@
 import { SelectOption, TagData, TaggedFile } from "./types";
-import { App, TFile, moment, getAllTags } from "obsidian";
+import { App, TFile, WorkspaceLeaf, moment, getAllTags } from "obsidian";
 import { SORT_FILES, SORT_TAGS } from "./constants";
 
 export function formatDate(date: Date, dateFormat: string): string {
@@ -195,22 +195,44 @@ export const getTagLineForPath = (
   return undefined;
 };
 
+const findLeafWithFile = (app: App, file: TFile): WorkspaceLeaf | null => {
+  let existingLeaf: WorkspaceLeaf | null = null;
+  app.workspace.iterateAllLeaves((leaf) => {
+    if (existingLeaf) {
+      return;
+    }
+    const viewState = leaf.getViewState();
+    if (viewState.type === "markdown" && viewState.state?.file === file.path) {
+      existingLeaf = leaf;
+    }
+  });
+  return existingLeaf;
+};
+
 export const openFile = (
   app: App,
   file: TFile,
   inNewLeaf = false,
   tagPath?: string
 ): void => {
+  const line = tagPath ? getTagLineForPath(app, file, tagPath) : undefined;
+  const openState = line !== undefined ? { eState: { line } } : undefined;
+
+  if (!inNewLeaf) {
+    const existingLeaf = findLeafWithFile(app, file);
+    if (existingLeaf) {
+      void existingLeaf.openFile(file, openState);
+      void app.workspace.revealLeaf(existingLeaf);
+      return;
+    }
+  }
+
   let leaf = app.workspace.getMostRecentLeaf();
   if (leaf) {
     if (inNewLeaf || leaf.getViewState().pinned) {
       leaf = app.workspace.getLeaf("tab");
     }
-    const line = tagPath ? getTagLineForPath(app, file, tagPath) : undefined;
-    void leaf.openFile(
-      file,
-      line !== undefined ? { eState: { line } } : undefined
-    );
+    void leaf.openFile(file, openState);
   }
 };
 
